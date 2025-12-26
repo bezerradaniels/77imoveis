@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import Container from "../../components/common/Container";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import Seo from "../../components/common/Seo";
 import { Button } from "../../components/ui/button";
 import { paths } from "../../routes/paths";
@@ -36,6 +36,7 @@ export default function Home() {
       ctaLabel: "Ver imóveis de aluguel",
       ctaLink: `${paths.listings}?purpose=aluguel`,
       image: aluguelImage,
+      mobilePosition: "70% center", // Foca na mulher à direita
     },
     {
       id: "venda",
@@ -47,6 +48,7 @@ export default function Home() {
       ctaLabel: "Ver imóveis à venda",
       ctaLink: `${paths.listings}?purpose=venda`,
       image: vendaImage,
+      mobilePosition: "center center",
     },
     {
       id: "lancamento",
@@ -58,11 +60,39 @@ export default function Home() {
       ctaLabel: "Conhecer lançamentos",
       ctaLink: paths.lancamentos,
       image: lancamentosImage,
+      mobilePosition: "center center",
     },
   ] as const;
 
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [isTransitioning, setIsTransitioning] = useState(false);
   const slide = slides[currentSlide];
+
+  // Função para mudar slide com animação
+  const changeSlide = useCallback((newIndex: number) => {
+    if (newIndex === currentSlide || isTransitioning) return;
+    setIsTransitioning(true);
+
+    // Pequeno delay para a animação de saída do texto
+    setTimeout(() => {
+      setCurrentSlide(newIndex);
+    }, 200);
+
+    // Reseta o estado de transição após a animação completar
+    setTimeout(() => {
+      setIsTransitioning(false);
+    }, 700);
+  }, [currentSlide, isTransitioning]);
+
+  // Auto-play: alterna slides a cada 10 segundos
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const nextSlide = (currentSlide + 1) % slides.length;
+      changeSlide(nextSlide);
+    }, 10000);
+
+    return () => clearInterval(interval);
+  }, [currentSlide, slides.length, changeSlide]);
 
   const propertySections: ExploreSection[] = useMemo(
     () => [
@@ -421,11 +451,11 @@ export default function Home() {
     []
   );
 
-  const renderSectionCard = (property: SectionProperty) => (
+  const renderSectionCard = (property: SectionProperty, isSlider = false) => (
     <Link
       to={property.link}
       key={property.id}
-      className="group block"
+      className={`group block ${isSlider ? 'w-[280px] flex-shrink-0 snap-center' : ''}`}
     >
       <div className="rounded-3xl overflow-hidden bg-gray-100 aspect-4/3 relative">
         <img
@@ -472,8 +502,14 @@ export default function Home() {
             </div>
           </div>
         </div>
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {section.properties.map(renderSectionCard)}
+        {/* Mobile: Horizontal Slider | Desktop: Grid */}
+        <div className="md:hidden -mx-4 px-4">
+          <div className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+            {section.properties.map((property) => renderSectionCard(property, true))}
+          </div>
+        </div>
+        <div className="hidden md:grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {section.properties.map((property) => renderSectionCard(property, false))}
         </div>
         <div className="mt-6 flex justify-end">
           <Link to={paths.listings} className="text-sm font-semibold text-lime-600 hover:text-lime-500">
@@ -489,23 +525,35 @@ export default function Home() {
       <Seo title="77 Imóveis | Home" />
 
       {/* Hero Section */}
-      <section className="relative min-h-[90vh] flex items-center py-8 md:py-12">
-        {/* Background Image */}
+      <section className="relative min-h-[90vh] flex items-center py-8 md:py-12 overflow-hidden">
+        {/* Background Images - All stacked for smooth crossfade */}
         <div className="absolute inset-0">
-          <img
-            key={slide.id}
-            src={slide.image}
-            alt={slide.label}
-            className="w-full h-full object-cover transition-opacity duration-500"
-          />
+          {slides.map((s, index) => (
+            <img
+              key={s.id}
+              src={s.image}
+              alt={s.label}
+              className={`absolute inset-0 w-full h-full object-cover hero-slide-image transition-all duration-1000 ease-in-out ${index === currentSlide
+                ? 'opacity-100 scale-100 z-10'
+                : 'opacity-0 scale-105 z-0'
+                }`}
+              style={{ '--mobile-position': s.mobilePosition } as React.CSSProperties}
+            />
+          ))}
           {/* Gradiente diagonal: canto inferior esquerdo para superior direito */}
-          <div className="absolute inset-0 bg-linear-to-tr from-black/95 via-black/70 to-transparent" />
+          <div className="absolute inset-0 z-20 bg-linear-to-tr from-black/95 via-black/70 to-transparent" />
         </div>
 
         {/* Content */}
-        <Container className="relative z-10 pt-10 pb-12 md:pt-12 md:pb-16">
-          <div key={slide.id} className="max-w-2xl transition-all duration-500">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-white/10 text-white text-sm font-semibold rounded-full uppercase tracking-wide">
+        <Container className="relative z-30 pt-10 pb-12 md:pt-12 md:pb-16">
+          <div
+            key={slide.id}
+            className={`max-w-2xl transition-all duration-500 ease-out ${isTransitioning
+              ? 'opacity-0 translate-y-8'
+              : 'opacity-100 translate-y-0'
+              }`}
+          >
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-white/10 text-white text-sm font-semibold rounded-full uppercase tracking-wide backdrop-blur-sm">
               {slide.badge}
             </div>
             <h1 className="mt-6 text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-none">
@@ -523,20 +571,39 @@ export default function Home() {
           </div>
         </Container>
 
+        {/* Progress Bar */}
+        <div className="absolute bottom-28 left-0 right-0 z-30">
+          <Container>
+            <div className="flex gap-2">
+              {slides.map((_, index) => (
+                <div key={index} className="flex-1 h-1 bg-white/20 rounded-full overflow-hidden">
+                  <div
+                    className={`h-full bg-lime-400 rounded-full transition-all ${index === currentSlide
+                      ? 'animate-progress-bar'
+                      : index < currentSlide
+                        ? 'w-full'
+                        : 'w-0'
+                      }`}
+                  />
+                </div>
+              ))}
+            </div>
+          </Container>
+        </div>
+
         {/* Bottom Categories Bar */}
-        <div className="absolute bottom-14 left-0 right-0 z-10">
+        <div className="absolute bottom-14 left-0 right-0 z-30">
           <Container>
             <div className="flex gap-3 rounded-2xl">
               {slides.map((item, index) => (
                 <button
                   key={item.id}
                   type="button"
-                  onClick={() => setCurrentSlide(index)}
-                  className={`flex-1 py-3 px-6 text-sm font-semibold uppercase tracking-wide transition-all rounded-2xl border ${
-                    currentSlide === index
-                      ? "bg-white text-gray-900 border-transparent shadow-lg"
-                      : "text-white/80 border-white/20 bg-white/10 backdrop-blur hover:bg-white/20"
-                  }`}
+                  onClick={() => changeSlide(index)}
+                  className={`flex-1 py-3 px-6 text-sm font-semibold uppercase tracking-wide transition-all duration-300 rounded-2xl border ${currentSlide === index
+                    ? "bg-white text-gray-900 border-transparent shadow-lg scale-105"
+                    : "text-white/80 border-white/20 bg-white/10 backdrop-blur hover:bg-white/20 hover:scale-102"
+                    }`}
                 >
                   {item.label}
                 </button>

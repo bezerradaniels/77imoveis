@@ -44,9 +44,13 @@ export default function Header() {
             <span className="text-xl font-bold text-gray-900">Imóveis</span>
           </Link>
 
-          <nav className="hidden lg:flex items-center gap-8 text-sm font-medium">
+          <nav className="hidden lg:flex items-center gap-2 text-sm font-medium">
             {navLinks.map((link) => (
-              <Link key={link.to} to={link.to} className="text-gray-900 hover:text-lime-400 transition-colors">
+              <Link
+                key={link.to}
+                to={link.to}
+                className="px-3 py-2 rounded-lg text-gray-900 hover:text-lime-600 hover:bg-lime-50 transition-all"
+              >
                 {link.label}
               </Link>
             ))}
@@ -89,7 +93,7 @@ export default function Header() {
                     key={link.to}
                     to={link.to}
                     onClick={() => setMobileMenuOpen(false)}
-                    className="text-base font-medium text-gray-900 hover:text-lime-400 transition-colors px-3 py-3 rounded-lg"
+                    className="text-base font-medium text-gray-900 hover:text-lime-600 hover:bg-lime-50 transition-all px-3 py-3 rounded-lg"
                   >
                     {link.label}
                   </Link>

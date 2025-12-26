@@ -4,7 +4,9 @@
 
 @custom-variant dark (&:is(.dark *));
 
-html, body, #root {
+html,
+body,
+#root {
   height: 100%;
 }
 
@@ -131,16 +133,46 @@ input[type="submit"] {
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
   }
 }
 
 /* Hide scrollbar */
-.no-scrollbar::-webkit-scrollbar {
+.no-scrollbar::-webkit-scrollbar,
+.scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
-.no-scrollbar {
+
+.no-scrollbar,
+.scrollbar-hide {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+/* Hero slide image positioning */
+.hero-slide-image {
+  object-position: var(--mobile-position, center);
+}
+
+@media (min-width: 768px) {
+  .hero-slide-image {
+    object-position: center;
+  }
+}
+
+/* Hero slider progress bar animation */
+@keyframes progress-bar {
+  from {
+    width: 0%;
+  }
+
+  to {
+    width: 100%;
+  }
+}
+
+.animate-progress-bar {
+  animation: progress-bar 10s linear forwards;
 }
