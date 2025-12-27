@@ -4,10 +4,15 @@ import { AuthContext } from "../../app/providers";
 import { paths } from "../paths";
 
 export default function GuestOnly() {
-  const { user, loading } = useContext(AuthContext);
+  const { user, role, loading } = useContext(AuthContext);
 
   if (loading) return <div className="p-6">Carregando…</div>;
-  if (user) return <Navigate to={paths.home} replace />;
+
+  if (user) {
+    if (role === "imobiliaria") return <Navigate to={paths.dashImobiliaria} replace />;
+    if (role === "corretor") return <Navigate to={paths.dashCorretor} replace />;
+    return <Navigate to={paths.dashUsuario} replace />;
+  }
 
   return <Outlet />;
 }

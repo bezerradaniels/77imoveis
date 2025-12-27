@@ -1,17 +1,17 @@
 export const paths = {
   home: "/",
   listings: "/imoveis",
-  
+
   aluguel: "/aluguel",
   venda: "/venda",
   lancamentos: "/lancamentos",
-  
+
   listingsByCity: (city: string) => `/${city.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, "-")}`,
-  listingsByPurposeCity: (purpose: string, city: string) => 
+  listingsByPurposeCity: (purpose: string, city: string) =>
     `/${purpose}/${city.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, "-")}`,
-  listingsByPurposeCityType: (purpose: string, city: string, type: string) => 
+  listingsByPurposeCityType: (purpose: string, city: string, type: string) =>
     `/${purpose}/${city.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, "-")}/${type}`,
-  
+
   property: (idOrSlug: string) => `/imovel/${idOrSlug}`,
 
   login: "/login",
@@ -30,6 +30,13 @@ export const paths = {
   dashCorretorEdit: (id: string) => `/dashboard/corretor/imoveis/${id}`,
 
   dashUsuario: "/dashboard/usuario",
+  dashUsuarioFavoritos: "/dashboard/usuario/favoritos",
+  dashUsuarioClientes: "/dashboard/usuario/clientes",
+  dashUsuarioMensagens: "/dashboard/usuario/mensagens",
+  dashUsuarioConfiguracoes: "/dashboard/usuario/configuracoes",
+  dashUsuarioCriarImobiliaria: "/dashboard/usuario/criar-imobiliaria",
+  dashUsuarioImovelNovo: "/dashboard/usuario/imoveis/novo",
+  dashUsuarioImovelEditar: (id: string) => `/dashboard/usuario/imoveis/${id}`,
 
   contact: "/contato",
   plans: "/planos",

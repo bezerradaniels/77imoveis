@@ -2,12 +2,14 @@ import { Outlet, Link } from "react-router-dom";
 import { useContext } from "react";
 import { AuthContext } from "../../app/providers";
 import { paths } from "../../routes/paths";
+import ScrollToTop from "../../components/common/ScrollToTop";
 
 export default function DashboardLayout() {
   const { signOut, role } = useContext(AuthContext);
 
   return (
     <div className="min-h-full grid grid-cols-1 md:grid-cols-[260px_1fr]">
+      <ScrollToTop />
       <aside className="border-r p-4">
         <div className="font-bold">77 Imóveis</div>
         <div className="text-sm text-muted-foreground mb-4">Dashboard ({role ?? "?"})</div>

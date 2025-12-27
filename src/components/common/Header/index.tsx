@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import { Link } from "react-router-dom";
 import Container from "../Container";
 import { paths } from "../../../routes/paths";
+import { AuthContext } from "../../../app/providers";
 import { Button } from "../../ui/button";
 import {
   Sheet,
@@ -12,6 +13,7 @@ import {
 } from "../../ui/sheet";
 
 export default function Header() {
+  const { user, role } = useContext(AuthContext);
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -30,6 +32,12 @@ export default function Header() {
     { to: paths.plans, label: "Planos" },
     { to: paths.registerCorretor, label: "Corretores" },
   ];
+
+  const getDashboardPath = () => {
+    if (role === "imobiliaria") return paths.dashImobiliaria;
+    if (role === "corretor") return paths.dashCorretor;
+    return paths.dashUsuario;
+  };
 
   return (
     <header
@@ -58,11 +66,20 @@ export default function Header() {
         </div>
 
         <div className="flex items-center gap-3">
-          <Link to={paths.login} className="hidden md:block">
-            <Button variant="ghost" size="sm" className="rounded-full text-gray-900 hover:text-lime-400">
-              Entrar
-            </Button>
-          </Link>
+          {user ? (
+            <Link to={getDashboardPath()} className="hidden md:block">
+              <Button variant="ghost" size="sm" className="rounded-full text-gray-900 hover:text-lime-400 font-semibold">
+                Acessar Painel
+              </Button>
+            </Link>
+          ) : (
+            <Link to={paths.login} className="hidden md:block">
+              <Button variant="ghost" size="sm" className="rounded-full text-gray-900 hover:text-lime-400">
+                Entrar
+              </Button>
+            </Link>
+          )}
+
           <Link to={paths.registerImobiliaria} className="hidden md:block">
             <Button size="sm" className="bg-lime-400 hover:bg-lime-500 text-gray-900 font-semibold rounded-full px-6">
               Anunciar
@@ -100,11 +117,20 @@ export default function Header() {
                 ))}
               </div>
               <div className="mt-8 pt-6 border-t border-gray-200 flex flex-col gap-3">
-                <Link to={paths.login} onClick={() => setMobileMenuOpen(false)}>
-                  <Button variant="outline" className="w-full border-gray-300 text-gray-900 hover:text-lime-400 h-11">
-                    Entrar
-                  </Button>
-                </Link>
+                {user ? (
+                  <Link to={getDashboardPath()} onClick={() => setMobileMenuOpen(false)}>
+                    <Button variant="outline" className="w-full border-gray-300 text-gray-900 hover:text-lime-400 h-11">
+                      Acessar Painel
+                    </Button>
+                  </Link>
+                ) : (
+                  <Link to={paths.login} onClick={() => setMobileMenuOpen(false)}>
+                    <Button variant="outline" className="w-full border-gray-300 text-gray-900 hover:text-lime-400 h-11">
+                      Entrar
+                    </Button>
+                  </Link>
+                )}
+
                 <Link to={paths.registerImobiliaria} onClick={() => setMobileMenuOpen(false)}>
                   <Button className="w-full bg-lime-500 hover:bg-lime-600 text-white font-semibold h-11 rounded-full">
                     Anunciar Grátis

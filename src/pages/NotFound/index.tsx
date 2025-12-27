@@ -2,10 +2,12 @@ import { Link } from "react-router-dom";
 import Container from "../../components/common/Container";
 import Seo from "../../components/common/Seo";
 import { paths } from "../../routes/paths";
+import ScrollToTop from "../../components/common/ScrollToTop";
 
 export default function NotFound() {
   return (
     <>
+      <ScrollToTop />
       <Seo title="77 Imóveis | Página não encontrada" />
       <Container className="py-10 space-y-3">
         <h1 className="text-2xl font-bold">404 — Página não encontrada</h1>

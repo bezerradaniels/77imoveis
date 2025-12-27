@@ -30,6 +30,13 @@ import DashboardImoveisCorretor from "../pages/DashboardCorretores/Imoveis";
 import DashboardImovelNovoCorretor from "../pages/DashboardCorretores/ImoveisNovo";
 import DashboardImovelEditarCorretor from "../pages/DashboardCorretores/ImoveisEditar";
 
+import DashboardUsuarioLayout from "../layouts/DashboardUsuarioLayout";
+import CreateImobiliaria from "../pages/DashboardUsuarios/CreateImobiliaria";
+import MyListings from "../pages/DashboardUsuarios/MyListings";
+import NewProperty from "../pages/DashboardUsuarios/NewProperty";
+import Clients from "../pages/DashboardUsuarios/Clients";
+import Messages from "../pages/DashboardUsuarios/Messages";
+
 import Contact from "../pages/Contact";
 import Plans from "../pages/Plans";
 import Terms from "../pages/Terms";
@@ -42,18 +49,18 @@ export const router = createBrowserRouter([
     element: <PublicLayout />,
     children: [
       { path: "/", element: <Home /> },
-      
+
       { path: "/imoveis", element: <Listings /> },
-      
+
       { path: "/aluguel", element: <Aluguel /> },
       { path: "/venda", element: <Vendas /> },
       { path: "/lancamentos", element: <Lancamentos /> },
-      
+
       { path: "/:purpose", element: <Listings /> },
       { path: "/:purpose/:city", element: <Listings /> },
       { path: "/:purpose/:city/:type", element: <Listings /> },
       { path: "/:purpose/:city/:type/:bedrooms", element: <Listings /> },
-      
+
       { path: "/imovel/:idOrSlug", element: <Property /> },
 
       { path: "/contato", element: <Contact /> },
@@ -103,9 +110,24 @@ export const router = createBrowserRouter([
               { path: "/dashboard/corretor/imoveis/:id", element: <DashboardImovelEditarCorretor /> },
             ],
           },
+        ],
+      },
+      {
+        element: <RequireRole allow={["usuario"]} />,
+        children: [
           {
-            element: <RequireRole allow={["usuario"]} />,
-            children: [{ path: "/dashboard/usuario", element: <DashboardUsuarios /> }],
+            element: <DashboardUsuarioLayout />,
+            children: [
+              { path: "/dashboard/usuario", element: <MyListings /> },
+              { path: "/dashboard/usuario/imoveis", element: <MyListings /> },
+              { path: "/dashboard/usuario/favoritos", element: <DashboardUsuarios title="Favoritos" /> },
+              { path: "/dashboard/usuario/clientes", element: <Clients /> },
+              { path: "/dashboard/usuario/mensagens", element: <DashboardUsuarios title="Mensagens" /> },
+              { path: "/dashboard/usuario/configuracoes", element: <DashboardUsuarios title="Configurações" /> },
+              { path: "/dashboard/usuario/criar-imobiliaria", element: <CreateImobiliaria /> },
+              { path: "/dashboard/usuario/imoveis/novo", element: <NewProperty /> },
+              { path: "/dashboard/usuario/imoveis/:id", element: <NewProperty /> },
+            ],
           },
         ],
       },
