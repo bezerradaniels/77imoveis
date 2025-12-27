@@ -1,6 +1,7 @@
 import React, { createContext, useEffect, useMemo, useState } from "react";
 import type { User } from "@supabase/supabase-js";
 import { supabase } from "../../components/lib/supabase/client";
+import { FavoritesProvider } from "../favorites/FavoritesProvider";
 
 type Role = "imobiliaria" | "corretor" | "usuario";
 
@@ -74,5 +75,9 @@ export default function Providers({ children }: { children: React.ReactNode }) {
     [state]
   );
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return (
+    <FavoritesProvider>
+      <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
+    </FavoritesProvider>
+  );
 }

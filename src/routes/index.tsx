@@ -15,12 +15,16 @@ import Vendas from "../pages/Vendas";
 import Lancamentos from "../pages/Lancamentos";
 import Property from "../pages/Property";
 import Login from "../pages/Login";
+import ProfileImobiliaria from "../pages/ProfileImobiliaria";
+import ProfileCorretor from "../pages/ProfileCorretor";
+import Support from "../pages/Support";
 
 import RegisterImobiliaria from "../pages/RegisterImobiliaria";
 import RegisterCorretor from "../pages/RegisterCorretor";
 import RegisterUsuario from "../pages/RegisterUsuario";
 
-import DashboardUsuarios from "../pages/DashboardUsuarios";
+import Favorites from "../pages/DashboardUsuarios/Favorites";
+import Settings from "../pages/DashboardUsuarios/Settings";
 
 import DashboardImoveisImobiliaria from "../pages/DashboardImobiliarias/Imoveis";
 import DashboardImovelNovoImobiliaria from "../pages/DashboardImobiliarias/ImoveisNovo";
@@ -36,6 +40,7 @@ import MyListings from "../pages/DashboardUsuarios/MyListings";
 import NewProperty from "../pages/DashboardUsuarios/NewProperty";
 import Clients from "../pages/DashboardUsuarios/Clients";
 import Messages from "../pages/DashboardUsuarios/Messages";
+import MyProfiles from "../pages/DashboardUsuarios/MyProfiles";
 
 import Contact from "../pages/Contact";
 import Plans from "../pages/Plans";
@@ -62,6 +67,9 @@ export const router = createBrowserRouter([
       { path: "/:purpose/:city/:type/:bedrooms", element: <Listings /> },
 
       { path: "/imovel/:idOrSlug", element: <Property /> },
+      { path: "/perfil/imobiliaria", element: <ProfileImobiliaria /> },
+      { path: "/perfil/corretor", element: <ProfileCorretor /> },
+      { path: "/ajuda-suporte", element: <Support /> },
 
       { path: "/contato", element: <Contact /> },
       { path: "/planos", element: <Plans /> },
@@ -120,10 +128,11 @@ export const router = createBrowserRouter([
             children: [
               { path: "/dashboard/usuario", element: <MyListings /> },
               { path: "/dashboard/usuario/imoveis", element: <MyListings /> },
-              { path: "/dashboard/usuario/favoritos", element: <DashboardUsuarios title="Favoritos" /> },
+              { path: "/dashboard/usuario/favoritos", element: <Favorites /> },
               { path: "/dashboard/usuario/clientes", element: <Clients /> },
-              { path: "/dashboard/usuario/mensagens", element: <DashboardUsuarios title="Mensagens" /> },
-              { path: "/dashboard/usuario/configuracoes", element: <DashboardUsuarios title="Configurações" /> },
+              { path: "/dashboard/usuario/mensagens", element: <Messages /> },
+              { path: "/dashboard/usuario/perfis", element: <MyProfiles /> },
+              { path: "/dashboard/usuario/configuracoes", element: <Settings /> },
               { path: "/dashboard/usuario/criar-imobiliaria", element: <CreateImobiliaria /> },
               { path: "/dashboard/usuario/imoveis/novo", element: <NewProperty /> },
               { path: "/dashboard/usuario/imoveis/:id", element: <NewProperty /> },

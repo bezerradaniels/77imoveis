@@ -1,6 +1,8 @@
 import { Link } from "react-router-dom";
+import { Heart } from "lucide-react";
 import type { Property } from "../../types";
 import { paths } from "../../../../routes/paths";
+import { useFavorites } from "../../../../app/favorites/FavoritesProvider";
 
 function moneyBRL(value: number | null) {
   if (value == null) return "—";
@@ -18,6 +20,24 @@ export default function PropertyCardModern({ p }: { p: Property }) {
   };
   
   const purpose = purposeConfig[p.purpose as keyof typeof purposeConfig] || purposeConfig.venda;
+
+  const { toggleFavorite, isFavorite } = useFavorites();
+  const favoritePayload = {
+    id: p.id,
+    slug: p.slug ?? p.id,
+    title: p.title,
+    city: p.city,
+    neighborhood: p.neighborhood,
+    state: p.state,
+    purpose: p.purpose,
+    type: p.type,
+    price: p.price,
+    rent: p.rent,
+    bedrooms: p.bedrooms,
+    bathrooms: p.bathrooms,
+    area_m2: p.area_m2,
+  };
+  const favorite = isFavorite(p.id);
 
   return (
     <Link
@@ -48,12 +68,15 @@ export default function PropertyCardModern({ p }: { p: Property }) {
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
+            toggleFavorite(favoritePayload);
           }}
           className="absolute top-3 right-3 w-9 h-9 rounded-full bg-white/90 backdrop-blur flex items-center justify-center shadow-sm hover:bg-white hover:scale-110 transition-all"
+          aria-label={favorite ? "Remover dos favoritos" : "Adicionar aos favoritos"}
         >
-          <svg className="w-5 h-5 text-gray-400 hover:text-red-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-          </svg>
+          <Heart
+            className={favorite ? "w-5 h-5 text-red-500" : "w-5 h-5 text-gray-400"}
+            fill={favorite ? "currentColor" : "none"}
+          />
         </button>
 
         {/* Hover overlay */}

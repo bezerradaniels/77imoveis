@@ -1,6 +1,8 @@
 import { Link } from "react-router-dom";
+import { Heart } from "lucide-react";
 import type { Property } from "../../types";
 import { paths } from "../../../../routes/paths";
+import { useFavorites } from "../../../../app/favorites/FavoritesProvider";
 
 function moneyBRL(value: number | null) {
   if (value == null) return "—";
@@ -10,6 +12,24 @@ function moneyBRL(value: number | null) {
 export default function PropertyCard({ p }: { p: Property }) {
   const priceLabel = p.purpose === "aluguel" ? moneyBRL(p.rent) : moneyBRL(p.price);
   const purposeColor = p.purpose === "aluguel" ? "bg-blue-500" : p.purpose === "lancamento" ? "bg-lime-500" : "bg-orange-500";
+  const { toggleFavorite, isFavorite } = useFavorites();
+
+  const favoritePayload = {
+    id: p.id,
+    slug: p.slug ?? p.id,
+    title: p.title,
+    city: p.city,
+    neighborhood: p.neighborhood,
+    state: p.state,
+    purpose: p.purpose,
+    type: p.type,
+    price: p.price,
+    rent: p.rent,
+    bedrooms: p.bedrooms,
+    bathrooms: p.bathrooms,
+    area_m2: p.area_m2,
+  };
+  const favorite = isFavorite(p.id);
 
   return (
     <Link
@@ -26,6 +46,18 @@ export default function PropertyCard({ p }: { p: Property }) {
         <div className={`absolute top-3 left-3 px-3 py-1 text-xs font-semibold text-white rounded-full ${purposeColor}`}>
           {p.purpose === "lancamento" ? "Lançamento" : p.purpose === "aluguel" ? "Aluguel" : "Venda"}
         </div>
+        <button
+          type="button"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            toggleFavorite(favoritePayload);
+          }}
+          aria-label={favorite ? "Remover dos favoritos" : "Adicionar aos favoritos"}
+          className="absolute top-3 right-3 w-9 h-9 rounded-full bg-white/90 backdrop-blur flex items-center justify-center shadow-sm hover:bg-white hover:scale-110 transition-all"
+        >
+          <Heart className={favorite ? "w-5 h-5 text-red-500" : "w-5 h-5 text-gray-400"} fill={favorite ? "currentColor" : "none"} />
+        </button>
       </div>
 
       <div className="p-5 space-y-3">

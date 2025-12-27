@@ -37,6 +37,11 @@ export const paths = {
   dashUsuarioCriarImobiliaria: "/dashboard/usuario/criar-imobiliaria",
   dashUsuarioImovelNovo: "/dashboard/usuario/imoveis/novo",
   dashUsuarioImovelEditar: (id: string) => `/dashboard/usuario/imoveis/${id}`,
+  dashUsuarioPerfis: "/dashboard/usuario/perfis",
+
+  support: "/ajuda-suporte",
+  profileImobiliaria: "/perfil/imobiliaria",
+  profileCorretor: "/perfil/corretor",
 
   contact: "/contato",
   plans: "/planos",

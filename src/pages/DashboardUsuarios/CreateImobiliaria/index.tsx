@@ -16,6 +16,7 @@ type FormData = {
     cep: string;
     city: string;
     address: string;
+    profileType: "imobiliaria" | "corretor";
 };
 
 const INITIAL_DATA: FormData = {
@@ -27,6 +28,7 @@ const INITIAL_DATA: FormData = {
     cep: "",
     city: "",
     address: "",
+    profileType: "imobiliaria",
 };
 
 export default function CreateImobiliaria() {
@@ -89,6 +91,35 @@ export default function CreateImobiliaria() {
                             <h2 className="text-xl font-semibold text-gray-900">Informações Jurídicas</h2>
                         </div>
 
+                        <div className="space-y-3">
+                            <label className="text-sm font-medium text-gray-700">Tipo de conta *</label>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                {[
+                                    { value: "imobiliaria", label: "Imobiliária", description: "CNPJ + equipe" },
+                                    { value: "corretor", label: "Corretor Autônomo", description: "Atuação individual" },
+                                ].map((option) => (
+                                    <button
+                                        key={option.value}
+                                        type="button"
+                                        onClick={() => updateData({ profileType: option.value as FormData["profileType"] })}
+                                        className={`rounded-2xl border p-4 text-left transition-all ${
+                                            data.profileType === option.value
+                                                ? "border-lime-500 bg-lime-50 shadow-sm"
+                                                : "border-gray-200 hover:border-gray-300"
+                                        }`}
+                                    >
+                                        <div className="flex items-center justify-between">
+                                            <span className="font-semibold text-gray-900">{option.label}</span>
+                                            {data.profileType === option.value && (
+                                                <span className="text-xs font-semibold text-lime-600 uppercase">Selecionado</span>
+                                            )}
+                                        </div>
+                                        <p className="text-sm text-gray-500 mt-1">{option.description}</p>
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="space-y-2">
                                 <label htmlFor="name" className="text-sm font-medium text-gray-700">
@@ -105,7 +136,7 @@ export default function CreateImobiliaria() {
 
                             <div className="space-y-2">
                                 <label htmlFor="creci" className="text-sm font-medium text-gray-700">
-                                    CRECI Jurídico *
+                                    CRECI {data.profileType === "imobiliaria" ? "Jurídico" : "Profissional"} *
                                 </label>
                                 <Input
                                     id="creci"
@@ -118,15 +149,21 @@ export default function CreateImobiliaria() {
 
                             <div className="space-y-2">
                                 <label htmlFor="cnpj" className="text-sm font-medium text-gray-700">
-                                    CNPJ *
+                                    CNPJ
                                 </label>
                                 <Input
                                     id="cnpj"
                                     placeholder="00.000.000/0001-00"
-                                    required
                                     value={data.cnpj}
                                     onChange={(e) => updateData({ cnpj: e.target.value })}
+                                    disabled={data.profileType === "corretor"}
+                                    className={data.profileType === "corretor" ? "bg-gray-50" : ""}
                                 />
+                                <p className="text-xs text-gray-500">
+                                    {data.profileType === "corretor"
+                                        ? "Corretores autônomos não precisam informar CNPJ agora."
+                                        : "Opcional por enquanto; você poderá completar depois."}
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -166,7 +203,7 @@ export default function CreateImobiliaria() {
                                     id="description"
                                     placeholder="Ex: Fundada em 2010, nossa imobiliária é especialista em..."
                                     required
-                                    className="min-h-[150px]"
+                                    className="min-h-40"
                                     value={data.description}
                                     onChange={(e) => updateData({ description: e.target.value })}
                                 />
@@ -259,7 +296,7 @@ export default function CreateImobiliaria() {
                     ) : (
                         <Button
                             type="submit"
-                            className="bg-lime-500 hover:bg-lime-600 text-white font-semibold min-w-[150px]"
+                            className="bg-lime-500 hover:bg-lime-600 text-white font-semibold min-w-40"
                         >
                             <Check className="size-4 mr-2" />
                             Finalizar Cadastro

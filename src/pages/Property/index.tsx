@@ -13,8 +13,7 @@ import {
   Check,
   X,
   ChevronLeft,
-  ChevronRight,
-  Send
+  ChevronRight
 } from "lucide-react";
 
 import Container from "../../components/common/Container";
@@ -22,6 +21,7 @@ import Seo from "../../components/common/Seo";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
 import { Textarea } from "../../components/ui/textarea";
+import { useFavorites } from "../../app/favorites/FavoritesProvider";
 
 import { supabase } from "../../components/lib/supabase/client";
 
@@ -101,6 +101,7 @@ export default function Property() {
   const [formMessage, setFormMessage] = useState("Olá, gostaria de mais informações sobre este imóvel.");
   const [formSending, setFormSending] = useState(false);
   const [formSuccess, setFormSuccess] = useState(false);
+  const { toggleFavorite, isFavorite } = useFavorites();
 
   useEffect(() => {
     let alive = true;
@@ -211,11 +212,6 @@ export default function Property() {
     window.open(`https://wa.me/${property.advertiser_whatsapp}?text=${encodeURIComponent(text)}`, '_blank');
   };
 
-  const handlePhone = () => {
-    if (!property?.advertiser_phone) return;
-    window.href = `tel:${property.advertiser_phone}`;
-  };
-
   const handleFormSubmit = async () => {
     if (!formName || !formEmail || !formPhone) {
       alert("Por favor, preencha os campos obrigatórios.");
@@ -270,6 +266,24 @@ export default function Property() {
 
   const priceLabel = property.purpose === "aluguel" ? moneyBRL(property.rent) : moneyBRL(property.price);
   const displayPhotos = photos.length > 0 ? photos : [{ id: '1', url: 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=1600&q=80' }];
+  const propertyId = property.id ?? key;
+  const favoritePayload = {
+    id: propertyId,
+    slug: property.slug ?? propertyId,
+    title: property.title,
+    city: property.city,
+    neighborhood: property.neighborhood,
+    state: property.state,
+    purpose: property.purpose,
+    type: property.type,
+    price: property.price,
+    rent: property.rent,
+    bedrooms: property.bedrooms,
+    bathrooms: property.bathrooms,
+    area_m2: property.area_m2,
+    cover: displayPhotos[0]?.url ?? null,
+  };
+  const favorite = isFavorite(propertyId);
 
   return (
     <>
@@ -296,14 +310,26 @@ export default function Property() {
             <Button variant="outline" size="sm" className="gap-2 text-gray-600 hover:text-lime-600">
               <Share2 className="size-4" /> Compartilhar
             </Button>
-            <Button variant="outline" size="sm" className="gap-2 text-gray-600 hover:text-red-500">
-              <Heart className="size-4" /> Salvar
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              aria-pressed={favorite}
+              onClick={() => toggleFavorite(favoritePayload)}
+              className={`gap-2 transition-colors ${
+                favorite
+                  ? "border-red-200 bg-red-50 text-red-600 hover:bg-red-100"
+                  : "text-gray-600 hover:text-red-500"
+              }`}
+            >
+              <Heart className={`size-4 ${favorite ? "fill-current" : ""}`} />
+              {favorite ? "Salvo" : "Salvar"}
             </Button>
           </div>
         </div>
 
         {/* Gallery */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-2 h-[400px] md:h-[500px] rounded-2xl overflow-hidden">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-2 h-100 md:h-125 rounded-2xl overflow-hidden">
           {/* Main Big Photo */}
           <div className="md:col-span-2 md:row-span-2 relative h-full">
             <img
@@ -452,7 +478,7 @@ export default function Property() {
                         placeholder="Mensagem"
                         value={formMessage}
                         onChange={e => setFormMessage(e.target.value)}
-                        className="min-h-[100px]"
+                        className="min-h-25"
                         disabled={formSending}
                       />
 
@@ -503,7 +529,7 @@ export default function Property() {
       {/* Slideshow Gallery Overlay */}
       {galleryOpen && (
         <div
-          className="fixed inset-0 z-[9999] bg-black/95 flex items-center justify-center backdrop-blur-sm"
+          className="fixed inset-0 z-9999 bg-black/95 flex items-center justify-center backdrop-blur-sm"
           onClick={closeGallery}
         >
           <button
