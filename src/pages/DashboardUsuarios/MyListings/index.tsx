@@ -196,7 +196,7 @@ export default function MyListings() {
                                     {/* Actions Toolbar */}
                                     <div className="flex items-center gap-2">
                                         <Link to={paths.dashUsuarioImovelEditar(property.id)}>
-                                            <Button variant="ghost" size="sm" className="h-auto py-2 flex-col gap-1 text-gray-500 hover:text-lime-600 hover:bg-lime-50 font-normal min-w-[3.5rem]">
+                                            <Button variant="ghost" size="sm" className="h-auto py-2 flex-col gap-1 text-gray-500 hover:text-lime-600 hover:bg-lime-50 font-normal min-w-14">
                                                 <Edit className="size-4" />
                                                 <span className="text-[10px] leading-none">Editar</span>
                                             </Button>
@@ -206,7 +206,7 @@ export default function MyListings() {
                                             variant="ghost"
                                             size="sm"
                                             onClick={() => openModal('toggle_active', property)}
-                                            className="h-auto py-2 flex-col gap-1 text-gray-500 hover:text-amber-600 hover:bg-amber-50 font-normal min-w-[3.5rem]"
+                                            className="h-auto py-2 flex-col gap-1 text-gray-500 hover:text-amber-600 hover:bg-amber-50 font-normal min-w-14"
                                         >
                                             {property.status === 'active' ? (
                                                 <>
@@ -225,7 +225,7 @@ export default function MyListings() {
                                             variant="ghost"
                                             size="sm"
                                             onClick={() => openModal('mark_sold', property)}
-                                            className="h-auto py-2 flex-col gap-1 text-gray-500 hover:text-blue-600 hover:bg-blue-50 font-normal min-w-[3.5rem]"
+                                            className="h-auto py-2 flex-col gap-1 text-gray-500 hover:text-blue-600 hover:bg-blue-50 font-normal min-w-14"
                                             disabled={property.status === 'sold' || property.status === 'rented'}
                                         >
                                             <CheckCircle2 className="size-4" />
@@ -238,7 +238,7 @@ export default function MyListings() {
                                             variant="ghost"
                                             size="sm"
                                             onClick={() => openModal('delete', property)}
-                                            className="h-auto py-2 flex-col gap-1 text-gray-400 hover:text-red-600 hover:bg-red-50 font-normal min-w-[3.5rem]"
+                                            className="h-auto py-2 flex-col gap-1 text-gray-400 hover:text-red-600 hover:bg-red-50 font-normal min-w-14"
                                         >
                                             <Trash2 className="size-4" />
                                             <span className="text-[10px] leading-none">Excluir</span>

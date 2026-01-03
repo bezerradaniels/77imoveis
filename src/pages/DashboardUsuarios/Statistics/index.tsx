@@ -84,7 +84,7 @@ export default function Statistics() {
 
             {/* Placeholder for a chart */}
             <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm min-h-[400px] flex items-center justify-center relative overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-tr from-gray-50/50 to-white pointer-events-none" />
+                <div className="absolute inset-0 bg-linear-to-tr from-gray-50/50 to-white pointer-events-none" />
                 <div className="text-center z-10">
                     <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4">
                         <BarChart3 className="w-8 h-8 text-gray-400" />
