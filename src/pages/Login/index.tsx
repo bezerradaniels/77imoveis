@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 import Seo from "../../components/common/Seo";
 import { supabase } from "../../components/lib/supabase/client";
@@ -15,6 +15,7 @@ type FormData = {
 };
 
 export default function Login() {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState<FormData>({ email: "", password: "" });
   const [rememberMe, setRememberMe] = useState(true);
   const [status, setStatus] = useState<Status>("idle");
@@ -29,16 +30,53 @@ export default function Login() {
     setStatus("loading");
     setError(null);
 
-    const { error: signInError } = await supabase.auth.signInWithPassword({
-      email: formData.email,
-      password: formData.password,
-    });
+    const emailTrimmed = formData.email.trim();
+    const passwordTrimmed = formData.password;
 
-    if (signInError) {
-      setError("Não foi possível entrar. Verifique seus dados e tente novamente.");
+    console.log("Tentando login com:", { email: emailTrimmed, hasPassword: !!passwordTrimmed });
+
+    if (!emailTrimmed || !passwordTrimmed) {
+      setError("Preencha e-mail e senha.");
+      setStatus("idle");
+      return;
     }
 
-    setStatus("idle");
+    try {
+      const { data, error: signInError } = await supabase.auth.signInWithPassword({
+        email: emailTrimmed,
+        password: passwordTrimmed,
+      });
+
+      if (signInError) {
+        console.error("Erro no login:", signInError);
+        
+        // Mensagens específicas para erros comuns
+        if (signInError.message?.includes("Invalid login credentials")) {
+          setError("E-mail ou senha incorretos. Verifique seus dados.");
+        } else if (signInError.message?.includes("Email not confirmed")) {
+          setError("E-mail não confirmado. Verifique sua caixa de entrada.");
+        } else {
+          setError("Não foi possível entrar. Verifique seus dados e tente novamente.");
+        }
+        return;
+      }
+
+      if (data.user) {
+        // Login bem-sucedido, redirecionar para home e deixar o guard resolver
+        console.log("Login realizado com sucesso:", data.user.email);
+        
+        // Pequeno delay para o AuthContext atualizar o estado
+        setTimeout(() => {
+          navigate(paths.home, { replace: true });
+        }, 100);
+        return;
+      }
+    } catch (error) {
+      console.error("Erro inesperado no login:", error);
+      setError("Ocorreu um erro inesperado. Tente novamente.");
+    } finally {
+      setStatus("idle");
+    }
   }
 
   return (
@@ -68,6 +106,7 @@ export default function Login() {
               <Field label="E-mail" htmlFor="email">
                 <Input
                   id="email"
+                  name="email"
                   type="email"
                   value={formData.email}
                   onChange={handleChange("email")}
@@ -80,6 +119,7 @@ export default function Login() {
               <Field label="Senha" htmlFor="password">
                 <Input
                   id="password"
+                  name="password"
                   type="password"
                   value={formData.password}
                   onChange={handleChange("password")}

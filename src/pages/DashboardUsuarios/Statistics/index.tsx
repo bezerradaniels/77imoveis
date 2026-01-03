@@ -5,36 +5,36 @@ import { cn } from "../../../lib/utils";
 const stats = [
     {
         label: "Visualizações totais",
-        value: "12.450",
-        change: "+12.5%",
-        trend: "up",
+        value: "0",
+        change: "0%",
+        trend: "neutral",
         icon: Eye,
         color: "text-blue-600",
         bg: "bg-blue-50",
     },
     {
         label: "Leads recebidos",
-        value: "48",
-        change: "+4.2%",
-        trend: "up",
+        value: "0",
+        change: "0%",
+        trend: "neutral",
         icon: Users,
         color: "text-emerald-600",
         bg: "bg-emerald-50",
     },
     {
         label: "Cliques no WhatsApp",
-        value: "156",
-        change: "-2.1%",
-        trend: "down",
+        value: "0",
+        change: "0%",
+        trend: "neutral",
         icon: MousePointerClick,
         color: "text-purple-600",
         bg: "bg-purple-50",
     },
     {
         label: "Favoritamentos",
-        value: "843",
-        change: "+8.4%",
-        trend: "up",
+        value: "0",
+        change: "0%",
+        trend: "neutral",
         icon: Heart,
         color: "text-rose-600",
         bg: "bg-rose-50",
@@ -68,7 +68,9 @@ export default function Statistics() {
                                     "text-xs font-semibold px-2 py-1 rounded-full",
                                     stat.trend === "up"
                                         ? "text-emerald-700 bg-emerald-50"
-                                        : "text-rose-700 bg-rose-50"
+                                        : stat.trend === "down"
+                                            ? "text-rose-700 bg-rose-50"
+                                            : "text-gray-600 bg-gray-100"
                                 )}
                             >
                                 {stat.change}
@@ -89,9 +91,9 @@ export default function Statistics() {
                     <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4">
                         <BarChart3 className="w-8 h-8 text-gray-400" />
                     </div>
-                    <h3 className="text-lg font-semibold text-gray-900">Gráfico de desempenho</h3>
+                    <h3 className="text-lg font-semibold text-gray-900">Sem dados ainda</h3>
                     <p className="text-sm text-gray-500 max-w-xs mx-auto mt-2">
-                        Em breve você poderá visualizar gráficos detalhados de visualizações e leads ao longo do tempo.
+                        Conforme você cadastrar imóveis e receber visualizações, exibiremos gráficos e métricas detalhadas aqui.
                     </p>
                 </div>
             </div>

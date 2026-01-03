@@ -40,15 +40,14 @@ export type Property = {
   state: string;
   city: string;
   neighborhood: string | null;
-  address?: string;
-  cep?: string;
+  address: string | null;
+  cep: string | null;
 
   bedrooms: number | null;
   bathrooms: number | null;
   parking_spots: number | null;
   area_m2: number | null;
   suites: number | null;
-
 
   price: number | null;
   rent: number | null;

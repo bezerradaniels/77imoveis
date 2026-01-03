@@ -14,8 +14,8 @@ import { Button } from "../../../components/ui/button";
 import { Input } from "../../../components/ui/input";
 import { paths } from "../../../routes/paths";
 import Seo from "../../../components/common/Seo";
+import { deleteProperty } from "../../../features/properties/dashboardApi";
 
-// Mock data type
 type Property = {
     id: string;
     title: string;
@@ -28,43 +28,6 @@ type Property = {
     leads: number;
 };
 
-// Mock data
-const INITIAL_PROPERTIES: Property[] = [
-    {
-        id: "1",
-        title: "Apartamento Alto Padrão - Jardins",
-        address: "Rua Oscar Freire, São Paulo - SP",
-        price: "R$ 2.500.000",
-        type: "Venda",
-        status: "active",
-        image: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=300&q=80",
-        views: 1240,
-        leads: 45,
-    },
-    {
-        id: "2",
-        title: "Casa em Condomínio Fechado",
-        address: "Alphaville, Barueri - SP",
-        price: "R$ 15.000 / mês",
-        type: "Aluguel",
-        status: "paused",
-        image: "https://images.unsplash.com/photo-1600596542815-e32c21596519?auto=format&fit=crop&w=300&q=80",
-        views: 890,
-        leads: 12,
-    },
-    {
-        id: "3",
-        title: "Sala Comercial Paulista",
-        address: "Av. Paulista, São Paulo - SP",
-        price: "R$ 450.000",
-        type: "Venda",
-        status: "sold",
-        image: "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=300&q=80",
-        views: 3200,
-        leads: 89,
-    },
-];
-
 type ActionType = 'toggle_active' | 'mark_sold' | 'delete';
 
 type ModalState = {
@@ -76,7 +39,7 @@ type ModalState = {
 };
 
 export default function MyListings() {
-    const [properties, setProperties] = useState<Property[]>(INITIAL_PROPERTIES);
+    const [properties, setProperties] = useState<Property[]>([]);
     const [searchTerm, setSearchTerm] = useState("");
     const [modal, setModal] = useState<ModalState>({ isOpen: false, type: null, propertyId: null });
 
@@ -98,25 +61,31 @@ export default function MyListings() {
         }
     };
 
-    const confirmAction = () => {
+    const confirmAction = async () => {
         if (!modal.propertyId || !modal.type) return;
 
-        setProperties(prev => prev.map(p => {
-            if (p.id !== modal.propertyId) return p;
+        try {
+            if (modal.type === 'delete') {
+                await deleteProperty(modal.propertyId);
+                setProperties(prev => prev.filter(p => p.id !== modal.propertyId));
+            } else {
+                setProperties(prev => prev.map(p => {
+                    if (p.id !== modal.propertyId) return p;
 
-            if (modal.type === 'toggle_active') {
-                return { ...p, status: p.status === 'active' ? 'paused' as const : 'active' as const };
+                    if (modal.type === 'toggle_active') {
+                        return { ...p, status: p.status === 'active' ? 'paused' as const : 'active' as const };
+                    }
+
+                    if (modal.type === 'mark_sold') {
+                        return { ...p, status: p.type === 'Venda' ? 'sold' as const : 'rented' as const };
+                    }
+
+                    return p;
+                }));
             }
-
-            if (modal.type === 'mark_sold') {
-                return { ...p, status: p.type === 'Venda' ? 'sold' as const : 'rented' as const };
-            }
-
-            return p;
-        }).filter(p => modal.type !== 'delete' ? true : p.id !== modal.propertyId)); // Handle delete if implemented
-
-        if (modal.type === 'delete') {
-            setProperties(prev => prev.filter(p => p.id !== modal.propertyId));
+        } catch (error) {
+            console.error('Erro ao executar ação:', error);
+            alert('Erro ao executar ação. Tente novamente.');
         }
 
         closeModal();

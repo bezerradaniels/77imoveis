@@ -55,32 +55,64 @@ export default function Providers({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     let active = true;
+    let timeoutId: number | undefined;
 
-    const initSession = async () => {
-      const { data } = await supabase.auth.getSession();
-      const user = data.session?.user ?? null;
-      const role = await fetchUserRole(user);
-
-      if (active) {
-        setState({ user, role, loading: false });
+    const stopLoading = () => {
+      if (timeoutId) {
+        window.clearTimeout(timeoutId);
+        timeoutId = undefined;
       }
     };
+
+    const initSession = async () => {
+      try {
+        const { data } = await supabase.auth.getSession();
+        const user = data.session?.user ?? null;
+        const role = await fetchUserRole(user);
+
+        if (active) {
+          setState({ user, role, loading: false });
+        }
+        stopLoading();
+      } catch (error) {
+        console.error("Erro na inicialização da sessão:", error);
+        if (active) {
+          setState({ user: null, role: null, loading: false });
+        }
+        stopLoading();
+      }
+    };
+
+    timeoutId = window.setTimeout(() => {
+      if (active) {
+        console.warn("Timeout ao inicializar sessão de autenticação");
+        setState({ user: null, role: null, loading: false });
+      }
+    }, 8000);
 
     initSession();
 
     const { data: sub } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === 'TOKEN_REFRESHED') return; // Ignore token refreshes, user/role state remains valid
 
-      const user = session?.user ?? null;
-      const role = await fetchUserRole(user);
+      try {
+        const user = session?.user ?? null;
+        const role = await fetchUserRole(user);
 
-      if (active) {
-        setState({ user, role, loading: false });
+        if (active) {
+          setState({ user, role, loading: false });
+        }
+      } catch (error) {
+        console.error("Erro na mudança de estado da autenticação:", error);
+        if (active) {
+          setState({ user: null, role: null, loading: false });
+        }
       }
     });
 
     return () => {
       active = false;
+      if (timeoutId) window.clearTimeout(timeoutId);
       sub.subscription.unsubscribe();
     };
   }, []);

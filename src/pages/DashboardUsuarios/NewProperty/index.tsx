@@ -7,7 +7,7 @@ import { Textarea } from "../../../components/ui/textarea";
 import { cn } from "../../../lib/utils";
 import Seo from "../../../components/common/Seo";
 import { paths } from "../../../routes/paths";
-import { createProperty } from "../../../features/properties/dashboardApi";
+import { createProperty, uploadPropertyPhotos } from "../../../features/properties/dashboardApi";
 
 type FormData = {
     // Step 1
@@ -76,22 +76,11 @@ export default function NewProperty() {
 
     const step = getStepFromUrl();
 
-    // Load initial data from localStorage if available, otherwise default
-    const [data, setData] = useState<FormData>(() => {
-        if (isEditing) return INITIAL_DATA;
-        const saved = localStorage.getItem("newPropertyDraft");
-        return saved ? JSON.parse(saved) : INITIAL_DATA;
-    });
+    // Sempre iniciar com dados limpos
+    const [data, setData] = useState<FormData>(INITIAL_DATA);
 
     const [loading, setLoading] = useState(false);
     const [submitting, setSubmitting] = useState(false);
-
-    // Save draft to localStorage on change
-    useEffect(() => {
-        if (!isEditing) {
-            localStorage.setItem("newPropertyDraft", JSON.stringify(data));
-        }
-    }, [data, isEditing]);
 
     // Restore step 1 if URL is weird
     useEffect(() => {
@@ -141,7 +130,7 @@ export default function NewProperty() {
             // Converter preço para number
             const priceNum = parseFloat(data.price.replace(/\./g, '').replace(',', '.'));
 
-            await createProperty({
+            const newProp = await createProperty({
                 title: data.title,
                 purpose: data.purpose,
                 type: data.type, // Map FormData type to API/DB type
@@ -158,6 +147,20 @@ export default function NewProperty() {
                 price: data.purpose === 'venda' ? priceNum : 0,
                 rent: data.purpose === 'aluguel' ? priceNum : 0,
             });
+
+            // Upload photos if any
+            if (data.images && data.images.length > 0) {
+                const files = await Promise.all(
+                    data.images.map(async (imageSrc) => {
+                        const response = await fetch(imageSrc);
+                        const blob = await response.blob();
+                        const fileName = `photo-${Date.now()}.jpg`;
+                        return new File([blob], fileName, { type: 'image/jpeg' });
+                    })
+                );
+                
+                await uploadPropertyPhotos(newProp.id, files);
+            }
 
             localStorage.removeItem("newPropertyDraft");
             navigate(paths.dashUsuario);
@@ -408,15 +411,47 @@ export default function NewProperty() {
                         </p>
 
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                            {[...Array(8)].map((_, i) => (
-                                <div
-                                    key={i}
-                                    className="aspect-square rounded-xl border-2 border-dashed border-gray-200 flex flex-col items-center justify-center gap-2 cursor-pointer hover:border-lime-500 hover:bg-lime-50 transition-all group"
-                                >
-                                    <Camera className="size-6 text-gray-300 group-hover:text-lime-500 transition-colors" />
-                                    <span className="text-xs text-gray-400 group-hover:text-lime-600 font-medium">Adicionar Foto</span>
-                                </div>
-                            ))}
+                            {[...Array(8)].map((_, i) => {
+                                const hasImage = data.images[i];
+                                return (
+                                    <div
+                                        key={i}
+                                        className="aspect-square rounded-xl border-2 border-dashed border-gray-200 flex flex-col items-center justify-center gap-2 cursor-pointer hover:border-lime-500 hover:bg-lime-50 transition-all group relative overflow-hidden"
+                                        onClick={() => {
+                                            const input = document.createElement('input');
+                                            input.type = 'file';
+                                            input.accept = 'image/*';
+                                            input.onchange = (e) => {
+                                                const file = (e.target as HTMLInputElement).files?.[0];
+                                                if (file) {
+                                                    const reader = new FileReader();
+                                                    reader.onload = (e) => {
+                                                        const newImages = [...data.images];
+                                                        newImages[i] = e.target?.result as string;
+                                                        setData(prev => ({ ...prev, images: newImages }));
+                                                    };
+                                                    reader.readAsDataURL(file);
+                                                }
+                                            };
+                                            input.click();
+                                        }}
+                                    >
+                                        {hasImage ? (
+                                            <>
+                                                <img src={hasImage} alt="" className="absolute inset-0 w-full h-full object-cover" />
+                                                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                                    <Camera className="size-6 text-white" />
+                                                </div>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Camera className="size-6 text-gray-300 group-hover:text-lime-500 transition-colors" />
+                                                <span className="text-xs text-gray-400 group-hover:text-lime-600 font-medium">Adicionar Foto</span>
+                                            </>
+                                        )}
+                                    </div>
+                                );
+                            })}
                         </div>
                     </div>
                 )}
