@@ -1,5 +1,5 @@
 import Seo from "../../../components/common/Seo";
-import { BarChart3, TrendingUp, Users, Eye, MousePointerClick, Heart } from "lucide-react";
+import { BarChart3, Users, Eye, MousePointerClick, Heart } from "lucide-react";
 import { cn } from "../../../lib/utils";
 
 const stats = [

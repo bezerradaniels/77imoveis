@@ -8,8 +8,7 @@ import {
     PauseCircle,
     PlayCircle,
     CheckCircle2,
-    AlertCircle,
-    X
+    AlertCircle
 } from "lucide-react";
 import { Button } from "../../../components/ui/button";
 import { Input } from "../../../components/ui/input";
@@ -106,11 +105,11 @@ export default function MyListings() {
             if (p.id !== modal.propertyId) return p;
 
             if (modal.type === 'toggle_active') {
-                return { ...p, status: p.status === 'active' ? 'paused' : 'active' };
+                return { ...p, status: p.status === 'active' ? 'paused' as const : 'active' as const };
             }
 
             if (modal.type === 'mark_sold') {
-                return { ...p, status: p.type === 'Venda' ? 'sold' : 'rented' };
+                return { ...p, status: p.type === 'Venda' ? 'sold' as const : 'rented' as const };
             }
 
             return p;

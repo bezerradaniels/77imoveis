@@ -1,4 +1,4 @@
-export type ListingPurpose = "venda" | "aluguel" | "lancamento";
+export type ListingPurpose = "venda" | "aluguel" | "lancamento" | "temporada";
 export type PropertyType =
   | "casa"
   | "apartamento"
@@ -6,7 +6,8 @@ export type PropertyType =
   | "loja"
   | "escritorio"
   | "terreno"
-  | "rural";
+  | "rural"
+  | "comercial";
 
 export type PropertyStatus = "rascunho" | "ativo" | "inativo" | "vendido" | "alugado";
 
@@ -30,6 +31,7 @@ export type Property = {
   id: string;
   slug: string | null;
   title: string;
+  description?: string;
 
   purpose: ListingPurpose;
   type: PropertyType;
@@ -38,6 +40,8 @@ export type Property = {
   state: string;
   city: string;
   neighborhood: string | null;
+  address?: string;
+  cep?: string;
 
   bedrooms: number | null;
   bathrooms: number | null;

@@ -143,7 +143,6 @@ export default function NewProperty() {
 
             await createProperty({
                 title: data.title,
-                description: data.description,
                 purpose: data.purpose,
                 type: data.type, // Map FormData type to API/DB type
                 status: "ativo",
