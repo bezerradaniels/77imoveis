@@ -15,6 +15,7 @@ export const paths = {
   property: (idOrSlug: string) => `/imovel/${idOrSlug}`,
 
   login: "/login",
+  register: "/cadastro",
   registerImobiliaria: "/cadastro/imobiliaria",
   registerCorretor: "/cadastro/corretor",
   registerUsuario: "/cadastro/usuario",
@@ -30,6 +31,8 @@ export const paths = {
   dashCorretorEdit: (id: string) => `/dashboard/corretor/imoveis/${id}`,
 
   dashUsuario: "/dashboard/usuario",
+  dashUsuarioEstatisticas: "/dashboard/usuario/estatisticas",
+  dashUsuarioImoveis: "/dashboard/usuario/imoveis",
   dashUsuarioFavoritos: "/dashboard/usuario/favoritos",
   dashUsuarioClientes: "/dashboard/usuario/clientes",
   dashUsuarioMensagens: "/dashboard/usuario/mensagens",
@@ -37,7 +40,8 @@ export const paths = {
   dashUsuarioCriarImobiliaria: "/dashboard/usuario/criar-imobiliaria",
   dashUsuarioImovelNovo: "/dashboard/usuario/imoveis/novo",
   dashUsuarioImovelEditar: (id: string) => `/dashboard/usuario/imoveis/${id}`,
-  dashUsuarioPerfis: "/dashboard/usuario/perfis",
+  dashUsuarioCorretor: "/dashboard/usuario/corretor",
+  dashUsuarioImobiliarias: "/dashboard/usuario/imobiliarias",
 
   support: "/ajuda-suporte",
   profileImobiliaria: "/perfil/imobiliaria",

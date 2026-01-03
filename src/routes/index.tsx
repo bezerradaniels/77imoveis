@@ -19,9 +19,7 @@ import ProfileImobiliaria from "../pages/ProfileImobiliaria";
 import ProfileCorretor from "../pages/ProfileCorretor";
 import Support from "../pages/Support";
 
-import RegisterImobiliaria from "../pages/RegisterImobiliaria";
-import RegisterCorretor from "../pages/RegisterCorretor";
-import RegisterUsuario from "../pages/RegisterUsuario";
+import Register from "../pages/Register";
 
 import Favorites from "../pages/DashboardUsuarios/Favorites";
 import Settings from "../pages/DashboardUsuarios/Settings";
@@ -40,7 +38,9 @@ import MyListings from "../pages/DashboardUsuarios/MyListings";
 import NewProperty from "../pages/DashboardUsuarios/NewProperty";
 import Clients from "../pages/DashboardUsuarios/Clients";
 import Messages from "../pages/DashboardUsuarios/Messages";
-import MyProfiles from "../pages/DashboardUsuarios/MyProfiles";
+import BrokerProfile from "../pages/DashboardUsuarios/BrokerProfile";
+import MyAgencies from "../pages/DashboardUsuarios/MyAgencies";
+import Statistics from "../pages/DashboardUsuarios/Statistics";
 
 import Contact from "../pages/Contact";
 import Plans from "../pages/Plans";
@@ -86,9 +86,11 @@ export const router = createBrowserRouter([
         element: <AuthLayout />,
         children: [
           { path: "/login", element: <Login /> },
-          { path: "/cadastro/imobiliaria", element: <RegisterImobiliaria /> },
-          { path: "/cadastro/corretor", element: <RegisterCorretor /> },
-          { path: "/cadastro/usuario", element: <RegisterUsuario /> },
+          { path: "/cadastro", element: <Register /> },
+          // Enforce single registration flow
+          { path: "/cadastro/imobiliaria", element: <Navigate to="/cadastro" replace /> },
+          { path: "/cadastro/corretor", element: <Navigate to="/cadastro" replace /> },
+          { path: "/cadastro/usuario", element: <Navigate to="/cadastro" replace /> },
         ],
       },
     ],
@@ -126,15 +128,18 @@ export const router = createBrowserRouter([
           {
             element: <DashboardUsuarioLayout />,
             children: [
-              { path: "/dashboard/usuario", element: <MyListings /> },
+              { path: "/dashboard/usuario", element: <Statistics /> },
+              { path: "/dashboard/usuario/estatisticas", element: <Statistics /> },
               { path: "/dashboard/usuario/imoveis", element: <MyListings /> },
               { path: "/dashboard/usuario/favoritos", element: <Favorites /> },
               { path: "/dashboard/usuario/clientes", element: <Clients /> },
               { path: "/dashboard/usuario/mensagens", element: <Messages /> },
-              { path: "/dashboard/usuario/perfis", element: <MyProfiles /> },
+              { path: "/dashboard/usuario/corretor", element: <BrokerProfile /> },
+              { path: "/dashboard/usuario/imobiliarias", element: <MyAgencies /> },
               { path: "/dashboard/usuario/configuracoes", element: <Settings /> },
               { path: "/dashboard/usuario/criar-imobiliaria", element: <CreateImobiliaria /> },
-              { path: "/dashboard/usuario/imoveis/novo", element: <NewProperty /> },
+              { path: "/dashboard/usuario/imoveis/novo", element: <Navigate to="/dashboard/usuario/imoveis/novo/passo-1" replace /> },
+              { path: "/dashboard/usuario/imoveis/novo/:stepStr", element: <NewProperty /> },
               { path: "/dashboard/usuario/imoveis/:id", element: <NewProperty /> },
             ],
           },

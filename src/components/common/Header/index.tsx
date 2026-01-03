@@ -39,6 +39,12 @@ export default function Header() {
     return paths.dashUsuario;
   };
 
+  const getNewPropertyPath = () => {
+    if (role === "imobiliaria") return paths.dashImobiliariaNew;
+    if (role === "corretor") return paths.dashCorretorNew;
+    return paths.dashUsuarioImovelNovo;
+  };
+
   return (
     <header
       className="fixed top-0 left-0 right-0 z-50 bg-slate-50/90 backdrop-blur border-b border-slate-100 h-[10vh] min-h-20 flex items-center"
@@ -80,11 +86,19 @@ export default function Header() {
             </Link>
           )}
 
-          <Link to={paths.registerImobiliaria} className="hidden md:block">
-            <Button size="sm" className="bg-lime-400 hover:bg-lime-500 text-gray-900 font-semibold rounded-full px-6">
-              Anunciar
-            </Button>
-          </Link>
+          {user ? (
+            <Link to={getNewPropertyPath()} className="hidden md:block">
+              <Button size="sm" className="bg-lime-400 hover:bg-lime-500 text-gray-900 font-semibold rounded-full px-6">
+                Anunciar
+              </Button>
+            </Link>
+          ) : (
+            <Link to={paths.register} className="hidden md:block">
+              <Button size="sm" className="bg-lime-400 hover:bg-lime-500 text-gray-900 font-semibold rounded-full px-6">
+                Cadastrar
+              </Button>
+            </Link>
+          )}
 
           {/* Mobile Menu */}
           <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
@@ -131,11 +145,19 @@ export default function Header() {
                   </Link>
                 )}
 
-                <Link to={paths.registerImobiliaria} onClick={() => setMobileMenuOpen(false)}>
-                  <Button className="w-full bg-lime-500 hover:bg-lime-600 text-white font-semibold h-11 rounded-full">
-                    Anunciar Grátis
-                  </Button>
-                </Link>
+                {user ? (
+                  <Link to={getNewPropertyPath()} onClick={() => setMobileMenuOpen(false)}>
+                    <Button className="w-full bg-lime-500 hover:bg-lime-600 text-white font-semibold h-11 rounded-full">
+                      Anunciar Grátis
+                    </Button>
+                  </Link>
+                ) : (
+                  <Link to={paths.register} onClick={() => setMobileMenuOpen(false)}>
+                    <Button className="w-full bg-lime-500 hover:bg-lime-600 text-white font-semibold h-11 rounded-full">
+                      Cadastrar
+                    </Button>
+                  </Link>
+                )}
               </div>
             </SheetContent>
           </Sheet>

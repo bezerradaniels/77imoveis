@@ -10,7 +10,7 @@ export async function fetchListings(filters: ListingsFilters) {
   let q = supabase
     .from("properties")
     .select(
-      "id,slug,title,purpose,type,status,state,city,neighborhood,bedrooms,suites,bathrooms,parking_spots,area_m2,price,rent,created_at",
+      "id,slug,title,purpose,type,status,state,city,neighborhood,bedrooms,suites,bathrooms,parking_spots,area_m2,price,rent,created_at, property_photos(url)",
       { count: "exact" }
     );
 

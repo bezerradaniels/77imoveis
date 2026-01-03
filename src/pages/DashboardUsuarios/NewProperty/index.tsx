@@ -7,12 +7,14 @@ import { Textarea } from "../../../components/ui/textarea";
 import { cn } from "../../../lib/utils";
 import Seo from "../../../components/common/Seo";
 import { paths } from "../../../routes/paths";
+import { createProperty } from "../../../features/properties/dashboardApi";
 
 type FormData = {
     // Step 1
     advertiserType: "imobiliaria" | "particular";
     selectedAgencyId?: string;
     purpose: "venda" | "aluguel" | "temporada";
+    type: "casa" | "apartamento" | "terreno" | "comercial" | "rural";
 
     // Step 2
     title: string;
@@ -37,6 +39,7 @@ type FormData = {
 const INITIAL_DATA: FormData = {
     advertiserType: "particular",
     purpose: "venda",
+    type: "apartamento",
     title: "",
     description: "",
     cep: "",
@@ -59,34 +62,52 @@ const USER_AGENCIES = [
 
 export default function NewProperty() {
     const navigate = useNavigate();
-    const { id } = useParams();
+    const { id, stepStr } = useParams();
     const isEditing = !!id;
 
-    const [step, setStep] = useState(1);
-    const [data, setData] = useState<FormData>(INITIAL_DATA);
+    // Parse step from URL (e.g., "passo-1" -> 1)
+    const getStepFromUrl = () => {
+        if (isEditing) return 1;
+        if (!stepStr) return 1;
+        const match = stepStr.match(/^passo-(\d+)$/);
+        const stepNum = match ? parseInt(match[1], 10) : 1;
+        return (stepNum >= 1 && stepNum <= 4) ? stepNum : 1;
+    };
+
+    const step = getStepFromUrl();
+
+    // Load initial data from localStorage if available, otherwise default
+    const [data, setData] = useState<FormData>(() => {
+        if (isEditing) return INITIAL_DATA;
+        const saved = localStorage.getItem("newPropertyDraft");
+        return saved ? JSON.parse(saved) : INITIAL_DATA;
+    });
+
     const [loading, setLoading] = useState(false);
+    const [submitting, setSubmitting] = useState(false);
+
+    // Save draft to localStorage on change
+    useEffect(() => {
+        if (!isEditing) {
+            localStorage.setItem("newPropertyDraft", JSON.stringify(data));
+        }
+    }, [data, isEditing]);
+
+    // Restore step 1 if URL is weird
+    useEffect(() => {
+        if (!isEditing && stepStr && !stepStr.match(/^passo-[1-4]$/)) {
+            navigate("/dashboard/usuario/imoveis/novo/passo-1", { replace: true });
+        }
+    }, [stepStr, isEditing, navigate]);
 
     useEffect(() => {
         if (isEditing) {
-            // Simulate fetching data for editing
             setLoading(true);
             setTimeout(() => {
                 setData({
-                    advertiserType: "particular",
-                    purpose: "venda",
-                    title: "Apartamento Alto Padrão - Jardins",
-                    description: "Excelente apartamento localizado nos Jardins, com acabamento de primeira linha e vista privilegiada. Condomínio com infraestrutura completa de lazer e segurança.",
-                    cep: "01426-000",
-                    address: "Rua Oscar Freire, 1230",
-                    neighborhood: "Jardins",
-                    city: "São Paulo",
-                    state: "SP",
-                    bedrooms: 3,
-                    bathrooms: 4,
-                    parkingSpaces: 3,
-                    area: 180,
-                    price: "2.500.000",
-                    images: [],
+                    ...INITIAL_DATA,
+                    title: "Mock Edit",
+                    // mock data... 
                 });
                 setLoading(false);
             }, 800);
@@ -102,16 +123,51 @@ export default function NewProperty() {
             alert("Por favor, selecione uma imobiliária para continuar.");
             return;
         }
-        setStep((s) => Math.min(s + 1, 4));
+        const next = Math.min(step + 1, 4);
+        navigate(`/dashboard/usuario/imoveis/novo/passo-${next}`);
+        window.scrollTo(0, 0);
     };
 
-    const prevStep = () => setStep((s) => Math.max(s - 1, 1));
+    const prevStep = () => {
+        const prev = Math.max(step - 1, 1);
+        navigate(`/dashboard/usuario/imoveis/novo/passo-${prev}`);
+        window.scrollTo(0, 0);
+    };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        // Simulate submission
-        console.log("Submitting:", data);
-        navigate(paths.dashUsuario);
+        setSubmitting(true);
+        try {
+            // Converter preço para number
+            const priceNum = parseFloat(data.price.replace(/\./g, '').replace(',', '.'));
+
+            await createProperty({
+                title: data.title,
+                description: data.description,
+                purpose: data.purpose,
+                type: data.type, // Map FormData type to API/DB type
+                status: "ativo",
+                city: data.city,
+                neighborhood: data.neighborhood,
+                state: data.state,
+                address: data.address,
+                cep: data.cep,
+                bedrooms: data.bedrooms,
+                bathrooms: data.bathrooms,
+                parking_spots: data.parkingSpaces,
+                area_m2: data.area,
+                price: data.purpose === 'venda' ? priceNum : 0,
+                rent: data.purpose === 'aluguel' ? priceNum : 0,
+            });
+
+            localStorage.removeItem("newPropertyDraft");
+            navigate(paths.dashUsuario);
+        } catch (error) {
+            console.error(error);
+            alert("Erro ao criar imóvel. Verifique sua conexão e tente novamente.");
+        } finally {
+            setSubmitting(false);
+        }
     };
 
     if (loading) {
@@ -185,7 +241,7 @@ export default function NewProperty() {
                                     <label className="text-sm font-medium text-gray-700 mb-2 block">
                                         Selecione a Imobiliária Responsável
                                     </label>
-
+                                    {/* MOCK Agency list logic handled in UI but no real integration yet */}
                                     {USER_AGENCIES.length > 0 ? (
                                         <div className="grid gap-2">
                                             {USER_AGENCIES.map(agency => (
@@ -225,27 +281,23 @@ export default function NewProperty() {
                             )}
                         </div>
 
+                        {/* Tipo de Imóvel - NEW FIELD */}
+                        <div className="space-y-4 pt-6 border-t border-gray-100">
+                            <h2 className="text-lg font-semibold text-gray-900">Qual o tipo do imóvel?</h2>
+                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                                <RadioCard selected={data.type === "casa"} onClick={() => updateData({ type: "casa" })} title="Casa" center />
+                                <RadioCard selected={data.type === "apartamento"} onClick={() => updateData({ type: "apartamento" })} title="Apartamento" center />
+                                <RadioCard selected={data.type === "terreno"} onClick={() => updateData({ type: "terreno" })} title="Terreno" center />
+                                <RadioCard selected={data.type === "comercial"} onClick={() => updateData({ type: "comercial" })} title="Comercial" center />
+                            </div>
+                        </div>
+
                         <div className="space-y-4 pt-6 border-t border-gray-100">
                             <h2 className="text-lg font-semibold text-gray-900">Qual a finalidade do anúncio?</h2>
                             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                                <RadioCard
-                                    selected={data.purpose === "venda"}
-                                    onClick={() => updateData({ purpose: "venda" })}
-                                    title="Venda"
-                                    center
-                                />
-                                <RadioCard
-                                    selected={data.purpose === "aluguel"}
-                                    onClick={() => updateData({ purpose: "aluguel" })}
-                                    title="Aluguel"
-                                    center
-                                />
-                                <RadioCard
-                                    selected={data.purpose === "temporada"}
-                                    onClick={() => updateData({ purpose: "temporada" })}
-                                    title="Temporada"
-                                    center
-                                />
+                                <RadioCard selected={data.purpose === "venda"} onClick={() => updateData({ purpose: "venda" })} title="Venda" center />
+                                <RadioCard selected={data.purpose === "aluguel"} onClick={() => updateData({ purpose: "aluguel" })} title="Aluguel" center />
+                                <RadioCard selected={data.purpose === "temporada"} onClick={() => updateData({ purpose: "temporada" })} title="Temporada" center />
                             </div>
                         </div>
                     </div>
@@ -320,21 +372,9 @@ export default function NewProperty() {
                         <h2 className="text-lg font-semibold text-gray-900 border-b pb-2">Características e Valores</h2>
 
                         <div className="grid grid-cols-2 gap-6">
-                            <CounterInput
-                                label="Quartos"
-                                value={data.bedrooms}
-                                onChange={(val) => updateData({ bedrooms: val })}
-                            />
-                            <CounterInput
-                                label="Banheiros"
-                                value={data.bathrooms}
-                                onChange={(val) => updateData({ bathrooms: val })}
-                            />
-                            <CounterInput
-                                label="Vagas de Garagem"
-                                value={data.parkingSpaces}
-                                onChange={(val) => updateData({ parkingSpaces: val })}
-                            />
+                            <CounterInput label="Quartos" value={data.bedrooms} onChange={(val) => updateData({ bedrooms: val })} />
+                            <CounterInput label="Banheiros" value={data.bathrooms} onChange={(val) => updateData({ bathrooms: val })} />
+                            <CounterInput label="Vagas de Garagem" value={data.parkingSpaces} onChange={(val) => updateData({ parkingSpaces: val })} />
                             <div className="space-y-2">
                                 <label className="text-sm font-medium text-gray-700">Área (m²)</label>
                                 <Input
@@ -397,8 +437,8 @@ export default function NewProperty() {
                             Próximo <ArrowRight className="size-4" />
                         </Button>
                     ) : (
-                        <Button type="submit" className="bg-lime-600 hover:bg-lime-700 gap-2 min-w-[150px]">
-                            <Check className="size-4" /> {isEditing ? "Salvar Alterações" : "Finalizar Cadastro"}
+                        <Button type="submit" disabled={submitting} className="bg-lime-600 hover:bg-lime-700 gap-2 min-w-[150px]">
+                            {submitting ? "Salvando..." : <><Check className="size-4" /> Finalizar Auto-Cadastro</>}
                         </Button>
                     )}
                 </div>

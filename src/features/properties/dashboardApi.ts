@@ -16,6 +16,32 @@ export async function fetchMyProperties() {
   return (data ?? []) as any[];
 }
 
+export async function createProperty(data: Partial<Property>) {
+  const { data: auth } = await supabase.auth.getUser();
+  const userId = auth.user?.id;
+  if (!userId) throw new Error("Não autenticado.");
+
+  // Gerar slug único simples (pode melhorar depois)
+  const slugBase = data.title
+    ? data.title.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "")
+    : "imovel";
+  const slug = `${slugBase}-${Math.floor(Math.random() * 10000)}`;
+
+  const { data: newProp, error } = await supabase
+    .from("properties")
+    .insert({
+      ...data,
+      created_by: userId,
+      status: "ativo", // Ou rascunho, mas vamos deixar ativo por enquanto para aparecer
+      slug,
+    })
+    .select("id")
+    .single();
+
+  if (error) throw error;
+  return newProp;
+}
+
 export async function fetchPropertyForEdit(id: string) {
   const { data, error } = await supabase
     .from("properties")

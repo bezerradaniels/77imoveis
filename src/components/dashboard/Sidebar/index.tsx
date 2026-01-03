@@ -7,12 +7,14 @@ import {
     Heart,
     Users,
     MessageSquare,
-    UserCircle2,
+    Briefcase,
+    Building2,
     LogOut,
     Settings,
     ChevronRight,
     ChevronLeft,
     Compass,
+    BarChart3,
 } from "lucide-react";
 import { cn } from "../../../lib/utils";
 
@@ -21,21 +23,23 @@ type NavItem = {
     label: string;
     to: string;
     icon: React.ReactNode;
-    section: "principal" | "ciclo" | "usuario";
+    section: "principal" | "profissional" | "relacionamento";
 };
 
 const NAV_ITEMS: NavItem[] = [
-    { id: "home", label: "Resumo", to: paths.dashUsuario, icon: <Home className="size-5" />, section: "principal" },
+    { id: "stats", label: "Estatísticas", to: paths.dashUsuario, icon: <BarChart3 className="size-5" />, section: "principal" },
+    { id: "imoveis", label: "Meus Imóveis", to: paths.dashUsuarioImoveis, icon: <Home className="size-5" />, section: "principal" },
     { id: "favoritos", label: "Favoritos", to: paths.dashUsuarioFavoritos, icon: <Heart className="size-5" />, section: "principal" },
-    { id: "clientes", label: "Clientes", to: paths.dashUsuarioClientes, icon: <Users className="size-5" />, section: "ciclo" },
-    { id: "mensagens", label: "Mensagens", to: paths.dashUsuarioMensagens, icon: <MessageSquare className="size-5" />, section: "ciclo" },
-    { id: "perfis", label: "Meus Perfis", to: paths.dashUsuarioPerfis, icon: <UserCircle2 className="size-5" />, section: "usuario" },
+    { id: "corretor", label: "Sou corretor", to: paths.dashUsuarioCorretor, icon: <Briefcase className="size-5" />, section: "profissional" },
+    { id: "imobiliarias", label: "Minhas imobiliárias", to: paths.dashUsuarioImobiliarias, icon: <Building2 className="size-5" />, section: "profissional" },
+    { id: "clientes", label: "Clientes", to: paths.dashUsuarioClientes, icon: <Users className="size-5" />, section: "relacionamento" },
+    { id: "mensagens", label: "Mensagens", to: paths.dashUsuarioMensagens, icon: <MessageSquare className="size-5" />, section: "relacionamento" },
 ];
 
 const SECTIONS: Record<NavItem["section"], string> = {
-    principal: "Resumo",
-    ciclo: "Ciclo de vida",
-    usuario: "Usuário",
+    principal: "Principal",
+    profissional: "Profissional",
+    relacionamento: "Relacionamento",
 };
 
 export default function Sidebar() {

@@ -19,14 +19,30 @@ export const AuthContext = createContext<AuthContextValue>({
   user: null,
   role: null,
   loading: true,
-  signOut: async () => {},
+  signOut: async () => { },
 });
 
-function inferRoleFromEmail(email?: string | null): Role | null {
-  // placeholder: depois você liga com tabela profiles/roles no Supabase
-  if (!email) return null;
+// Helper para buscar role do banco
+async function fetchUserRole(user: User | null): Promise<Role | null> {
+  if (!user) return null;
+
+  try {
+    const { data } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", user.id)
+      .single();
+
+    if (data?.role) return data.role as Role;
+  } catch (error) {
+    console.warn("Error fetching user role:", error);
+  }
+
+  // Fallback para lógica antiga (retrocompatibilidade)
+  const email = user.email || "";
   if (email.includes("+imob")) return "imobiliaria";
   if (email.includes("+cor")) return "corretor";
+
   return "usuario";
 }
 
@@ -40,23 +56,27 @@ export default function Providers({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     let active = true;
 
-    supabase.auth.getSession().then(({ data }) => {
-      if (!active) return;
+    const initSession = async () => {
+      const { data } = await supabase.auth.getSession();
       const user = data.session?.user ?? null;
-      setState({
-        user,
-        role: inferRoleFromEmail(user?.email),
-        loading: false,
-      });
-    });
+      const role = await fetchUserRole(user);
 
-    const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (active) {
+        setState({ user, role, loading: false });
+      }
+    };
+
+    initSession();
+
+    const { data: sub } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'TOKEN_REFRESHED') return; // Ignore token refreshes, user/role state remains valid
+
       const user = session?.user ?? null;
-      setState({
-        user,
-        role: inferRoleFromEmail(user?.email),
-        loading: false,
-      });
+      const role = await fetchUserRole(user);
+
+      if (active) {
+        setState({ user, role, loading: false });
+      }
     });
 
     return () => {

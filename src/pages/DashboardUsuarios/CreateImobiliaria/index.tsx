@@ -6,6 +6,7 @@ import { Input } from "../../../components/ui/input";
 import { Textarea } from "../../../components/ui/textarea";
 import Seo from "../../../components/common/Seo";
 import { paths } from "../../../routes/paths";
+import { supabase } from "../../../components/lib/supabase/client";
 
 type FormData = {
     name: string;
@@ -35,6 +36,7 @@ export default function CreateImobiliaria() {
     const navigate = useNavigate();
     const [step, setStep] = useState(1);
     const [data, setData] = useState<FormData>(INITIAL_DATA);
+    const [loading, setLoading] = useState(false);
 
     const updateData = (updates: Partial<FormData>) => {
         setData((prev) => ({ ...prev, ...updates }));
@@ -43,13 +45,34 @@ export default function CreateImobiliaria() {
     const nextStep = () => setStep((s) => Math.min(s + 1, 3));
     const prevStep = () => setStep((s) => Math.max(s - 1, 1));
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        // Simulate creation delay
-        setTimeout(() => {
-            console.log("Creating agency:", data);
-            navigate(paths.dashUsuario);
-        }, 1000);
+        setLoading(true);
+        try {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) throw new Error("Usuário não autenticado");
+
+            const { error } = await supabase.from("agencies").insert({
+                owner_id: user.id,
+                name: data.name,
+                creci_pj: data.creci,
+                cnpj: data.cnpj,
+                phone: data.phone,
+                description: data.description,
+                city: data.city,
+                address: `${data.address} - CEP: ${data.cep}`, // Combinar endereço e CEP se não tiver campo separado
+                // logo_url: ... (upload futuro)
+            });
+
+            if (error) throw error;
+
+            navigate(paths.dashUsuarioImobiliarias);
+        } catch (error) {
+            console.error("Erro ao criar imobiliária:", error);
+            alert("Erro ao criar imobiliária. Tente novamente.");
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -102,11 +125,10 @@ export default function CreateImobiliaria() {
                                         key={option.value}
                                         type="button"
                                         onClick={() => updateData({ profileType: option.value as FormData["profileType"] })}
-                                        className={`rounded-2xl border p-4 text-left transition-all ${
-                                            data.profileType === option.value
-                                                ? "border-lime-500 bg-lime-50 shadow-sm"
-                                                : "border-gray-200 hover:border-gray-300"
-                                        }`}
+                                        className={`rounded-2xl border p-4 text-left transition-all ${data.profileType === option.value
+                                            ? "border-lime-500 bg-lime-50 shadow-sm"
+                                            : "border-gray-200 hover:border-gray-300"
+                                            }`}
                                     >
                                         <div className="flex items-center justify-between">
                                             <span className="font-semibold text-gray-900">{option.label}</span>
@@ -297,9 +319,9 @@ export default function CreateImobiliaria() {
                         <Button
                             type="submit"
                             className="bg-lime-500 hover:bg-lime-600 text-white font-semibold min-w-40"
+                            disabled={loading}
                         >
-                            <Check className="size-4 mr-2" />
-                            Finalizar Cadastro
+                            {loading ? "Criando..." : <><Check className="size-4 mr-2" /> Finalizar Cadastro</>}
                         </Button>
                     )}
                 </div>

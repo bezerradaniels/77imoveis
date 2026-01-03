@@ -50,4 +50,5 @@ export type Property = {
   rent: number | null;
 
   created_at: string;
+  property_photos?: { url: string }[];
 };
