@@ -5,7 +5,7 @@ import Seo from "../../components/common/Seo";
 import { Button } from "../../components/ui/button";
 import { paths } from "../../routes/paths";
 import aluguelImage from "../../assets/images/aluguel.png";
-import vendaImage from "../../assets/images/venda.png";
+import vendaImage from "../../assets/images/venda.webp";
 import lancamentosImage from "../../assets/images/lancamentos.png";
 
 type SectionProperty = {

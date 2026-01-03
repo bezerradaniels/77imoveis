@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Stack+Sans+Headline:wght@200..700&display=swap');
 @import "tailwindcss";
 @import "tw-animate-css";
 
@@ -19,7 +19,7 @@ input[type="submit"] {
 }
 
 @theme inline {
-  --font-sans: 'Figtree', system-ui, -apple-system, sans-serif;
+  --font-sans: 'Stack Sans Headline', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -175,4 +175,106 @@ input[type="submit"] {
 
 .animate-progress-bar {
   animation: progress-bar 10s linear forwards;
+}
+
+:root {
+  --component-inactive-color: var(--muted-foreground);
+  --component-bg: var(--card);
+  --component-shadow: var(--border);
+  --component-active-bg: var(--secondary);
+  --component-line-inactive-color: var(--border);
+  --component-active-color-default: var(--accent-foreground);
+}
+
+.dark {
+  --component-inactive-color: var(--muted-foreground);
+  --component-bg: var(--card);
+  --component-shadow: var(--border);
+  --component-active-bg: var(--secondary);
+  --component-line-inactive-color: var(--muted-foreground);
+  --component-active-color-default: var(--accent-foreground);
+}
+
+@keyframes iconBounce {
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  20% {
+    transform: translateY(-0.3em);
+  }
+
+  40% {
+    transform: translateY(0);
+  }
+
+  60% {
+    transform: translateY(-0.1em);
+  }
+
+  80% {
+    transform: translateY(0);
+  }
+}
+
+/* Mobile Menu Styles */
+.menu {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 4rem;
+  background-color: var(--component-bg);
+  border-top: 1px solid var(--component-shadow);
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  z-index: 50;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.menu__item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  height: 100%;
+  color: var(--component-inactive-color);
+  transition: color 0.3s ease;
+  position: relative;
+}
+
+.menu__item.active {
+  color: var(--component-active-color);
+}
+
+.menu__icon {
+  font-size: 1.5rem;
+  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.menu__item.active .menu__icon {
+  transform: translateY(-0.5rem);
+  animation: iconBounce 0.6s;
+}
+
+.menu__text {
+  position: absolute;
+  bottom: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: all 0.3s ease;
+}
+
+.menu__item.active .menu__text {
+  opacity: 1;
+  transform: translateY(-2px);
 }
