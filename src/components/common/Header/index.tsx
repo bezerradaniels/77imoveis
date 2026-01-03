@@ -28,9 +28,10 @@ export default function Header() {
     { to: paths.aluguel, label: "Aluguel" },
     { to: paths.venda, label: "Vendas" },
     { to: paths.lancamentos, label: "Lançamentos" },
+    { to: paths.corretores, label: "Corretores" },
+    { to: paths.imobiliarias, label: "Imobiliárias" },
     { to: paths.contact, label: "Contato" },
     { to: paths.plans, label: "Planos" },
-    { to: paths.registerCorretor, label: "Corretores" },
   ];
 
   const getDashboardPath = () => {

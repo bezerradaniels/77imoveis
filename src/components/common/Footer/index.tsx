@@ -23,6 +23,8 @@ export default function Footer() {
             <div className="text-sm font-semibold text-white uppercase tracking-wider">Navegação</div>
             <div className="flex flex-col gap-3 text-sm">
               <Link className="text-gray-400 hover:text-lime-400 transition-colors" to={paths.listings}>Imóveis</Link>
+              <Link className="text-gray-400 hover:text-lime-400 transition-colors" to={paths.corretores}>Corretores</Link>
+              <Link className="text-gray-400 hover:text-lime-400 transition-colors" to={paths.imobiliarias}>Imobiliárias</Link>
               <Link className="text-gray-400 hover:text-lime-400 transition-colors" to={paths.plans}>Planos</Link>
               <Link className="text-gray-400 hover:text-lime-400 transition-colors" to={paths.contact}>Contato</Link>
             </div>

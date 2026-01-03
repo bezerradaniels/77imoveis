@@ -21,6 +21,9 @@ import Support from "../pages/Support";
 
 import Register from "../pages/Register";
 
+import Corretores from "../pages/Corretores";
+import Imobiliarias from "../pages/Imobiliarias";
+
 import Favorites from "../pages/DashboardUsuarios/Favorites";
 import Settings from "../pages/DashboardUsuarios/Settings";
 
@@ -70,6 +73,9 @@ export const router = createBrowserRouter([
       { path: "/perfil/imobiliaria", element: <ProfileImobiliaria /> },
       { path: "/perfil/corretor", element: <ProfileCorretor /> },
       { path: "/ajuda-suporte", element: <Support /> },
+
+      { path: "/corretores", element: <Corretores /> },
+      { path: "/imobiliarias", element: <Imobiliarias /> },
 
       { path: "/contato", element: <Contact /> },
       { path: "/planos", element: <Plans /> },

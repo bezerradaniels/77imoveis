@@ -46,6 +46,9 @@ export const paths = {
   support: "/ajuda-suporte",
   profileImobiliaria: "/perfil/imobiliaria",
   profileCorretor: "/perfil/corretor",
+  
+  corretores: "/corretores",
+  imobiliarias: "/imobiliarias",
 
   contact: "/contato",
   plans: "/planos",
