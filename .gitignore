@@ -1,0 +1,25 @@
+# Dependências
+/node_modules
+
+# Build do Next
+/.next
+/out
+
+# Variáveis de ambiente (NUNCA enviar para o GitHub)
+.env
+.env.local
+.env*.local
+
+# Logs e sistema
+npm-debug.log*
+.DS_Store
+*.pem
+
+# Editor
+.vscode
+.idea
+
+# Testes
+/coverage
+/playwright-report
+/test-results

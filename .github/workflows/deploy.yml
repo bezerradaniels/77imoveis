@@ -1,0 +1,15 @@
+name: (Desativado) Deploy manual
+
+# A publicacao agora e feita pela Hostinger (Aplicativo Node.js conectado ao GitHub).
+# Este workflow NAO roda automaticamente e nao envia nada por FTP.
+# Mantido apenas como referencia. Pode ser apagado sem problema.
+
+on:
+  workflow_dispatch: {}   # so roda se voce clicar manualmente em Actions > Run workflow
+
+jobs:
+  info:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Aviso
+        run: echo "O deploy do 77Imoveis e feito pela Hostinger (app Node.js + GitHub)."
