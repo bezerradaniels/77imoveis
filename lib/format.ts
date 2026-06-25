@@ -2,6 +2,16 @@
 export const brl = (v: number) =>
   v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 });
 
+// Gera slug amigável (sem acento, minúsculo, com hífens).
+export function slugify(text: string) {
+  return text
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '') // remove acentos
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '');
+}
+
 // Plural simples em pt-BR (suficiente para nomes de tipos de imóvel).
 export function plural(word: string) {
   if (/ão$/.test(word)) return word.replace(/ão$/, 'ões');

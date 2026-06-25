@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { ThemeToggle } from './ThemeToggle';
+import { AuthNav } from './AuthNav';
 
 // Cabeçalho do site. Os links ficam no array `nav` abaixo (fácil de editar).
 const nav = [
@@ -27,12 +28,7 @@ export function Header() {
 
         <div className="flex items-center gap-4">
           <ThemeToggle />
-          <Link
-            href="/entrar"
-            className="rounded-lg border border-border px-3 py-1.5 text-sm hover:bg-bg"
-          >
-            Entrar
-          </Link>
+          <AuthNav />
         </div>
       </div>
     </header>

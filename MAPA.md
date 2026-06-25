@@ -15,6 +15,10 @@ app/                      → as páginas (cada pasta = uma rota/URL)
     page.tsx              → a HOME
     [cidade]/[[...rest]]/ → listagem/busca: /cidade e /cidade/tipo
     imovel/[slug]/        → página de um imóvel
+  (auth)/entrar, cadastro → login e criação de conta
+  painel/                 → área logada (imóveis, contatos, criar/editar)
+  anunciar/               → atalho: vai p/ cadastro ou novo anúncio
+middleware.ts             → renova sessão e protege /painel e /admin
 components/               → peças reutilizáveis
   layout/   Header, Footer, ThemeToggle
   ui/       Button, Dropdown (peças genéricas)
@@ -44,6 +48,9 @@ docs/                    → documentação do projeto
 | **Listagem/busca** (resultados, paginação, SEO) | `app/(public)/[cidade]/[[...rest]]/page.tsx` |
 | **Filtros da busca** (modalidade, preço, quartos, ordem) | `components/property/FilterBar.tsx` |
 | **Página do imóvel** (galeria, contato, modalidades) | `app/(public)/imovel/[slug]/page.tsx` |
+| **Login / cadastro** | `app/(auth)/` + `components/auth/` + `lib/auth.ts` |
+| **Painel** (imóveis, contatos) | `app/painel/` + `components/painel/` |
+| **Criar/editar anúncio** (form, fotos, modalidades) | `components/painel/PropertyForm.tsx` + `app/painel/actions.ts` |
 | Como o **card de imóvel** se parece | `components/property/PropertyCard.tsx` |
 | **Consulta ao banco** (buscar mais/menos dados) | `lib/data.ts` |
 | Formato do **preço** | `lib/format.ts` |

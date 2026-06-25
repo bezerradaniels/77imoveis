@@ -3,6 +3,7 @@
 // Quer mudar o que aparece numa página? Edite a função correspondente.
 // =====================================================================
 import { createClient } from '@supabase/supabase-js';
+import { createClient as createServerClient } from './supabase/server';
 import type { Database } from './supabase/types';
 
 const hasEnv = () =>
@@ -179,6 +180,226 @@ export async function getActivePropertySlugs(): Promise<string[]> {
   if (!hasEnv()) return [];
   const { data } = await db().from('properties').select('slug').eq('status', 'ativo');
   return (data ?? []).map((p: any) => p.slug);
+}
+
+// =====================================================================
+// PAINEL (consultas autenticadas — usam a sessão + RLS do dono)
+// =====================================================================
+
+export type DashProperty = {
+  id: string;
+  slug: string;
+  title: string;
+  status: string;
+  price: number | null;
+  priceVisibility: 'publico' | 'sob_consulta';
+  negotiation: Negotiation;
+  cityName?: string;
+  coverUrl: string;
+  views: number;
+  leads: number;
+};
+
+// ID do usuário logado (as policies de leitura são públicas, então filtramos por dono).
+async function authUserId(): Promise<string | null> {
+  const { data } = await createServerClient().auth.getUser();
+  return data.user?.id ?? null;
+}
+
+// Imóveis do usuário logado (todos os status, para o painel).
+export async function getMyProperties(): Promise<DashProperty[]> {
+  if (!hasEnv()) return [];
+  const uid = await authUserId();
+  if (!uid) return [];
+  const { data } = await createServerClient()
+    .from('properties')
+    .select(
+      'id,slug,title,status,price,price_visibility,negotiation,views_count,leads_count,cities(name),property_images(url,is_cover)',
+    )
+    .eq('owner_id', uid)
+    .order('updated_at', { ascending: false });
+  return (data ?? []).map((p: any) => ({
+    id: p.id,
+    slug: p.slug,
+    title: p.title,
+    status: p.status,
+    price: p.price,
+    priceVisibility: p.price_visibility,
+    negotiation: p.negotiation,
+    cityName: p.cities?.name,
+    coverUrl:
+      (p.property_images ?? []).find((i: any) => i.is_cover)?.url ??
+      p.property_images?.[0]?.url ??
+      PLACEHOLDER,
+    views: p.views_count ?? 0,
+    leads: p.leads_count ?? 0,
+  }));
+}
+
+// Listas para os formulários (cidades, bairros, características).
+export async function getCitiesAll() {
+  if (!hasEnv()) return [];
+  const { data } = await db().from('cities').select('id,name,slug').order('name');
+  return data ?? [];
+}
+
+export async function getNeighborhoods(cityId: string) {
+  if (!hasEnv()) return [];
+  const { data } = await db().from('neighborhoods').select('id,name').eq('city_id', cityId).order('name');
+  return data ?? [];
+}
+
+export async function getFeaturesAll() {
+  if (!hasEnv()) return [];
+  const { data } = await db().from('features').select('id,name,slug,category').order('category');
+  return data ?? [];
+}
+
+// Imóvel do dono para edição (todas as relações editáveis).
+export async function getPropertyForEdit(id: string) {
+  if (!hasEnv()) return null;
+  const { data } = await createServerClient()
+    .from('properties')
+    .select(
+      '*,property_negotiations(negotiation,price,price_visibility,is_primary),' +
+        'property_features(feature_id),property_images(url,sort,is_cover)',
+    )
+    .eq('id', id)
+    .maybeSingle();
+  return data;
+}
+
+// Empresa do usuário logado (para o onboarding/edição). Inclui cidades e especialidades.
+export async function getMyCompany() {
+  if (!hasEnv()) return null;
+  const uid = await authUserId();
+  if (!uid) return null;
+  const { data } = await createServerClient()
+    .from('companies')
+    .select('*,company_cities(city_id),company_specialties(specialty_id)')
+    .eq('owner_id', uid)
+    .order('created_at', { ascending: true })
+    .limit(1);
+  return data?.[0] ?? null;
+}
+
+export async function getSpecialties() {
+  if (!hasEnv()) return [];
+  const { data } = await db().from('specialties').select('id,name,slug').order('name');
+  return data ?? [];
+}
+
+// =====================================================================
+// DIRETÓRIO DE PROFISSIONAIS / EMPRESAS (público)
+// =====================================================================
+
+export async function getCompanies(type?: string) {
+  if (!hasEnv()) return [];
+  let q = db()
+    .from('companies')
+    .select('trade_name,slug,type,city_id,logo_url,is_verified,is_featured,cities(name)')
+    .eq('status', 'ativo');
+  if (type) q = q.eq('type', type);
+  const { data } = await q
+    .order('is_featured', { ascending: false })
+    .order('trade_name');
+  return data ?? [];
+}
+
+// Empresa pública pelo slug (perfil + especialidades + imóveis ativos).
+export async function getCompanyBySlug(slug: string) {
+  if (!hasEnv()) return null;
+  const { data } = await db()
+    .from('companies')
+    .select(
+      '*,cities(name,slug),company_specialties(specialties(name,slug))',
+    )
+    .eq('slug', slug)
+    .eq('status', 'ativo')
+    .maybeSingle();
+  if (!data) return null;
+  const { data: props } = await db()
+    .from('properties')
+    .select(PROP_SELECT)
+    .eq('company_id', (data as any).id)
+    .eq('status', 'ativo')
+    .order('is_featured', { ascending: false })
+    .limit(24);
+  return { company: data, properties: (props ?? []).map(toCard) };
+}
+
+// =====================================================================
+// VITRINE (catálogo próprio da empresa)
+// =====================================================================
+
+// Empresa + vitrine do usuário logado (para o editor). storefront pode ser null.
+export async function getMyStorefront() {
+  if (!hasEnv()) return { company: null, storefront: null };
+  const uid = await authUserId();
+  if (!uid) return { company: null, storefront: null };
+  const sb = createServerClient();
+  const { data: companies } = await sb
+    .from('companies')
+    .select('id,trade_name,slug,logo_url,whatsapp,phone')
+    .eq('owner_id', uid)
+    .limit(1);
+  const company = companies?.[0] ?? null;
+  if (!company) return { company: null, storefront: null };
+  const { data: storefront } = await sb
+    .from('storefronts')
+    .select('*')
+    .eq('company_id', (company as any).id)
+    .maybeSingle();
+  return { company, storefront };
+}
+
+// Valor de uma configuração do site (jsonb). Ex.: tabela de preços da vitrine.
+export async function getSiteSetting(key: string) {
+  if (!hasEnv()) return null;
+  const { data } = await db().from('site_settings').select('value').eq('key', key).maybeSingle();
+  return (data as any)?.value ?? null;
+}
+
+// Vitrine pública (só ativa, via RLS) + imóveis ativos da empresa.
+export async function getStorefrontBySlug(slug: string) {
+  if (!hasEnv()) return null;
+  const { data: sf } = await db()
+    .from('storefronts')
+    .select('*,companies(id,trade_name,slug,whatsapp,phone,website,instagram)')
+    .eq('slug', slug)
+    .maybeSingle();
+  if (!sf) return null;
+  const { data: props } = await db()
+    .from('properties')
+    .select(PROP_SELECT)
+    .eq('company_id', (sf as any).companies.id)
+    .eq('status', 'ativo')
+    .order('is_featured', { ascending: false })
+    .limit(48);
+  return { storefront: sf, properties: (props ?? []).map(toCard) };
+}
+
+// Contatos (leads) recebidos pelo usuário logado.
+export async function getMyLeads() {
+  if (!hasEnv()) return [];
+  const { data } = await createServerClient()
+    .from('leads')
+    .select('id,name,email,phone,message,channel,status,created_at,properties(title,slug)')
+    .order('created_at', { ascending: false })
+    .limit(200);
+  return data ?? [];
+}
+
+// Referência de contato de um imóvel ativo (para gravar o lead com o dono certo).
+export async function getPropertyContactRef(slug: string) {
+  if (!hasEnv()) return null;
+  const { data } = await db()
+    .from('properties')
+    .select('id,owner_id,company_id')
+    .eq('slug', slug)
+    .eq('status', 'ativo')
+    .maybeSingle();
+  return data as { id: string; owner_id: string; company_id: string | null } | null;
 }
 
 // Imóvel completo pelo slug (com fotos, modalidades, características e contato).

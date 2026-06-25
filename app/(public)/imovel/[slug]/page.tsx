@@ -6,6 +6,7 @@ import { BedDouble, Bath, Car, Ruler, LandPlot, DoorOpen, Check, MapPin, Message
 import { getPropertyBySlug, getActivePropertySlugs } from '@/lib/data';
 import { brl, priceLabel } from '@/lib/format';
 import { Gallery } from '@/components/property/Gallery';
+import { LeadForm } from '@/components/property/LeadForm';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { realEstateListingLd, breadcrumbLd } from '@/lib/seo/jsonld';
 
@@ -219,9 +220,10 @@ export default async function ImovelPage({ params }: { params: { slug: string } 
                 Ligar: {phone}
               </a>
             )}
-            {!wa && !phone && (
-              <p className="text-center text-sm text-muted">Contato indisponível.</p>
-            )}
+            <div className="border-t border-border pt-4">
+              <p className="mb-2 text-sm font-medium">Enviar mensagem ao anunciante</p>
+              <LeadForm slug={p.slug} title={p.title} />
+            </div>
           </div>
         </aside>
       </div>
