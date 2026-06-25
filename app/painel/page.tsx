@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Plus, Home, MessageSquare, Building2, Store } from 'lucide-react';
+import { Plus, Home, MessageSquare, Building2, Store, Shield } from 'lucide-react';
 import { getProfile } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
@@ -74,6 +74,18 @@ export default async function PainelPage() {
             <p className="text-sm text-muted">Página própria com seus imóveis</p>
           </div>
         </Link>
+        {['admin', 'moderador'].includes(profile?.role ?? '') && (
+          <Link
+            href="/admin"
+            className="flex items-center gap-3 rounded-xl border border-primary/40 bg-primary/5 p-5 hover:bg-primary/10"
+          >
+            <Shield size={22} className="text-primary" />
+            <div>
+              <p className="font-medium">Administração</p>
+              <p className="text-sm text-muted">Moderação, empresas, usuários, cidades</p>
+            </div>
+          </Link>
+        )}
       </div>
     </main>
   );

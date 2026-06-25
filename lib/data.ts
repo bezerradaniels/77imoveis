@@ -293,6 +293,13 @@ export async function getSpecialties() {
 // DIRETÓRIO DE PROFISSIONAIS / EMPRESAS (público)
 // =====================================================================
 
+// Slugs de empresas ativas (para o sitemap).
+export async function getActiveCompanySlugs(): Promise<string[]> {
+  if (!hasEnv()) return [];
+  const { data } = await db().from('companies').select('slug').eq('status', 'ativo');
+  return (data ?? []).map((c: any) => c.slug);
+}
+
 export async function getCompanies(type?: string) {
   if (!hasEnv()) return [];
   let q = db()
@@ -400,6 +407,73 @@ export async function getPropertyContactRef(slug: string) {
     .eq('status', 'ativo')
     .maybeSingle();
   return data as { id: string; owner_id: string; company_id: string | null } | null;
+}
+
+// =====================================================================
+// ADMIN (consultas autenticadas; a policy is_admin() libera acesso total)
+// =====================================================================
+
+export async function adminCounts() {
+  if (!hasEnv()) return null;
+  const sb = createServerClient();
+  const head = { count: 'exact' as const, head: true };
+  const [props, ativos, moderacao, companies, leads, users] = await Promise.all([
+    sb.from('properties').select('*', head),
+    sb.from('properties').select('*', head).eq('status', 'ativo'),
+    sb.from('properties').select('*', head).eq('status', 'em_moderacao'),
+    sb.from('companies').select('*', head),
+    sb.from('leads').select('*', head),
+    sb.from('profiles').select('*', head),
+  ]);
+  return {
+    properties: props.count ?? 0,
+    ativos: ativos.count ?? 0,
+    moderacao: moderacao.count ?? 0,
+    companies: companies.count ?? 0,
+    leads: leads.count ?? 0,
+    users: users.count ?? 0,
+  };
+}
+
+export async function adminListProperties(status?: string) {
+  if (!hasEnv()) return [];
+  let q = createServerClient()
+    .from('properties')
+    .select('id,slug,title,status,is_featured,price,price_visibility,negotiation,created_at,cities(name),profiles(full_name)')
+    .order('created_at', { ascending: false })
+    .limit(100);
+  if (status) q = q.eq('status', status);
+  const { data } = await q;
+  return data ?? [];
+}
+
+export async function adminListCompanies() {
+  if (!hasEnv()) return [];
+  const { data } = await createServerClient()
+    .from('companies')
+    .select('id,trade_name,slug,type,status,is_verified,is_featured,cities(name)')
+    .order('created_at', { ascending: false })
+    .limit(200);
+  return data ?? [];
+}
+
+export async function adminListUsers() {
+  if (!hasEnv()) return [];
+  const { data } = await createServerClient()
+    .from('profiles')
+    .select('id,full_name,email,phone,role,created_at')
+    .order('created_at', { ascending: false })
+    .limit(200);
+  return data ?? [];
+}
+
+export async function adminListCities() {
+  if (!hasEnv()) return [];
+  const { data } = await createServerClient()
+    .from('cities')
+    .select('id,name,slug,is_featured,population,neighborhoods(count)')
+    .order('name');
+  return data ?? [];
 }
 
 // Imóvel completo pelo slug (com fotos, modalidades, características e contato).

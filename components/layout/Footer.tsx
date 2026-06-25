@@ -38,8 +38,9 @@ export function Footer() {
           <ul className="space-y-1.5 text-sm text-muted">
             <li><Link href="/anunciar" className="hover:text-text">Anuncie grátis</Link></li>
             <li><Link href="/profissionais" className="hover:text-text">Profissionais</Link></li>
-            <li><Link href="/blog" className="hover:text-text">Blog</Link></li>
             <li><Link href="/contato" className="hover:text-text">Contato</Link></li>
+            <li><Link href="/privacidade" className="hover:text-text">Privacidade</Link></li>
+            <li><Link href="/termos" className="hover:text-text">Termos de uso</Link></li>
           </ul>
         </div>
       </div>

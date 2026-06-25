@@ -13,7 +13,7 @@ import { plural } from '@/lib/format';
 import { PropertyCard } from '@/components/property/PropertyCard';
 import { FilterBar } from '@/components/property/FilterBar';
 import { JsonLd } from '@/components/seo/JsonLd';
-import { breadcrumbLd, itemListLd } from '@/lib/seo/jsonld';
+import { breadcrumbLd, itemListLd, faqLd } from '@/lib/seo/jsonld';
 
 export const revalidate = 300;
 const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://77imoveis.com.br';
@@ -191,6 +191,34 @@ export default async function ListagemPage({
         <section className="mt-10 rounded-xl border border-border bg-surface p-5 text-sm text-muted">
           <h2 className="mb-2 text-base font-semibold text-text">Sobre o mercado em {city.name}</h2>
           <p>{city.intro_text}</p>
+        </section>
+      )}
+
+      {/* FAQ (GEO/SEO) — só na página da cidade */}
+      {!type && (
+        <section className="mt-8">
+          <JsonLd
+            data={faqLd([
+              { q: `Como encontrar imóveis à venda em ${city.name}?`, a: `Use os filtros de tipo, preço e número de quartos nesta página de ${city.name}. Os anúncios são atualizados por imobiliárias, corretores e particulares da região do DDD 77.` },
+              { q: `Dá para alugar imóveis em ${city.name}?`, a: `Sim. Selecione a modalidade "Alugar" nos filtros para ver casas e apartamentos para locação em ${city.name}.` },
+              { q: `Como anunciar meu imóvel em ${city.name}?`, a: `Crie uma conta gratuita no 77Imóveis e publique seu imóvel. Particulares têm 1 anúncio grátis; profissionais têm planos com mais anúncios.` },
+            ])}
+          />
+          <h2 className="mb-3 text-lg font-semibold">Perguntas frequentes</h2>
+          <div className="space-y-2 text-sm">
+            <details className="rounded-lg border border-border bg-surface p-3">
+              <summary className="cursor-pointer font-medium">Como encontrar imóveis à venda em {city.name}?</summary>
+              <p className="mt-2 text-muted">Use os filtros de tipo, preço e número de quartos nesta página. Os anúncios são de imobiliárias, corretores e particulares da região.</p>
+            </details>
+            <details className="rounded-lg border border-border bg-surface p-3">
+              <summary className="cursor-pointer font-medium">Dá para alugar imóveis em {city.name}?</summary>
+              <p className="mt-2 text-muted">Sim — selecione a modalidade «Alugar» nos filtros para ver imóveis para locação.</p>
+            </details>
+            <details className="rounded-lg border border-border bg-surface p-3">
+              <summary className="cursor-pointer font-medium">Como anunciar meu imóvel em {city.name}?</summary>
+              <p className="mt-2 text-muted">Crie uma conta gratuita e publique. Particulares têm 1 anúncio grátis; profissionais têm planos com mais anúncios.</p>
+            </details>
+          </div>
         </section>
       )}
     </main>
