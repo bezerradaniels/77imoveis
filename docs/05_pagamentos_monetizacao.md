@@ -6,7 +6,29 @@
 2. **Destaque de imóvel** — pagamento avulso (7/15/30 dias).
 3. **Empresa em destaque** — visibilidade premium no diretório.
 4. **Banners** — home, busca, imóvel, empresa, blog (com segmentação por cidade).
-5. **Cupons/promoções** e **programa de indicação** (fase futura).
+5. **Vitrine (catálogo próprio)** — página exclusiva da imobiliária/corretor, ativação avulsa por período.
+6. **Cupons/promoções** e **programa de indicação** (fase futura).
+
+## 1.1 Vitrine — catálogo próprio da imobiliária
+
+Cada empresa pode ativar uma **Vitrine**: uma página exclusiva com link próprio (`/vitrine/{slug}`) e a marca dela (logo, cor de destaque e capa), reunindo **todos os imóveis ativos** da empresa em um só lugar — ideal para divulgar no Instagram e WhatsApp. Funciona como um mini-site dentro do 77Imóveis.
+
+**Cobrança avulsa por período (ativação):** a empresa paga uma vez e a vitrine fica no ar por um prazo. Quando vence, sai do ar até renovar. Preços sugeridos (editáveis no admin, em `site_settings.vitrine_precos`):
+
+| Período | Preço sugerido |
+|---|---|
+| 30 dias | R$ 49,90 |
+| 90 dias | R$ 119,90 |
+| 1 ano | R$ 399,90 |
+
+**Como funciona (banco de dados — ver `database/05_vitrine.sql`):**
+
+- Tabela `storefronts` (1 por empresa): slug, headline, sobre, `accent_color`, logo/capa, `status`, `activated_at`, `expires_at`.
+- Tabela `storefront_activations`: histórico de cada compra/renovação (dias, valor, `payment_id`, início/fim).
+- **Segurança:** a vitrine só aparece publicamente se `status='ativo'` **e** não expirada. Um gatilho (`guard_storefront_status`) garante que **só o pagamento** (webhook via service role) consegue ativar/definir validade — o dono edita a aparência, mas não consegue "se ativar" sozinho.
+- A página da vitrine lista `properties` da empresa com `status='ativo'` (sem mudança no catálogo de imóveis).
+
+**Fluxo:** empresa monta a vitrine no painel (marca + textos) → escolhe o período → paga (Pix/boleto/cartão) → webhook confirma → `storefronts.status='ativo'` e `expires_at` definido → vitrine no ar. Job diário marca como `expirado` quando vence.
 
 ## 2. Planos (sugestão — ajustável no admin)
 

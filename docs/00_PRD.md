@@ -52,7 +52,7 @@ Na região do DDD 77 não existe um portal regional forte. Anúncios estão espa
 - **Etapa 2 — Onboarding profissional (wizard):** tipo de empresa → dados → cidades de atuação → logo → capa → descrição → corretores → redes sociais → WhatsApp → horário → especialidades.
 
 ### 6.2 Anúncio de imóvel (onboarding)
-Tipo de imóvel · negociação (venda/aluguel/temporada/lançamento) · cidade (autocomplete) → bairro (autocomplete só da cidade) · informações básicas (quartos, banheiros, suítes, vagas, área construída, área do terreno, andar, condomínio, IPTU) · preço (valor **ou** "sob consulta") · características (piscina, churrasqueira, aceita pet, condomínio fechado, perto de escola/mercado, mobiliado, elevador, energia solar, acessibilidade, jardim, varanda) · fotos.
+Tipo de imóvel · negociação — **uma ou mais ao mesmo tempo** (venda, aluguel, temporada, **romaria**, lançamento), **cada uma com seu próprio preço** (ex.: a mesma casa à venda E para alugar; ou aluguel + temporada). A modalidade marcada como "principal" vira o rótulo do card/URL. · cidade (autocomplete) → bairro (autocomplete só da cidade) · informações básicas (quartos, banheiros, suítes, vagas, área construída, área do terreno, andar, condomínio, IPTU) · preço por modalidade (valor **ou** "sob consulta") · características (piscina, churrasqueira, aceita pet, condomínio fechado, perto de escola/mercado, mobiliado, elevador, energia solar, acessibilidade, jardim, varanda) · fotos.
 
 ### 6.3 Gestão de anúncios
 Criar · editar · **duplicar** · arquivar · ativar · pausar · remover. Toggle **Ativo / Pausado** direto no card.

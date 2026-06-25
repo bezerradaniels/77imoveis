@@ -51,7 +51,7 @@ erDiagram
 **Localização** — `cities`, `neighborhoods` (slug, lat/lng, geom, SEO).
 **Pessoas/empresas** — `profiles` (estende auth.users), `companies`, `brokers`, `company_cities`, `specialties`, `company_specialties`.
 **Catálogo** — `property_types`, `availabilities`, `features`.
-**Imóveis** — `properties`, `property_images`, `property_features`, `property_availabilities`, `favorites`.
+**Imóveis** — `properties`, `property_images`, `property_features`, `property_availabilities`, `property_negotiations` (modalidades múltiplas por imóvel — venda/aluguel/temporada/romaria/lançamento, cada uma com preço próprio; a principal espelha em `properties`), `favorites`.
 **Leads** — `leads`.
 **Monetização** — `plans`, `subscriptions`, `payments`, `listing_features`, `coupons`, `banners`.
 **CMS/SEO** — `blog_categories`, `blog_posts`, `seo_pages`.

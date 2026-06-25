@@ -27,6 +27,17 @@ export function realEstateListingLd(p: {
   };
 }
 
+// Lista de itens (resultados da busca) — ajuda buscadores e IA a entenderem a página.
+export function itemListLd(items: { name: string; url: string }[]) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    itemListElement: items.map((it, i) => ({
+      '@type': 'ListItem', position: i + 1, name: it.name, url: it.url,
+    })),
+  };
+}
+
 export function breadcrumbLd(items: { name: string; url: string }[]) {
   return {
     '@context': 'https://schema.org',

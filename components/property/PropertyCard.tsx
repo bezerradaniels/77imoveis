@@ -1,32 +1,10 @@
 import Link from 'next/link';
 import { BedDouble, Bath, Car, Ruler, Star } from 'lucide-react';
+import { priceLabel } from '@/lib/format';
+import type { CardProperty } from '@/lib/data';
 
-export type PropertyCardData = {
-  slug: string;
-  title: string;
-  coverUrl: string;
-  citySlug: string;
-  cityName: string;
-  neighborhoodName?: string | null;
-  negotiation: 'venda' | 'aluguel' | 'temporada' | 'lancamento';
-  price: number | null;
-  priceVisibility: 'publico' | 'sob_consulta';
-  bedrooms?: number;
-  bathrooms?: number;
-  garages?: number;
-  builtArea?: number | null;
-  isFeatured?: boolean;
-};
-
-const brl = (v: number) =>
-  v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 });
-
-export function PropertyCard(p: PropertyCardData) {
-  const priceLabel =
-    p.priceVisibility === 'sob_consulta' || p.price == null
-      ? 'Consultar valor'
-      : `${brl(p.price)}${p.negotiation === 'aluguel' ? '/mês' : ''}`;
-
+// Card de imóvel usado na home, na busca e na vitrine.
+export function PropertyCard(p: CardProperty) {
   return (
     <Link
       href={`/imovel/${p.slug}`}
@@ -48,8 +26,8 @@ export function PropertyCard(p: PropertyCardData) {
         )}
       </div>
       <div className="space-y-2 p-4">
-        <p className="text-lg font-bold tabular-nums text-text">{priceLabel}</p>
-        <h3 className="line-clamp-2 text-sm font-medium text-text">{p.title}</h3>
+        <p className="text-lg font-bold tabular-nums">{priceLabel(p)}</p>
+        <h3 className="line-clamp-2 text-sm font-medium">{p.title}</h3>
         <p className="text-sm text-muted">
           {p.neighborhoodName ? `${p.neighborhoodName}, ` : ''}
           {p.cityName}

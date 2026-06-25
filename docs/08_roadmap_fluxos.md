@@ -68,6 +68,7 @@ Painel (desktop) → imóveis (ativar/pausar/duplicar/editar) · contatos (lista
 ### M4 — Monetização (semana 9–11)
 - Planos + assinatura (Asaas/Mercado Pago) + webhooks + limites por plano.
 - Destaque avulso de imóvel + expiração.
+- **Vitrine (catálogo próprio)**: página `/vitrine/{slug}` com marca da empresa + ativação avulsa por período (30/90/365 dias) + editor no painel.
 - Banners + empresa em destaque.
 - Financeiro (faturas, upgrade/downgrade/cancelamento).
 
