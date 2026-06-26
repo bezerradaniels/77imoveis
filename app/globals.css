@@ -38,6 +38,10 @@
 html { color-scheme: light dark; }
 body { background: var(--bg); color: var(--text); }
 
+/* rolagem horizontal sem barra (chips/categorias) */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
 @media (prefers-reduced-motion: reduce) {
   * { animation: none !important; transition: none !important; }
 }

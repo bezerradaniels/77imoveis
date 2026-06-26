@@ -134,8 +134,8 @@ export default async function ListagemPage({
         {total} {total === 1 ? 'imóvel encontrado' : 'imóveis encontrados'}
       </p>
 
-      {/* Atalhos por tipo (navegação e SEO interno) */}
-      <div className="mb-4 flex flex-wrap gap-2">
+      {/* Atalhos por tipo (rolagem horizontal — economiza altura no mobile) */}
+      <div className="no-scrollbar -mx-4 mb-4 flex gap-2 overflow-x-auto px-4">
         {types.map((t) => {
           const active = type?.slug === t.slug;
           return (
@@ -144,8 +144,8 @@ export default async function ListagemPage({
               href={`/${city.slug}/${t.slug}s`}
               className={
                 active
-                  ? 'rounded-full bg-primary px-3 py-1 text-sm text-white'
-                  : 'rounded-full border border-border bg-surface px-3 py-1 text-sm hover:bg-bg'
+                  ? 'shrink-0 whitespace-nowrap rounded-full bg-primary px-3 py-1.5 text-sm text-white'
+                  : 'shrink-0 whitespace-nowrap rounded-full border border-border bg-surface px-3 py-1.5 text-sm hover:bg-bg'
               }
             >
               {plural(t.name)}

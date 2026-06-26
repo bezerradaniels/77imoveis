@@ -1,5 +1,7 @@
 'use client';
+import { useState } from 'react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
+import { SlidersHorizontal, ChevronDown } from 'lucide-react';
 import { Dropdown } from '@/components/ui/Dropdown';
 import { cn } from '@/lib/cn';
 
@@ -27,13 +29,13 @@ const quartos = [
 ];
 
 // Filtros da busca — escrevem na URL (?modalidade, ?quartos, ?min, ?max, ?ordem).
-// Server Component lê esses parâmetros e refaz a consulta no banco.
+// No mobile os filtros secundários ficam recolhidos para mostrar resultados antes.
 export function FilterBar() {
   const router = useRouter();
   const pathname = usePathname();
   const params = useSearchParams();
+  const [more, setMore] = useState(false);
 
-  // Atualiza um parâmetro na URL, sempre voltando à 1ª página.
   const setParam = (key: string, value: string) => {
     const next = new URLSearchParams(params.toString());
     value ? next.set(key, value) : next.delete(key);
@@ -41,9 +43,12 @@ export function FilterBar() {
     router.push(`${pathname}?${next.toString()}`);
   };
 
+  const ativos = ['quartos', 'min', 'max'].filter((k) => params.get(k)).length + (params.get('ordem') && params.get('ordem') !== 'recentes' ? 1 : 0);
+
   return (
     <div className="space-y-3 rounded-xl border border-border bg-surface p-3">
-      <div className="flex flex-wrap gap-2">
+      {/* modalidade — rolagem horizontal */}
+      <div className="no-scrollbar -mx-3 flex gap-2 overflow-x-auto px-3">
         {modalidades.map((m) => {
           const active = (params.get('modalidade') ?? '') === m.value;
           return (
@@ -51,7 +56,7 @@ export function FilterBar() {
               key={m.value || 'todas'}
               onClick={() => setParam('modalidade', m.value)}
               className={cn(
-                'rounded-lg px-3 py-1.5 text-sm',
+                'shrink-0 whitespace-nowrap rounded-full px-3.5 py-1.5 text-sm transition-colors',
                 active ? 'bg-primary text-white' : 'border border-border text-muted hover:bg-bg',
               )}
             >
@@ -60,13 +65,21 @@ export function FilterBar() {
           );
         })}
       </div>
-      <div className="grid gap-2 sm:grid-cols-4">
-        <Dropdown
-          options={quartos}
-          value={params.get('quartos') ?? ''}
-          onChange={(v) => setParam('quartos', v)}
-          placeholder="Quartos"
-        />
+
+      {/* botão recolher/expandir (mobile) */}
+      <button
+        onClick={() => setMore((v) => !v)}
+        className="flex w-full items-center justify-between rounded-lg border border-border px-3 py-2 text-sm sm:hidden"
+      >
+        <span className="inline-flex items-center gap-2">
+          <SlidersHorizontal size={15} /> Filtros{ativos ? ` (${ativos})` : ''}
+        </span>
+        <ChevronDown size={16} className={cn('text-muted transition', more && 'rotate-180')} />
+      </button>
+
+      {/* filtros secundários — sempre visíveis no desktop, recolhíveis no mobile */}
+      <div className={cn('gap-2 sm:grid sm:grid-cols-4', more ? 'grid grid-cols-1' : 'hidden')}>
+        <Dropdown options={quartos} value={params.get('quartos') ?? ''} onChange={(v) => setParam('quartos', v)} placeholder="Quartos" />
         <input
           type="number"
           inputMode="numeric"
@@ -83,12 +96,7 @@ export function FilterBar() {
           onBlur={(e) => setParam('max', e.target.value)}
           className="h-10 rounded-lg border border-border bg-surface px-3 text-sm"
         />
-        <Dropdown
-          options={ordens}
-          value={params.get('ordem') ?? 'recentes'}
-          onChange={(v) => setParam('ordem', v)}
-          placeholder="Ordenar"
-        />
+        <Dropdown options={ordens} value={params.get('ordem') ?? 'recentes'} onChange={(v) => setParam('ordem', v)} placeholder="Ordenar" />
       </div>
     </div>
   );
