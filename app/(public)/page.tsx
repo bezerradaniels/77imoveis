@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import {
-  MapPin, Search, ArrowRight, Building2, Home, Trees, Store, Sparkles,
+  MapPin, ArrowRight, Building2, Home, Trees, Store, Sparkles,
   HardHat, Compass, Handshake, Megaphone, PlusCircle, Users,
 } from 'lucide-react';
 import { getFeaturedCities, getPropertyTypes, getFeaturedProperties, getCityCounts } from '@/lib/data';
@@ -36,12 +36,25 @@ const cityGrads = [
 
 function SectionTitle({ title, sub }: { title: string; sub: string }) {
   return (
-    <>
+    <div>
       <h2 className="mb-1 text-[clamp(22px,2.6vw,30px)] font-extrabold tracking-tight text-text">{title}</h2>
       <p className="text-[15px] text-muted">{sub}</p>
-    </>
+    </div>
   );
 }
+
+const commonsImage = (file: string) =>
+  `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(file)}`;
+
+const cityImages: Record<string, string> = {
+  'vitoria-da-conquista': commonsImage('Vitória da Conquista banner.jpg'),
+  barreiras: commonsImage('Cidade de Barreiras 2022-2023 jpg.jpg'),
+  'luis-eduardo-magalhaes': commonsImage('06.06.2023 - Cerimônia de abertura da 17ª Bahia Farm Show (52955296372).jpg'),
+  guanambi: commonsImage('Guanambi dezembro06c.jpg'),
+  brumado: commonsImage('Brumado.jpg'),
+  'bom-jesus-da-lapa': commonsImage('Montagem - Bom Jesus da Lapa.jpg'),
+  'santa-maria-da-vitoria': commonsImage('Avenida Perimetral, Santa Maria da Vitória, janeiro de 2023 (3).jpg'),
+};
 
 export default async function HomePage() {
   const [cities, types, venda, counts] = await Promise.all([
@@ -56,9 +69,9 @@ export default async function HomePage() {
   return (
     <main className="w-full overflow-x-hidden">
       {/* HERO */}
-      <section className="relative flex min-h-[clamp(460px,62vh,620px)] items-center overflow-hidden px-0 pb-[clamp(120px,12vw,150px)] pt-[clamp(48px,7vw,76px)]">
-        <div aria-hidden className="absolute inset-0" style={{ backgroundImage: 'linear-gradient(150deg,#11314e 0%,#1b4357 32%,#2f6f63 60%,#b98b4d 100%)', backgroundSize: 'cover', backgroundPosition: 'center' }} />
-        <div aria-hidden className="absolute inset-0" style={{ background: 'linear-gradient(90deg,rgba(6,11,9,.82) 0%,rgba(6,11,9,.45) 52%,rgba(6,11,9,.15) 100%),linear-gradient(180deg,rgba(6,11,9,.15) 0%,rgba(6,11,9,.55) 100%)' }} />
+      <section className="relative flex min-h-[430px] items-center overflow-hidden px-0 pb-[92px] pt-11 md:min-h-[clamp(560px,70vh,740px)] md:pb-[clamp(130px,11vw,170px)] md:pt-[clamp(54px,7vw,82px)]">
+        <div aria-hidden className="absolute inset-0 bg-cover bg-[68%_32%] md:bg-[center_34%]" style={{ backgroundImage: 'url("/hero-family-moving.png")' }} />
+        <div aria-hidden className="absolute inset-0" style={{ background: 'linear-gradient(90deg,rgba(6,11,9,.86) 0%,rgba(6,11,9,.62) 42%,rgba(6,11,9,.22) 100%),linear-gradient(180deg,rgba(6,11,9,.14) 0%,rgba(6,11,9,.62) 100%)' }} />
         <div className="relative z-[2] mx-auto w-full max-w-[1200px] px-6">
           <div className="mb-4 inline-flex items-center gap-2 text-[13px] font-bold uppercase tracking-[.12em] text-[#8be9c9]">
             <MapPin size={16} className="fill-[#8be9c9]" /> Portal imobiliário · DDD 77 — Bahia
@@ -69,19 +82,11 @@ export default async function HomePage() {
           <p className="mt-5 max-w-[620px] text-[clamp(16px,1.7vw,20px)] leading-[1.5] text-white/85">
             Casas, apartamentos, terrenos, imóveis comerciais e oportunidades em cidades do sudoeste da Bahia.
           </p>
-          <div className="mt-7 flex flex-wrap gap-3">
-            <a href="#busca" className="inline-flex items-center gap-2 rounded-xl bg-primary px-7 py-[15px] text-base font-bold text-white shadow-[0_12px_28px_-10px_rgba(14,157,116,.7)] transition-colors hover:bg-primary-hover">
-              <Search size={18} /> Buscar imóveis
-            </a>
-            <Link href="/anunciar" className="inline-flex items-center gap-2 rounded-xl border border-white/45 bg-white/10 px-7 py-[15px] text-base font-bold text-white backdrop-blur transition-colors hover:bg-white/20">
-              Anunciar imóvel
-            </Link>
-          </div>
         </div>
       </section>
 
       {/* SEARCH CARD (overlap) */}
-      <div id="busca" className="relative z-[5] mx-auto mt-[clamp(-110px,-9vw,-90px)] max-w-[1100px] px-6">
+      <div id="busca" className="relative z-[5] mx-auto -mt-28 max-w-[1100px] px-6 md:mt-[clamp(-110px,-9vw,-90px)]">
         <HomeSearch cities={cityOpts} types={typeOpts} />
         <div className="mt-6 flex flex-wrap justify-center gap-x-[clamp(20px,5vw,56px)] gap-y-3">
           {[
@@ -116,23 +121,32 @@ export default async function HomePage() {
       </section>
 
       {/* CIDADES */}
-      <section className="mx-auto max-w-[1200px] px-6 py-[clamp(48px,6vw,72px)]">
-        <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
-          <SectionTitle title="Busque imóveis por cidade" sub="Cobertura nas principais cidades do sudoeste e oeste da Bahia." />
-          <span className="invisible hidden lg:block" />
-        </div>
-        <div className="grid gap-4 [grid-template-columns:repeat(auto-fill,minmax(210px,1fr))]">
-          {cities.map((c, i) => (
-            <Link key={c.slug} href={`/${c.slug}`} className="group relative block h-[190px] overflow-hidden rounded-2xl" style={{ backgroundImage: cityGrads[i % cityGrads.length], backgroundSize: 'cover' }}>
-              <span className="absolute inset-0" style={{ background: 'linear-gradient(to top,rgba(7,11,9,.82) 0%,rgba(7,11,9,.2) 55%,rgba(7,11,9,.05) 100%)' }} />
+      <section className="bg-[#fafafa] py-[clamp(48px,6vw,72px)]">
+        <div className="mx-auto max-w-[1200px] px-6">
+          <div className="mb-6">
+            <SectionTitle title="Busque imóveis por cidade" sub="Cobertura nas principais cidades do sudoeste e oeste da Bahia." />
+          </div>
+          <div className="grid gap-4 [grid-template-columns:repeat(auto-fill,minmax(210px,1fr))]">
+            {cities.map((c, i) => (
+              <Link
+                key={c.slug}
+                href={`/${c.slug}`}
+                className="group relative block h-[190px] overflow-hidden rounded-2xl bg-cover bg-center transition-transform hover:-translate-y-1"
+                style={{
+                  backgroundImage: `linear-gradient(to top,rgba(7,11,9,.82) 0%,rgba(7,11,9,.32) 52%,rgba(7,11,9,.08) 100%),url("${cityImages[c.slug] ?? commonsImage('Vista aérea Bom Jesus da Lapa.jpg')}")`,
+                  backgroundColor: cityGrads[i % cityGrads.length],
+                }}
+              >
+                <span className="absolute inset-0 bg-black/0 transition-colors group-hover:bg-black/10" />
               <span className="absolute inset-x-4 bottom-3.5">
                 <span className="block text-[17px] font-bold leading-tight text-white">{c.name}</span>
                 <span className="mt-0.5 block text-[12.5px] text-white/75">
                   {counts[c.slug] ? `${counts[c.slug]} imóveis` : 'Ver imóveis'}
                 </span>
               </span>
-            </Link>
-          ))}
+              </Link>
+            ))}
+          </div>
         </div>
       </section>
 
