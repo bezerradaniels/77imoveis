@@ -76,6 +76,18 @@ export async function getPropertyTypes() {
   return data ?? [];
 }
 
+// Contagem de imóveis ativos por slug de cidade (para os cards da home).
+export async function getCityCounts(): Promise<Record<string, number>> {
+  if (!hasEnv()) return {};
+  const { data } = await db().from('properties').select('cities(slug)').eq('status', 'ativo');
+  const m: Record<string, number> = {};
+  for (const r of (data ?? []) as any[]) {
+    const s = r.cities?.slug;
+    if (s) m[s] = (m[s] ?? 0) + 1;
+  }
+  return m;
+}
+
 export async function getFeaturedProperties(negotiation: Negotiation, limit = 4): Promise<CardProperty[]> {
   if (!hasEnv()) return [];
   const { data } = await db()
@@ -115,6 +127,32 @@ export async function getCityBySlug(slug: string) {
     .eq('slug', slug)
     .maybeSingle();
   return data;
+}
+
+export async function getCitySearchInsights(cityId: string, citySlug: string) {
+  if (!hasEnv()) {
+    return {
+      activeProperties: 0,
+      companies: 0,
+      neighborhoods: [] as { name: string; slug: string }[],
+      cities: [] as { name: string; slug: string }[],
+    };
+  }
+
+  const head = { count: 'exact' as const, head: true };
+  const [properties, companies, neighborhoods, cities] = await Promise.all([
+    db().from('properties').select('*', head).eq('status', 'ativo').eq('city_id', cityId),
+    db().from('companies').select('*', head).eq('status', 'ativo').eq('city_id', cityId),
+    db().from('neighborhoods').select('name,slug').eq('city_id', cityId).order('name').limit(6),
+    db().from('cities').select('name,slug').neq('slug', citySlug).order('population', { ascending: false, nullsFirst: false }).limit(12),
+  ]);
+
+  return {
+    activeProperties: properties.count ?? 0,
+    companies: companies.count ?? 0,
+    neighborhoods: neighborhoods.data ?? [],
+    cities: cities.data ?? [],
+  };
 }
 
 // Resolve o tipo de imóvel a partir do segmento da URL (plural ou singular):

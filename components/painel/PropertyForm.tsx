@@ -252,7 +252,7 @@ export function PropertyForm({
         <h2 className="mb-2 text-sm font-semibold">Características</h2>
         {Object.entries(byCat).map(([cat, list]) => (
           <div key={cat} className="mb-3">
-            <p className="mb-1 text-xs uppercase tracking-wide text-muted">{cat}</p>
+            <p className="mb-1 text-xs uppercase text-muted">{cat}</p>
             <div className="flex flex-wrap gap-2">
               {list.map((f) => (
                 <button

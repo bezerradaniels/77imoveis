@@ -3,40 +3,59 @@
 @tailwind utilities;
 
 :root {
-  /* Base neutra (estilo Airbnb) + um único acento teal discreto */
-  --bg: #fafafa;
+  /* Identidade verde (handoff 77imóveis) */
+  --bg: #ffffff;
   --surface: #ffffff;
-  --border: #dddddd;
-  --text: #222222;
-  --text-muted: #717171;
-  --primary: #0d9488;
-  --primary-hover: #0f766e;
-  --accent: #0d9488;
+  --border: #e7eae7;
+  --text: #1d2722;
+  --text-muted: #6b756f;
+  --primary: #0e9d74;
+  --primary-hover: #0b835f;
+  --accent: #0e9d74;
   --success: #15803d;
   --warning: #b45309;
   --danger: #c0392b;
   --radius: 0.75rem;
-  /* cinza visível para hovers/realces (separado do --bg) */
-  --subtle: #ebebeb;
-  /* degradê leve do header (toque de cor) */
-  --header-grad: linear-gradient(90deg, #effdfa 0%, #ffffff 45%, #fff1f3 100%);
+  /* cinza esverdeado para faixas/realces */
+  --subtle: #f6f8f7;
+  /* degradê do header */
+  --header-grad: linear-gradient(90deg, #e8f6ef 0%, #fbfcfb 46%, #fcefef 100%);
 }
 
 .dark {
-  --bg: #161616;
-  --surface: #1f1f1f;
-  --border: #3a3a3a;
-  --text: #f5f5f5;
-  --text-muted: #b0b0b0;
-  --primary: #2dd4bf;
-  --primary-hover: #5eead4;
-  --accent: #2dd4bf;
-  --subtle: #262626;
-  --header-grad: linear-gradient(90deg, #13201f 0%, #161616 45%, #201619 100%);
+  --bg: #0f1714;
+  --surface: #15201b;
+  --border: #2a352f;
+  --text: #f1f5f3;
+  --text-muted: #9aa6a0;
+  --primary: #16b387;
+  --primary-hover: #3fd0a4;
+  --accent: #16b387;
+  --subtle: #15201b;
+  --header-grad: linear-gradient(90deg, #112019 0%, #0f1714 46%, #1a1614 100%);
 }
 
 html { color-scheme: light dark; }
-body { background: var(--bg); color: var(--text); }
+body {
+  background: var(--bg);
+  color: var(--text);
+  letter-spacing: 0;
+}
+::selection { background: #bdeede; color: #15201b; }
+
+h1,
+h2,
+h3 {
+  letter-spacing: -0.025em;
+  font-kerning: normal;
+  text-rendering: optimizeLegibility;
+}
+
+input:not([type='checkbox']):not([type='radio']):not([type='file']):not([type='color']),
+select,
+textarea {
+  border-radius: var(--radius);
+}
 
 /* rolagem horizontal sem barra (chips/categorias) */
 .no-scrollbar::-webkit-scrollbar { display: none; }

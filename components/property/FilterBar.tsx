@@ -69,7 +69,7 @@ export function FilterBar() {
       {/* botão recolher/expandir (mobile) */}
       <button
         onClick={() => setMore((v) => !v)}
-        className="flex w-full items-center justify-between rounded-lg border border-border px-3 py-2 text-sm sm:hidden"
+        className="flex w-full items-center justify-between rounded-xl border border-border px-3 py-2 text-sm sm:hidden"
       >
         <span className="inline-flex items-center gap-2">
           <SlidersHorizontal size={15} /> Filtros{ativos ? ` (${ativos})` : ''}

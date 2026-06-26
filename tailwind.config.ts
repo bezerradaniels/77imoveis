@@ -20,7 +20,7 @@ const config: Config = {
         danger: 'var(--danger)',
       },
       borderRadius: { xl: 'var(--radius)' },
-      fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] },
+      fontFamily: { sans: ['var(--font-dm-sans)', 'system-ui', 'sans-serif'] },
     },
   },
   plugins: [],

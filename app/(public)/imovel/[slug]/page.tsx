@@ -116,7 +116,7 @@ export default async function ImovelPage({ params }: { params: { slug: string } 
       <div className="mx-auto grid max-w-6xl gap-8 px-4 lg:grid-cols-[minmax(0,1fr)_360px] lg:gap-12">
         <article>
           <header className="border-b border-border py-6 lg:py-8">
-            <h1 className="max-w-3xl text-2xl font-semibold leading-tight tracking-tight md:text-3xl">{p.title}</h1>
+            <h1 className="max-w-3xl text-2xl font-semibold leading-tight md:text-3xl">{p.title}</h1>
             <p className="mt-2 flex items-center gap-1.5 text-sm text-muted md:text-base">
               <MapPin size={15} />
               {p.neighborhoods?.name ? `${p.neighborhoods.name}, ` : ''}
@@ -128,7 +128,7 @@ export default async function ImovelPage({ params }: { params: { slug: string } 
             <section className="border-b border-border py-6">
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
               {specs.map((s, i) => (
-                <span key={i} className="inline-flex min-h-12 items-center gap-3 rounded-lg border border-border bg-surface px-3 py-2 text-sm">
+                <span key={i} className="inline-flex min-h-12 items-center gap-3 rounded-lg bg-surface px-3 py-2 text-sm">
                   <s.Icon size={18} className="shrink-0 text-primary" /> {s.label}
                 </span>
               ))}
@@ -161,13 +161,13 @@ export default async function ImovelPage({ params }: { params: { slug: string } 
               <h2 className="mb-4 text-xl font-semibold">Custos do imóvel</h2>
               <div className="grid gap-3 sm:grid-cols-2">
                 {p.condo_fee ? (
-                  <span className="rounded-lg border border-border bg-surface p-4 text-sm">
+                  <span className="rounded-lg bg-surface p-4 text-sm">
                     <span className="block text-muted">Condomínio</span>
                     <b className="mt-1 block text-base">{brl(p.condo_fee)}</b>
                   </span>
                 ) : null}
                 {p.iptu ? (
-                  <span className="rounded-lg border border-border bg-surface p-4 text-sm">
+                  <span className="rounded-lg bg-surface p-4 text-sm">
                     <span className="block text-muted">IPTU</span>
                     <b className="mt-1 block text-base">{brl(p.iptu)}/ano</b>
                   </span>

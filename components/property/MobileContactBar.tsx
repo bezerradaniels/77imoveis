@@ -23,7 +23,7 @@ export function MobileContactBar(props: {
           {primary && (
             <>
               <p className="text-[11px] text-muted">{negoLabel[primary.negotiation] ?? primary.negotiation}</p>
-              <p className="truncate text-lg font-bold tabular-nums tracking-tight">
+              <p className="truncate text-lg font-bold tabular-nums">
                 {priceLabel({ price: primary.price, priceVisibility: primary.price_visibility, negotiation: primary.negotiation })}
               </p>
             </>

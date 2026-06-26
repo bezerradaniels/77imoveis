@@ -34,7 +34,7 @@ export function ContactCard({
         {negotiations.map((n) => (
           <div key={n.negotiation} className="flex items-start justify-between gap-4">
             <span className="pt-1 text-sm font-medium text-muted">{negoLabel[n.negotiation] ?? n.negotiation}</span>
-            <span className="text-right text-xl font-bold tabular-nums tracking-tight">
+            <span className="text-right text-xl font-bold tabular-nums">
               {priceLabel({ price: n.price, priceVisibility: n.price_visibility, negotiation: n.negotiation })}
             </span>
           </div>

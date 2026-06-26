@@ -454,7 +454,7 @@ export function BrokersSection({ brokers, addBroker, removeBroker, updateBroker 
         {brokers.map((b: any, i: number) => (
           <div key={i} className="rounded-xl border border-border p-4 bg-surface space-y-4 shadow-sm">
             <div className="flex items-center justify-between border-b border-border/50 pb-2">
-              <span className="text-xs font-bold text-muted tracking-wider">CORRETOR</span>
+              <span className="text-xs font-bold text-muted">CORRETOR</span>
               <button
                 type="button"
                 onClick={() => removeBroker(i)}

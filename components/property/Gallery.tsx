@@ -9,11 +9,11 @@ export function Gallery({ images, title }: { images: Img[]; title: string }) {
   const visibleRest = rest.slice(0, 4);
 
   return (
-    <div className="relative grid gap-2 overflow-hidden bg-surface md:grid-cols-4 md:grid-rows-2 md:rounded-xl">
+    <div className="relative grid gap-2 overflow-hidden rounded-[30px] bg-surface md:grid-cols-4 md:grid-rows-2">
       <img
         src={cover.url}
         alt={cover.alt ?? title}
-        className="aspect-[4/3] w-full object-cover md:col-span-2 md:row-span-2 md:aspect-auto md:h-[430px]"
+        className="aspect-video w-full object-cover md:col-span-2 md:row-span-2 md:aspect-auto md:h-[430px]"
       />
       {visibleRest.map((im, i) => (
         <div key={i} className="relative hidden md:block">

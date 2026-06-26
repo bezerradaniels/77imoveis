@@ -1,49 +1,62 @@
 # 77Imóveis — Design System e UX
 
-Estilo: **moderno, minimalista, premium e confiável**. Mobile-first. Cards com cantos arredondados, sombras suaves e bastante espaço.
+Estilo: **moderno, confiável, regional** — identidade verde sobre base neutra clara,
+muito espaço em branco e degradê sutil no header. Mobile-first. (Implementação do
+handoff de design `Home 77imoveis.dc.html`.)
 
 ## 1. Cores (tokens)
 
-Paleta base **Slate** + acentos **Cyan/Sky**. Definidas como variáveis CSS para suportar modo claro e escuro.
+Acento único **verde** (`#0E9D74`) sobre base neutra. Definidas como variáveis CSS
+em `app/globals.css` (claro/escuro) e mapeadas no `tailwind.config.ts`.
 
 ```css
 :root {
-  --bg: #f8fafc;            /* slate-50  */
+  --bg: #ffffff;
   --surface: #ffffff;
-  --border: #e2e8f0;       /* slate-200 */
-  --text: #0f172a;         /* slate-900 */
-  --text-muted: #64748b;   /* slate-500 */
-  --primary: #0891b2;      /* cyan-600  */
-  --primary-hover: #0e7490;/* cyan-700  */
-  --accent: #0ea5e9;       /* sky-500   */
-  --success: #16a34a;
-  --warning: #f59e0b;
-  --danger: #dc2626;
-  --radius: 1rem;
+  --subtle: #f6f8f7;        /* faixas/realces (cinza esverdeado) */
+  --border: #e7eae7;
+  --text: #1d2722;
+  --text-muted: #6b756f;
+  --primary: #0e9d74;       /* verde 77imóveis */
+  --primary-hover: #0b835f;
+  --accent: #0e9d74;
+  --success: #15803d;
+  --warning: #b45309;
+  --danger: #c0392b;
+  --radius: 0.75rem;        /* 12px (cards usam 16px = rounded-2xl) */
+  --header-grad: linear-gradient(90deg, #e8f6ef 0%, #fbfcfb 46%, #fcefef 100%);
 }
 .dark {
-  --bg: #0f172a;           /* slate-900 */
-  --surface: #1e293b;      /* slate-800 */
-  --border: #334155;       /* slate-700 */
-  --text: #f1f5f9;         /* slate-100 */
-  --text-muted: #94a3b8;   /* slate-400 */
-  --primary: #22d3ee;      /* cyan-400  */
-  --accent: #38bdf8;       /* sky-400   */
+  --bg: #0f1714;
+  --surface: #15201b;
+  --subtle: #15201b;
+  --border: #2a352f;
+  --text: #f1f5f3;
+  --text-muted: #9aa6a0;
+  --primary: #16b387;
+  --primary-hover: #3fd0a4;
+  --accent: #16b387;
+  --header-grad: linear-gradient(90deg, #112019 0%, #0f1714 46%, #1a1614 100%);
 }
 ```
 
+Seleção de texto: `::selection { background:#bdeede }`.
+
 ## 2. Tipografia
 
-- Fonte: **Inter** (ou Geist), `font-display: swap`, servida localmente (performance + LGPD-friendly, sem Google Fonts CDN).
-- Escala: 12 / 14 / 16 (base) / 18 / 20 / 24 / 30 / 36 / 48.
-- Peso: 400 corpo, 500 rótulos, 600/700 títulos.
+- Fonte: **DM Sans**, `font-display: swap`, via `next/font`. (O mock usa Plus Jakarta
+  Sans, mas optou-se por manter a DM Sans já em uso.)
+- Ícones: **lucide-react** no código (o mock usa Phosphor — equivalência visual).
+- Escala: 12 / 14 / 16 (base) / 18 / 20 / 24 / 30 / 36 / 48; títulos com `tracking` negativo.
+- Peso: 400 corpo, 500 rótulos, 700/800 títulos.
 - Números de preço com `tabular-nums`.
 
 ## 3. Espaçamento e raios
 
 - Grid base 4px. Espaçamentos 4/8/12/16/24/32/48/64.
-- Raio: `--radius` (16px) em cards; 8px em inputs/botões; full em chips/avatars.
-- Sombra: `0 1px 2px rgba(15,23,42,.06), 0 8px 24px rgba(15,23,42,.06)`.
+- Raio: cards `rounded-2xl` (16px), card de busca 20px; inputs/botões `--radius` (12px); full em chips/pílulas.
+- **Sem sombra por padrão** — separação por borda (`--border`) e espaço. Sombra só
+  pontual: card de busca, hover de cards e barra de contato.
 
 ## 4. Componentes (biblioteca)
 
@@ -66,12 +79,19 @@ Paleta base **Slate** + acentos **Cyan/Sky**. Definidas como variáveis CSS para
 
 ## 5. Navegação
 
-- **Mobile:** topo enxuto (logo + busca + menu) e **barra inferior fixa** (Início, Buscar, Anunciar, Favoritos, Painel).
-- **Desktop:** header com busca central, menu de cidades, "Anunciar", login/painel.
+- **Header (global):** simples, com degradê verde (`--header-grad`) — logo `77imóveis`,
+  "Anuncie seu imóvel", alternar tema e Entrar/Painel. A busca **não** fica no header;
+  vive no card da home.
+- **Mobile:** **barra inferior fixa** (Início, Buscar, Anunciar, Conta).
+- **Footer:** escuro (`#0d1512`), colunas Cidades / Tipos / Profissionais / Institucional.
 
-## 6. Home
+## 6. Home (handoff)
 
-Busca em destaque (cidade + tipo + negociação) → atalhos das cidades em destaque (VC, Barreiras, LEM, Guanambi, Brumado, Bom Jesus, Santa Maria) → imóveis em destaque → tipos de imóvel → diretório de profissionais → blog → rodapé rico em links internos (SEO).
+`app/(public)/page.tsx` segue o `Home 77imoveis.dc.html`:
+
+1. **Hero** com foto de fundo (placeholder gradiente) + scrim, eyebrow "Portal imobiliário · DDD 77", H1 e dois CTAs.
+2. **Card de busca** sobrepondo o hero (`HomeSearch`): abas Comprar/Alugar + Cidade/Tipo/Faixa de preço/Quartos → navega para `/[cidade]/[tipo]` com filtros na URL. Barra de confiança abaixo.
+3. **Categorias** por tipo · **Cidades** (cards com gradiente + contagem real) · **Imóveis em destaque** (banco) · **Profissionais** (4) · **CTA anunciante** (faixa verde) · **Conteúdo SEO** + footer.
 
 ## 7. Estados (obrigatórios)
 

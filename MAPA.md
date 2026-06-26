@@ -10,7 +10,7 @@ cada coisa tem **um lugar só**. Mudou ali, mudou no site todo.
 ```
 app/                      → as páginas (cada pasta = uma rota/URL)
   layout.tsx              → moldura do site (tema, fonte, cabeçalho e rodapé)
-  globals.css             → CORES e tema (claro/escuro)
+  globals.css             → CORES e tema (identidade VERDE #0E9D74, claro/escuro)
   (public)/               → páginas públicas (aparecem no Google)
     page.tsx              → a HOME
     [cidade]/[[...rest]]/ → listagem/busca: /cidade e /cidade/tipo
@@ -23,7 +23,7 @@ components/               → peças reutilizáveis
   layout/   Header, Footer, ThemeToggle
   ui/       Button, Dropdown (peças genéricas)
   property/ PropertyCard, FilterBar (filtros da busca), Gallery (fotos)
-  home/     SearchBar (busca da home)
+  home/     HomeSearch (card de busca da home), SearchBar (legado)
   seo/      JsonLd (dados para Google/IA)
 lib/                      → lógica e dados (sem visual)
   data.ts                → TODAS as consultas ao banco

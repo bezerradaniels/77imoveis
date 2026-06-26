@@ -3,49 +3,69 @@ import Link from 'next/link';
 const cidades = [
   ['Vitória da Conquista', 'vitoria-da-conquista'],
   ['Barreiras', 'barreiras'],
+  ['Luís Eduardo Magalhães', 'luis-eduardo-magalhaes'],
   ['Guanambi', 'guanambi'],
   ['Brumado', 'brumado'],
-  ['Bom Jesus da Lapa', 'bom-jesus-da-lapa'],
-  ['Santa Maria da Vitória', 'santa-maria-da-vitoria'],
 ];
+
+const tipos = [
+  ['Casas', '/vitoria-da-conquista/casas'],
+  ['Apartamentos', '/vitoria-da-conquista/apartamentos'],
+  ['Terrenos e lotes', '/vitoria-da-conquista/terrenos'],
+  ['Imóveis comerciais', '/vitoria-da-conquista/sala-comercials'],
+  ['Lançamentos', '/vitoria-da-conquista?modalidade=lancamento'],
+];
+
+const profissionais = [
+  ['Imobiliárias', '/profissionais/imobiliaria'],
+  ['Construtoras', '/profissionais/construtora'],
+  ['Engenheiros civis', '/profissionais/engenharia_civil'],
+  ['Corretores', '/profissionais/corretor_autonomo'],
+];
+
+const institucional = [
+  ['Anunciar grátis', '/anunciar'],
+  ['Contato', '/contato'],
+  ['Privacidade', '/privacidade'],
+  ['Termos de uso', '/termos'],
+];
+
+function Col({ title, links }: { title: string; links: string[][] }) {
+  return (
+    <div>
+      <p className="mb-3.5 text-sm font-bold text-white">{title}</p>
+      <div className="flex flex-col gap-2.5 text-sm">
+        {links.map(([label, href]) => (
+          <Link key={href} href={href} className="text-[#a9b3ad] transition-colors hover:text-white">
+            {label}
+          </Link>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 export function Footer() {
   return (
-    <footer className="mt-16 border-t border-border bg-surface">
-      <div className="mx-auto grid max-w-6xl gap-8 px-4 py-10 sm:grid-cols-3">
-        <div>
-          <p className="text-lg font-bold">
-            77<span className="text-primary">Imóveis</span>
+    <footer className="bg-[#0d1512] text-[#c5cdc8]">
+      <div className="mx-auto grid max-w-[1200px] gap-9 px-6 py-12 sm:grid-cols-2 lg:grid-cols-5">
+        <div className="sm:col-span-2 lg:col-span-1">
+          <div className="text-[22px] font-extrabold tracking-tight">
+            <span className="text-[#16b387]">77</span><span className="text-white">imóveis</span>
+          </div>
+          <p className="mt-3.5 max-w-[300px] text-sm leading-relaxed text-[#94a09a]">
+            O portal imobiliário da região do DDD 77, na Bahia. Imóveis, profissionais e empresas perto de você.
           </p>
-          <p className="mt-2 text-sm text-muted">
-            O portal imobiliário da região do DDD 77, na Bahia.
-          </p>
         </div>
-        <div>
-          <p className="mb-3 text-sm font-medium">Cidades</p>
-          <ul className="space-y-1.5 text-sm text-muted">
-            {cidades.map(([nome, slug]) => (
-              <li key={slug}>
-                <Link href={`/${slug}`} className="hover:text-text">
-                  Imóveis em {nome}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
-        <div>
-          <p className="mb-3 text-sm font-medium">Institucional</p>
-          <ul className="space-y-1.5 text-sm text-muted">
-            <li><Link href="/anunciar" className="hover:text-text">Anuncie grátis</Link></li>
-            <li><Link href="/profissionais" className="hover:text-text">Profissionais</Link></li>
-            <li><Link href="/contato" className="hover:text-text">Contato</Link></li>
-            <li><Link href="/privacidade" className="hover:text-text">Privacidade</Link></li>
-            <li><Link href="/termos" className="hover:text-text">Termos de uso</Link></li>
-          </ul>
-        </div>
+        <Col title="Cidades" links={[...cidades.map(([n, s]) => [n, `/${s}`]), ['Ver todas →', '/']]} />
+        <Col title="Tipos de imóvel" links={tipos} />
+        <Col title="Profissionais" links={profissionais} />
+        <Col title="Institucional" links={institucional} />
       </div>
-      <div className="border-t border-border py-4 text-center text-xs text-muted">
-        © {new Date().getFullYear()} 77Imóveis · DDD 77 — Bahia
+      <div className="border-t border-white/10">
+        <div className="mx-auto max-w-[1200px] px-6 py-4 text-center text-[13px] text-[#7e8a84]">
+          © {new Date().getFullYear()} 77imóveis · DDD 77 — Bahia
+        </div>
       </div>
     </footer>
   );
