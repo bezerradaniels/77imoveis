@@ -18,6 +18,9 @@ export const metadata: Metadata = {
   },
   description:
     'Casas, apartamentos, terrenos e imóveis rurais à venda e para alugar nas cidades do DDD 77, na Bahia.',
+  icons: {
+    icon: '/logo.svg',
+  },
   openGraph: { siteName: '77Imóveis', locale: 'pt_BR', type: 'website' },
 };
 
