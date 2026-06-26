@@ -19,8 +19,11 @@ export type CompanyInput = {
   cityId?: string;
   logoUrl?: string;
   coverUrl?: string;
+  address?: string;
   cityIds: string[];
   specialtyIds: string[];
+  businessHours: Record<string, string>;
+  brokers: { name: string; creci?: string; phone?: string; whatsapp?: string; photoUrl?: string }[];
 };
 
 async function uniqueSlug(sb: any, base: string, excludeId?: string) {
@@ -56,6 +59,8 @@ export async function saveCompany(input: CompanyInput): Promise<{ slug?: string;
     city_id: input.cityId || null,
     logo_url: input.logoUrl || null,
     cover_url: input.coverUrl || null,
+    address: input.address || null,
+    business_hours: input.businessHours,
     status: 'ativo',
   };
 
@@ -82,6 +87,20 @@ export async function saveCompany(input: CompanyInput): Promise<{ slug?: string;
   if (input.specialtyIds.length)
     await sb.from('company_specialties').insert(
       input.specialtyIds.map((specialty_id) => ({ company_id: id, specialty_id })),
+    );
+
+  // Corretores (substitui a lista completa a cada salvamento).
+  await sb.from('brokers').delete().eq('company_id', id);
+  if (input.brokers.length)
+    await sb.from('brokers').insert(
+      input.brokers.map((b) => ({
+        company_id: id,
+        name: b.name,
+        creci: b.creci || null,
+        phone: b.phone || null,
+        whatsapp: b.whatsapp || null,
+        photo_url: b.photoUrl || null,
+      })),
     );
 
   // Promove a conta a PROFISSIONAL (sem rebaixar admin/moderador).

@@ -8,6 +8,13 @@ export const metadata = { title: 'Contatos', robots: { index: false } };
 const fmtDate = (s: string) =>
   new Date(s).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
 
+const channelLabel: Record<string, string> = {
+  formulario: 'Formulário',
+  whatsapp: 'WhatsApp',
+  telefone: 'Telefone',
+  ligacao: 'Ligação',
+};
+
 export default async function ContatosPage() {
   const leads = await getMyLeads();
 
@@ -33,6 +40,11 @@ export default async function ContatosPage() {
                 </div>
                 <span className="shrink-0 text-xs text-muted">{fmtDate(l.created_at)}</span>
               </div>
+              {l.channel && (
+                <span className="mt-2 inline-flex rounded-full bg-bg px-2 py-0.5 text-xs text-muted">
+                  {channelLabel[l.channel] ?? l.channel}
+                </span>
+              )}
               {l.message && <p className="mt-2 text-sm text-muted">{l.message}</p>}
               <div className="mt-3 flex flex-wrap gap-3 text-sm">
                 {l.phone && (

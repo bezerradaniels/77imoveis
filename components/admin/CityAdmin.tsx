@@ -42,7 +42,7 @@ export function CityFeatured({ id, featured }: { id: string; featured: boolean }
     <button
       disabled={pending}
       onClick={() => start(async () => { await adminToggleCityFeatured(id, !featured); router.refresh(); })}
-      className={`inline-flex items-center gap-1 rounded-md border border-border px-2 py-1 text-xs ${featured ? 'text-accent' : 'text-muted'}`}
+      className={`inline-flex items-center gap-1 rounded-full border border-border px-2 py-1 text-xs ${featured ? 'text-accent' : 'text-muted'}`}
     >
       <Star size={13} className={featured ? 'fill-accent' : ''} /> {featured ? 'Em destaque' : 'Destacar'}
     </button>

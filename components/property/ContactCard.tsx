@@ -1,5 +1,5 @@
-import { MessageCircle } from 'lucide-react';
 import { priceLabel } from '@/lib/format';
+import { ContactActions } from './ContactActions';
 import { LeadForm } from './LeadForm';
 
 export const negoLabel: Record<string, string> = {
@@ -29,12 +29,12 @@ export function ContactCard({
   title: string;
 }) {
   return (
-    <div className="space-y-4 rounded-xl border border-border bg-surface p-5">
-      <div className="space-y-1">
+    <div className="space-y-5 rounded-xl border border-border bg-surface p-5 shadow-[0_12px_34px_rgba(0,0,0,0.10)]">
+      <div className="space-y-3">
         {negotiations.map((n) => (
-          <div key={n.negotiation} className="flex items-baseline justify-between gap-2">
-            <span className="text-sm text-muted">{negoLabel[n.negotiation] ?? n.negotiation}</span>
-            <span className="text-lg font-bold tabular-nums">
+          <div key={n.negotiation} className="flex items-start justify-between gap-4">
+            <span className="pt-1 text-sm font-medium text-muted">{negoLabel[n.negotiation] ?? n.negotiation}</span>
+            <span className="text-right text-xl font-bold tabular-nums tracking-tight">
               {priceLabel({ price: n.price, priceVisibility: n.price_visibility, negotiation: n.negotiation })}
             </span>
           </div>
@@ -42,24 +42,17 @@ export function ContactCard({
       </div>
 
       {anunciante && (
-        <p className="text-sm text-muted">
+        <p className="rounded-lg bg-bg px-3 py-2.5 text-sm text-muted">
           Anunciante: <b className="text-text">{anunciante}</b>
         </p>
       )}
 
-      {wa && (
-        <a href={wa} target="_blank" rel="noopener noreferrer" className="flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-[#1FA855] font-semibold text-white hover:opacity-90">
-          <MessageCircle size={18} /> Conversar no WhatsApp
-        </a>
-      )}
-      {phone && (
-        <a href={`tel:${phone.replace(/\D/g, '')}`} className="flex h-11 w-full items-center justify-center gap-2 rounded-lg border border-border font-medium hover:bg-bg">
-          Ligar: {phone}
-        </a>
-      )}
+      <div className="space-y-2.5">
+        <ContactActions wa={wa} phone={phone} slug={slug} />
+      </div>
 
       <div className="border-t border-border pt-4">
-        <p className="mb-2 text-sm font-medium">Enviar mensagem ao anunciante</p>
+        <p className="mb-3 text-sm font-semibold">Enviar mensagem ao anunciante</p>
         <LeadForm slug={slug} title={title} />
       </div>
     </div>

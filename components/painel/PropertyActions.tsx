@@ -65,7 +65,16 @@ export function PropertyActions({ id, slug, status }: { id: string; slug: string
           <Trash2 size={13} /> Excluir
         </button>
       </div>
-      {error && <p className="text-right text-xs text-danger">{error}</p>}
+      {error && (
+        <div className="max-w-xs text-right text-xs">
+          <p className="text-danger">{error}</p>
+          {error.includes('perfil profissional') && (
+            <Link href="/painel/empresa" className="font-medium text-primary">
+              Criar perfil profissional
+            </Link>
+          )}
+        </div>
+      )}
     </div>
   );
 }

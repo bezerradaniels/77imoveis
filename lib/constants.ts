@@ -35,6 +35,17 @@ export const cityEmoji: Record<string, string> = {
 };
 export const cityEmojiFor = (slug: string) => cityEmoji[slug] ?? '📍';
 
+export const cityTagline: Record<string, string> = {
+  'vitoria-da-conquista': 'A Suíça Baiana',
+  barreiras: 'A capital do oeste baiano',
+  'luis-eduardo-magalhaes': 'Polo do agronegócio baiano',
+  guanambi: 'Cidade luz do sertão',
+  brumado: 'A capital do minério',
+  'bom-jesus-da-lapa': 'A capital baiana da fé',
+  'santa-maria-da-vitoria': 'Portal do vale do Corrente',
+};
+export const cityTaglineFor = (slug: string) => cityTagline[slug] ?? 'Cidade do DDD 77';
+
 export const tileColors = ['#e0f2fe', '#dcfce7', '#fee2e2', '#fef9c3', '#f3e8ff', '#ffedd5', '#cffafe'];
 
 // Emoji por tipo de imóvel (chips da home).

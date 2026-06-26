@@ -58,7 +58,7 @@ function toCard(p: any): CardProperty {
 }
 
 const PROP_SELECT =
-  'slug,title,price,price_visibility,negotiation,bedrooms,bathrooms,garages,built_area,is_featured,cities(name,slug),neighborhoods(name),property_images(url,is_cover)';
+  'slug,reference_code,title,price,price_visibility,negotiation,bedrooms,bathrooms,garages,built_area,is_featured,cities(name,slug),neighborhoods(name),property_images(url,is_cover)';
 
 export async function getFeaturedCities() {
   if (!hasEnv()) return [];
@@ -72,7 +72,7 @@ export async function getFeaturedCities() {
 
 export async function getPropertyTypes() {
   if (!hasEnv()) return [];
-  const { data } = await db().from('property_types').select('name,slug,icon').order('sort');
+  const { data } = await db().from('property_types').select('id,name,slug,icon').order('sort');
   return data ?? [];
 }
 
@@ -85,6 +85,19 @@ export async function getFeaturedProperties(negotiation: Negotiation, limit = 4)
     .eq('negotiation', negotiation)
     .order('is_featured', { ascending: false })
     .order('published_at', { ascending: false })
+    .limit(limit);
+  return (data ?? []).map(toCard);
+}
+
+export async function getHomeProperties(limit = 24): Promise<CardProperty[]> {
+  if (!hasEnv()) return [];
+  const { data } = await db()
+    .from('properties')
+    .select(PROP_SELECT)
+    .eq('status', 'ativo')
+    .order('is_featured', { ascending: false })
+    .order('published_at', { ascending: false, nullsFirst: false })
+    .order('created_at', { ascending: false })
     .limit(limit);
   return (data ?? []).map(toCard);
 }
@@ -148,11 +161,17 @@ export async function searchProperties(
   if (f.typeId) q = q.eq('property_type_id', f.typeId);
   if (f.negotiation) q = q.eq('property_negotiations.negotiation', f.negotiation);
   if (f.bedrooms) q = q.gte('bedrooms', f.bedrooms);
-  if (f.minPrice != null) q = q.gte('price', f.minPrice);
-  if (f.maxPrice != null) q = q.lte('price', f.maxPrice);
+  if (f.minPrice != null) q = q.gte(f.negotiation ? 'property_negotiations.price' : 'price', f.minPrice);
+  if (f.maxPrice != null) q = q.lte(f.negotiation ? 'property_negotiations.price' : 'price', f.maxPrice);
 
-  if (f.sort === 'menor-preco') q = q.order('price', { ascending: true, nullsFirst: false });
-  else if (f.sort === 'maior-preco') q = q.order('price', { ascending: false, nullsFirst: false });
+  if (f.sort === 'menor-preco')
+    q = f.negotiation
+      ? q.order('price', { ascending: true, nullsFirst: false, foreignTable: 'property_negotiations' } as any)
+      : q.order('price', { ascending: true, nullsFirst: false });
+  else if (f.sort === 'maior-preco')
+    q = f.negotiation
+      ? q.order('price', { ascending: false, nullsFirst: false, foreignTable: 'property_negotiations' } as any)
+      : q.order('price', { ascending: false, nullsFirst: false });
   else q = q.order('is_featured', { ascending: false }).order('published_at', { ascending: false });
 
   const { data, count } = await q.range(from, from + perPage - 1);
@@ -175,7 +194,7 @@ export async function searchProperties(
 // PÁGINA DO IMÓVEL  (/imovel/[slug])
 // =====================================================================
 
-// Slugs de todos os imóveis ativos (para generateStaticParams).
+// Slugs públicos de todos os imóveis ativos (para generateStaticParams/sitemap).
 export async function getActivePropertySlugs(): Promise<string[]> {
   if (!hasEnv()) return [];
   const { data } = await db().from('properties').select('slug').eq('status', 'ativo');
@@ -276,7 +295,7 @@ export async function getMyCompany() {
   if (!uid) return null;
   const { data } = await createServerClient()
     .from('companies')
-    .select('*,company_cities(city_id),company_specialties(specialty_id)')
+    .select('*,company_cities(city_id),company_specialties(specialty_id),brokers(*)')
     .eq('owner_id', uid)
     .order('created_at', { ascending: true })
     .limit(1);
@@ -367,6 +386,16 @@ export async function getSiteSetting(key: string) {
   return (data as any)?.value ?? null;
 }
 
+export async function getPlans() {
+  if (!hasEnv()) return [];
+  const { data } = await db()
+    .from('plans')
+    .select('name,slug,audience,max_active_listings,price,interval,included_featured,highlight,benefits')
+    .eq('is_active', true)
+    .order('sort');
+  return data ?? [];
+}
+
 // Vitrine pública (só ativa, via RLS) + imóveis ativos da empresa.
 export async function getStorefrontBySlug(slug: string) {
   if (!hasEnv()) return null;
@@ -384,6 +413,27 @@ export async function getStorefrontBySlug(slug: string) {
     .order('is_featured', { ascending: false })
     .limit(48);
   return { storefront: sf, properties: (props ?? []).map(toCard) };
+}
+
+export async function getActiveStorefronts() {
+  if (!hasEnv()) return [];
+  const { data } = await db()
+    .from('storefronts')
+    .select('slug,headline,about,logo_url,cover_url,accent_color,companies(trade_name,slug,whatsapp,phone)')
+    .eq('status', 'ativo')
+    .or(`expires_at.is.null,expires_at.gt.${new Date().toISOString()}`)
+    .order('created_at', { ascending: false });
+  return data ?? [];
+}
+
+export async function getActiveStorefrontSlugs(): Promise<string[]> {
+  if (!hasEnv()) return [];
+  const { data } = await db()
+    .from('storefronts')
+    .select('slug')
+    .eq('status', 'ativo')
+    .or(`expires_at.is.null,expires_at.gt.${new Date().toISOString()}`);
+  return (data ?? []).map((s: any) => s.slug);
 }
 
 // Contatos (leads) recebidos pelo usuário logado.
@@ -439,7 +489,7 @@ export async function adminListProperties(status?: string) {
   if (!hasEnv()) return [];
   let q = createServerClient()
     .from('properties')
-    .select('id,slug,title,status,is_featured,price,price_visibility,negotiation,created_at,cities(name),profiles(full_name)')
+    .select('id,slug,title,status,is_featured,price,price_visibility,negotiation,created_at,cities(name),profiles!properties_owner_id_fkey(full_name)')
     .order('created_at', { ascending: false })
     .limit(100);
   if (status) q = q.eq('status', status);
@@ -479,18 +529,34 @@ export async function adminListCities() {
 // Imóvel completo pelo slug (com fotos, modalidades, características e contato).
 export async function getPropertyBySlug(slug: string) {
   if (!hasEnv()) return null;
-  const { data } = await db()
+
+  const select =
+    '*,cities(name,slug,state),neighborhoods(name,slug),property_types(name,slug),' +
+    'property_images(url,alt,sort,is_cover),' +
+    'property_negotiations(negotiation,price,price_visibility,unit,is_primary),' +
+    'property_features(features(name,slug,icon)),' +
+    'companies(trade_name,slug,phone,whatsapp,logo_url),' +
+    'profiles!properties_owner_id_fkey(full_name,phone,whatsapp)';
+
+  const query = db()
     .from('properties')
-    .select(
-      '*,cities(name,slug,state),neighborhoods(name,slug),property_types(name,slug),' +
-        'property_images(url,alt,sort,is_cover),' +
-        'property_negotiations(negotiation,price,price_visibility,unit,is_primary),' +
-        'property_features(features(name,slug,icon)),' +
-        'companies(trade_name,slug,phone,whatsapp,logo_url),' +
-        'profiles(full_name,phone,whatsapp)',
-    )
-    .eq('slug', slug)
+    .select(select)
+    .eq('status', 'ativo');
+
+  const code = slug.match(/(?:^|-)imv-[a-z0-9]+$/i)?.[0]?.replace(/^-/, '').toUpperCase();
+  const { data } = code
+    ? await query.eq('reference_code', code).maybeSingle()
+    : await query.eq('slug', slug).maybeSingle();
+
+  if (data || code) return data;
+
+  const { data: fallback } = await db()
+    .from('properties')
+    .select(select)
     .eq('status', 'ativo')
+    .ilike('slug', `${slug}-imv-%`)
+    .order('published_at', { ascending: false, nullsFirst: false })
+    .limit(1)
     .maybeSingle();
-  return data;
+  return fallback;
 }

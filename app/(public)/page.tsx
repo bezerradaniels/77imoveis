@@ -1,11 +1,11 @@
 import Link from 'next/link';
 import { ArrowRight, Plus, Building2, User, HardHat, Ruler, PencilRuler, Compass, Sun, Store } from 'lucide-react';
-import { getFeaturedCities, getPropertyTypes, getFeaturedProperties } from '@/lib/data';
+import { getFeaturedCities, getPropertyTypes, getHomeProperties } from '@/lib/data';
 import { cityEmojiFor, tileColors, typeEmojiFor } from '@/lib/constants';
 import { PropertyCard } from '@/components/property/PropertyCard';
 import { SearchBar } from '@/components/home/SearchBar';
 
-export const revalidate = 300; // recarrega os dados a cada 5 min
+export const dynamic = 'force-dynamic';
 
 const profissionais = [
   { label: 'Corretores', slug: 'corretor_autonomo', Icon: User },
@@ -49,11 +49,10 @@ function Row({ items, empty }: { items: any[]; empty: string }) {
 }
 
 export default async function HomePage() {
-  const [cities, types, venda, aluguel] = await Promise.all([
+  const [cities, types, properties] = await Promise.all([
     getFeaturedCities(),
     getPropertyTypes(),
-    getFeaturedProperties('venda'),
-    getFeaturedProperties('aluguel'),
+    getHomeProperties(),
   ]);
 
   const cityOpts = cities.map((c) => ({ value: c.slug, label: c.name }));
@@ -91,13 +90,8 @@ export default async function HomePage() {
       </section>
 
       <section>
-        <SectionHead title="🏷️ À venda em destaque" href="/vitoria-da-conquista/casas" />
-        <Row items={venda} empty="Em breve, imóveis à venda aqui." />
-      </section>
-
-      <section>
-        <SectionHead title="🔑 Para alugar em destaque" href="/vitoria-da-conquista/casas?modalidade=aluguel" />
-        <Row items={aluguel} empty="Em breve, imóveis para alugar aqui." />
+        <SectionHead title="🏠 Imóveis recentes" href="/vitoria-da-conquista" />
+        <Row items={properties} empty="Em breve, imóveis publicados aqui." />
       </section>
 
       <Banner slot="home_meio" />
@@ -130,7 +124,7 @@ export default async function HomePage() {
           <h2 className="text-lg font-semibold">Tem um imóvel para vender ou alugar?</h2>
           <p className="text-sm text-primary">Anuncie grátis. Particular: 1 imóvel sem custo. Imobiliária: até 10.</p>
         </div>
-        <Link href="/anunciar" className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-3 font-semibold text-white">
+        <Link href="/anunciar" className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-3 font-semibold text-white">
           <Plus size={18} /> Anunciar grátis
         </Link>
       </section>

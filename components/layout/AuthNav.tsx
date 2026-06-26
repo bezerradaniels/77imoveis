@@ -36,7 +36,7 @@ export function AuthNav() {
 
   if (!logged)
     return (
-      <Link href="/entrar" className="rounded-lg border border-border px-3 py-1.5 text-sm hover:bg-bg">
+      <Link href="/entrar" className="rounded-full border border-border px-3 py-1.5 text-sm hover:bg-bg">
         Entrar
       </Link>
     );
@@ -45,11 +45,11 @@ export function AuthNav() {
     <div className="flex items-center gap-2">
       <Link
         href="/painel"
-        className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-sm font-medium text-white"
+        className="inline-flex items-center gap-1.5 rounded-full bg-primary px-3 py-1.5 text-sm font-medium text-white"
       >
         <LayoutDashboard size={15} /> Painel
       </Link>
-      <button onClick={sair} className="rounded-lg border border-border px-3 py-1.5 text-sm hover:bg-bg">
+      <button onClick={sair} className="rounded-full border border-border px-3 py-1.5 text-sm hover:bg-bg">
         Sair
       </button>
     </div>

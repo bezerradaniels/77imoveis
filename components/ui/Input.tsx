@@ -5,7 +5,7 @@ export function Input({ className, ...props }: React.InputHTMLAttributes<HTMLInp
   return (
     <input
       className={cn(
-        'h-11 w-full rounded-lg border border-border bg-surface px-3 text-sm outline-none transition focus:border-primary',
+        'h-11 w-full rounded-lg bg-slate-100 px-3 text-sm outline-none transition focus:ring-2 focus:ring-primary',
         className,
       )}
       {...props}
@@ -14,10 +14,10 @@ export function Input({ className, ...props }: React.InputHTMLAttributes<HTMLInp
 }
 
 // Rótulo + campo, para formularios verticais.
-export function Field({ label, children }: { label: string; children: React.ReactNode }) {
+export function Field({ label, children }: { label: React.ReactNode; children: React.ReactNode }) {
   return (
     <label className="block space-y-1.5">
-      <span className="text-sm font-medium">{label}</span>
+      <span className="text-sm font-medium block">{label}</span>
       {children}
     </label>
   );

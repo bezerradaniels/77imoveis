@@ -72,17 +72,17 @@ export default async function EmpresaPublicaPage({ params }: { params: { slug: s
         </div>
         <div className="flex flex-wrap gap-2">
           {wa(c.whatsapp || c.phone) && (
-            <a href={wa(c.whatsapp || c.phone)!} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-lg bg-[#1FA855] px-4 py-2 text-sm font-semibold text-white">
+            <a href={wa(c.whatsapp || c.phone)!} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-full bg-[#1FA855] px-4 py-2 text-sm font-semibold text-white">
               <MessageCircle size={16} /> WhatsApp
             </a>
           )}
           {c.website && (
-            <a href={c.website} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-lg border border-border px-3 py-2 text-sm">
+            <a href={c.website} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-full border border-border px-3 py-2 text-sm">
               <Globe size={16} /> Site
             </a>
           )}
           {c.instagram && (
-            <a href={`https://instagram.com/${c.instagram.replace('@', '')}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-lg border border-border px-3 py-2 text-sm">
+            <a href={`https://instagram.com/${c.instagram.replace('@', '')}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-full border border-border px-3 py-2 text-sm">
               <Instagram size={16} />
             </a>
           )}

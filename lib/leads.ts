@@ -13,6 +13,12 @@ export type LeadInput = {
   token?: string; // Cloudflare Turnstile (opcional)
 };
 
+export type ContactClickInput = {
+  slug: string;
+  channel: 'whatsapp' | 'telefone' | 'ligacao';
+  contactValue?: string | null;
+};
+
 // Grava um contato (lead) de um anúncio. Insert público (RLS) com o dono correto.
 export async function submitLead(form: LeadInput): Promise<{ ok?: true; error?: string }> {
   // Anti-spam 1: honeypot. Bots preenchem o campo escondido → descarta silenciosamente.
@@ -44,6 +50,29 @@ export async function submitLead(form: LeadInput): Promise<{ ok?: true; error?: 
   });
   if (error) return { error: 'Não foi possível enviar agora. Tente novamente.' };
   return { ok: true };
+}
+
+// Registra cliques em WhatsApp/telefone como leads leves, sem bloquear o CTA.
+export async function trackContactClick(form: ContactClickInput): Promise<{ ok?: true; error?: string }> {
+  const ref = await getPropertyContactRef(form.slug);
+  if (!ref) return { error: 'Anúncio não encontrado.' };
+
+  const h = headers();
+  const ip = (h.get('x-forwarded-for') || '').split(',')[0].trim() || null;
+  const label = form.channel === 'whatsapp' ? 'Clique no WhatsApp' : 'Clique no telefone';
+
+  const { error } = await createClient().from('leads').insert({
+    property_id: ref.id,
+    owner_id: ref.owner_id,
+    company_id: ref.company_id,
+    name: label,
+    phone: form.contactValue?.trim() || null,
+    message: `Contato iniciado por ${form.channel}.`,
+    channel: form.channel,
+    ip_address: ip,
+    user_agent: h.get('user-agent') || null,
+  });
+  return error ? { error: 'Não foi possível registrar o contato.' } : { ok: true };
 }
 
 async function verifyTurnstile(token: string | undefined, secret: string) {

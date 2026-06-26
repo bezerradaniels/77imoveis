@@ -56,18 +56,18 @@ export function LeadForm({ slug, title }: { slug: string; title: string }) {
     <form onSubmit={onSubmit} className="space-y-2.5">
       {/* honeypot (escondido para humanos) */}
       <input type="text" name="website" tabIndex={-1} autoComplete="off" className="hidden" aria-hidden />
-      <Input name="name" placeholder="Seu nome" required />
-      <Input name="phone" type="tel" placeholder="WhatsApp / Telefone" required />
-      <Input name="email" type="email" placeholder="E-mail (opcional)" />
+      <Input name="name" placeholder="Seu nome" required className="border border-border bg-bg" />
+      <Input name="phone" type="tel" placeholder="WhatsApp / Telefone" required className="border border-border bg-bg" />
+      <Input name="email" type="email" placeholder="E-mail (opcional)" className="border border-border bg-bg" />
       <textarea
         name="message"
         rows={3}
-        className="w-full rounded-lg border border-border bg-surface p-3 text-sm"
+        className="w-full resize-none rounded-lg border border-border bg-bg p-3 text-sm outline-none transition focus:ring-2 focus:ring-primary"
         placeholder={`Tenho interesse no imóvel "${title}".`}
       />
       {SITE_KEY && <div className="cf-turnstile" data-sitekey={SITE_KEY} />}
       {error && <p className="text-sm text-danger">{error}</p>}
-      <Button type="submit" disabled={loading} className="w-full">
+      <Button type="submit" disabled={loading} className="h-11 w-full">
         {loading ? 'Enviando…' : 'Enviar mensagem'}
       </Button>
     </form>

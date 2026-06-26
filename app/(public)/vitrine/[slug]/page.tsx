@@ -49,7 +49,7 @@ export default async function VitrinePublicaPage({ params }: { params: { slug: s
               <p className="text-sm text-muted">{c.trade_name}</p>
             </div>
             {wa && (
-              <a href={wa} target="_blank" rel="noopener noreferrer" className="mb-2 ml-auto inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold text-white" style={{ background: accent }}>
+              <a href={wa} target="_blank" rel="noopener noreferrer" className="mb-2 ml-auto inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold text-white" style={{ background: accent }}>
                 <MessageCircle size={16} /> Falar conosco
               </a>
             )}

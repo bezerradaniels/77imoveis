@@ -1,17 +1,23 @@
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
 import { ArrowLeft } from 'lucide-react';
-import { getPropertyTypes, getCitiesAll, getFeaturesAll } from '@/lib/data';
+import { getPropertyTypes, getCitiesAll, getFeaturesAll, getMyCompany } from '@/lib/data';
+import { getProfile } from '@/lib/auth';
 import { PropertyForm } from '@/components/painel/PropertyForm';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Novo anúncio', robots: { index: false } };
 
 export default async function NovoImovelPage() {
-  const [types, cities, features] = await Promise.all([
+  const [types, cities, features, profile, company] = await Promise.all([
     getPropertyTypes(),
     getCitiesAll(),
     getFeaturesAll(),
+    getProfile(),
+    getMyCompany(),
   ]);
+
+  if (profile?.role_intent === 'profissional' && !company) redirect('/painel/empresa');
 
   return (
     <main className="mx-auto max-w-3xl px-4 py-8">

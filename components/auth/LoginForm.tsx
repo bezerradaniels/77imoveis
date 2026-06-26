@@ -44,7 +44,7 @@ export function LoginForm() {
         <Input name="password" type="password" autoComplete="current-password" required />
       </Field>
       {error && <p className="text-sm text-danger">{error}</p>}
-      <Button type="submit" disabled={loading} className="w-full">
+      <Button type="submit" disabled={loading} rounded="lg" className="w-full">
         {loading ? 'Entrando…' : 'Entrar'}
       </Button>
       <p className="text-center text-sm text-muted">

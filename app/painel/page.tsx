@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Plus, Home, MessageSquare, Building2, Store, Shield } from 'lucide-react';
+import { Plus, Home, MessageSquare, Building2, Store, Shield, CreditCard } from 'lucide-react';
 import { getProfile } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
@@ -17,7 +17,7 @@ export default async function PainelPage() {
   const nome = profile?.full_name?.split(' ')[0] ?? 'bem-vindo';
 
   return (
-    <main className="mx-auto max-w-5xl px-4 py-8">
+    <main className="mx-auto max-w-6xl px-4 py-8">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold">Olá, {nome} 👋</h1>
@@ -72,6 +72,16 @@ export default async function PainelPage() {
           <div>
             <p className="font-medium">Minha vitrine</p>
             <p className="text-sm text-muted">Página própria com seus imóveis</p>
+          </div>
+        </Link>
+        <Link
+          href="/painel/planos"
+          className="flex items-center gap-3 rounded-xl border border-border bg-surface p-5 hover:bg-bg"
+        >
+          <CreditCard size={22} className="text-primary" />
+          <div>
+            <p className="font-medium">Planos e upgrade</p>
+            <p className="text-sm text-muted">Limites, destaques e recursos profissionais</p>
           </div>
         </Link>
         {['admin', 'moderador'].includes(profile?.role ?? '') && (

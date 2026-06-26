@@ -87,6 +87,7 @@ create index idx_neigh_name_trgm on neighborhoods using gin (name gin_trgm_ops);
 create table profiles (
   id          uuid primary key references auth.users(id) on delete cascade,
   role        user_role not null default 'particular',
+  role_intent text check (role_intent in ('particular','profissional')),
   full_name   text,
   email       text,
   phone       text,
@@ -208,7 +209,7 @@ create table properties (
   title           text not null,
   slug            text not null unique,         -- "casa-3-quartos-bairro-recreio-vitoria-da-conquista"
   description     text,
-  reference_code  text,                         -- código interno do anunciante
+  reference_code  text unique,                  -- código público único do anúncio (ex.: IMV-8C7CC360)
 
   property_type_id uuid not null references property_types(id),
   negotiation     negotiation_type not null,    -- venda/aluguel/temporada/lancamento
@@ -534,8 +535,15 @@ create trigger trg_prop_geom     before insert or update on properties    for ea
 -- 10.3 cria profile automaticamente quando um usuário se cadastra
 create or replace function handle_new_user() returns trigger as $$
 begin
-  insert into public.profiles (id, email, full_name, role)
-  values (new.id, new.email, new.raw_user_meta_data->>'full_name', 'particular');
+  insert into public.profiles (id, email, full_name, phone, whatsapp, role)
+  values (
+    new.id,
+    new.email,
+    new.raw_user_meta_data->>'full_name',
+    new.raw_user_meta_data->>'phone',
+    coalesce(new.raw_user_meta_data->>'whatsapp', new.raw_user_meta_data->>'phone'),
+    'particular'
+  );
   return new;
 end;
 $$ language plpgsql security definer;

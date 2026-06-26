@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { Cookie } from 'lucide-react';
 
 // Aviso de cookies/privacidade (LGPD). Guarda o consentimento no navegador.
 export function ConsentBanner() {
@@ -12,9 +13,9 @@ export function ConsentBanner() {
     } catch {}
   }, []);
 
-  const accept = () => {
+  const respond = (value: 'accepted' | 'rejected') => {
     try {
-      localStorage.setItem('lgpd-consent', '1');
+      localStorage.setItem('lgpd-consent', value);
     } catch {}
     setShow(false);
   };
@@ -22,15 +23,35 @@ export function ConsentBanner() {
   if (!show) return null;
 
   return (
-    <div className="fixed inset-x-0 bottom-16 z-50 border-y border-border bg-surface/95 backdrop-blur md:bottom-0 md:border-b-0">
-      <div className="mx-auto flex max-w-6xl flex-col items-start gap-3 px-4 py-3 text-sm sm:flex-row sm:items-center sm:justify-between">
-        <p className="text-muted">
-          Usamos cookies para melhorar sua experiência e entender o uso do site. Ao continuar, você concorda com a nossa{' '}
-          <Link href="/privacidade" className="text-primary underline">Política de Privacidade</Link>.
-        </p>
-        <button onClick={accept} className="shrink-0 rounded-lg bg-primary px-4 py-2 font-medium text-white">
-          Entendi
-        </button>
+    <div className="fixed inset-x-0 bottom-16 z-50 px-4 pb-4 md:bottom-0">
+      <div className="mx-auto flex max-w-3xl flex-col items-start gap-4 rounded-2xl border border-border bg-surface p-5 shadow-lg sm:flex-row sm:items-center">
+        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-bg">
+          <Cookie className="h-5 w-5 text-primary" />
+        </span>
+        <div className="flex-1 text-sm">
+          <p className="mb-1 font-semibold text-text">Cookies no 77Imóveis</p>
+          <p className="text-muted">
+            Usamos cookies essenciais para manter o site funcionando e, com sua permissão, cookies de
+            análise para melhorar a experiência. Você pode aceitar ou recusar os cookies não essenciais.{' '}
+            <Link href="/privacidade" className="font-semibold text-text underline">
+              Saiba mais.
+            </Link>
+          </p>
+        </div>
+        <div className="flex w-full shrink-0 gap-2 sm:w-auto">
+          <button
+            onClick={() => respond('rejected')}
+            className="flex-1 rounded-full border border-border px-4 py-2 font-medium text-text sm:flex-none"
+          >
+            Recusar
+          </button>
+          <button
+            onClick={() => respond('accepted')}
+            className="flex-1 rounded-full bg-primary px-4 py-2 font-medium text-white sm:flex-none"
+          >
+            Aceitar
+          </button>
+        </div>
       </div>
     </div>
   );

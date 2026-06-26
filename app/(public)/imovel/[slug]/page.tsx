@@ -2,8 +2,8 @@ import type { Metadata } from 'next';
 import { cache } from 'react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { BedDouble, Bath, Car, Ruler, LandPlot, DoorOpen, Check, MapPin } from 'lucide-react';
-import { getPropertyBySlug, getActivePropertySlugs } from '@/lib/data';
+import { BedDouble, Bath, Car, Ruler, LandPlot, DoorOpen, Check, MapPin, ChevronRight } from 'lucide-react';
+import { getPropertyBySlug } from '@/lib/data';
 import { brl } from '@/lib/format';
 import { Gallery } from '@/components/property/Gallery';
 import { ContactCard } from '@/components/property/ContactCard';
@@ -11,13 +11,8 @@ import { MobileContactBar } from '@/components/property/MobileContactBar';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { realEstateListingLd, breadcrumbLd } from '@/lib/seo/jsonld';
 
-export const revalidate = 300;
+export const dynamic = 'force-dynamic';
 const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://77imoveis.com.br';
-
-// Pré-gera uma página para cada imóvel ativo.
-export async function generateStaticParams() {
-  return (await getActivePropertySlugs()).map((slug) => ({ slug }));
-}
 
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
   const p = await getProperty(params.slug);
@@ -77,14 +72,14 @@ export default async function ImovelPage({ params }: { params: { slug: string } 
     p.land_area && { Icon: LandPlot, label: `${p.land_area} m² de terreno` },
   ].filter(Boolean) as { Icon: any; label: string }[];
 
-  const contact = p.companies?.whatsapp || p.profiles?.whatsapp;
-  const phone = p.companies?.phone || p.profiles?.phone;
+  const contact = p.companies?.whatsapp || p.companies?.phone || p.profiles?.whatsapp || p.profiles?.phone;
+  const phone = p.companies?.phone || p.companies?.whatsapp || p.profiles?.phone || p.profiles?.whatsapp;
   const wa = whatsappLink(contact, p.title);
   const anunciante = p.companies?.trade_name || p.profiles?.full_name || undefined;
   const showMap = p.latitude && p.longitude && !p.hide_exact_location;
 
   return (
-    <main className="mx-auto max-w-5xl px-4 py-6">
+    <main className="pb-24 lg:pb-12">
       <JsonLd
         data={realEstateListingLd({
           title: p.title,
@@ -106,18 +101,23 @@ export default async function ImovelPage({ params }: { params: { slug: string } 
         ])}
       />
 
-      <nav aria-label="trilha" className="mb-4 text-sm text-muted">
-        <Link href="/">Início</Link> › <Link href={`/${p.cities?.slug}`}>{p.cities?.name}</Link> ›{' '}
-        <Link href={`/${p.cities?.slug}/${p.property_types?.slug}s`}>{p.property_types?.name}</Link>
-      </nav>
+      <div className="mx-auto max-w-6xl px-4 pt-4 lg:pt-6">
+        <nav aria-label="trilha" className="mb-4 hidden items-center gap-1 text-sm text-muted md:flex">
+          <Link href="/" className="hover:text-text">Início</Link>
+          <ChevronRight size={14} />
+          <Link href={`/${p.cities?.slug}`} className="hover:text-text">{p.cities?.name}</Link>
+          <ChevronRight size={14} />
+          <Link href={`/${p.cities?.slug}/${p.property_types?.slug}s`} className="hover:text-text">{p.property_types?.name}</Link>
+        </nav>
 
-      <Gallery images={images} title={p.title} />
+        <Gallery images={images} title={p.title} />
+      </div>
 
-      <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_320px]">
-        <article className="space-y-6">
-          <header>
-            <h1 className="text-2xl font-bold">{p.title}</h1>
-            <p className="mt-1 flex items-center gap-1 text-muted">
+      <div className="mx-auto grid max-w-6xl gap-8 px-4 lg:grid-cols-[minmax(0,1fr)_360px] lg:gap-12">
+        <article>
+          <header className="border-b border-border py-6 lg:py-8">
+            <h1 className="max-w-3xl text-2xl font-semibold leading-tight tracking-tight md:text-3xl">{p.title}</h1>
+            <p className="mt-2 flex items-center gap-1.5 text-sm text-muted md:text-base">
               <MapPin size={15} />
               {p.neighborhoods?.name ? `${p.neighborhoods.name}, ` : ''}
               {p.cities?.name} - {p.cities?.state ?? 'BA'}
@@ -125,29 +125,31 @@ export default async function ImovelPage({ params }: { params: { slug: string } 
           </header>
 
           {!!specs.length && (
-            <div className="flex flex-wrap gap-4 rounded-xl border border-border bg-surface p-4">
+            <section className="border-b border-border py-6">
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
               {specs.map((s, i) => (
-                <span key={i} className="inline-flex items-center gap-2 text-sm">
-                  <s.Icon size={18} className="text-primary" /> {s.label}
+                <span key={i} className="inline-flex min-h-12 items-center gap-3 rounded-lg border border-border bg-surface px-3 py-2 text-sm">
+                  <s.Icon size={18} className="shrink-0 text-primary" /> {s.label}
                 </span>
               ))}
-            </div>
+              </div>
+            </section>
           )}
 
           {p.description && (
-            <section>
-              <h2 className="mb-2 text-lg font-semibold">Descrição</h2>
-              <p className="whitespace-pre-line text-sm leading-relaxed text-muted">{p.description}</p>
+            <section className="border-b border-border py-6 lg:py-8">
+              <h2 className="mb-3 text-xl font-semibold">Descrição</h2>
+              <p className="max-w-3xl whitespace-pre-line text-base leading-7 text-muted">{p.description}</p>
             </section>
           )}
 
           {!!features.length && (
-            <section>
-              <h2 className="mb-2 text-lg font-semibold">Características</h2>
-              <ul className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+            <section className="border-b border-border py-6 lg:py-8">
+              <h2 className="mb-4 text-xl font-semibold">Características</h2>
+              <ul className="grid gap-x-6 gap-y-4 sm:grid-cols-2">
                 {features.map((f: any) => (
-                  <li key={f.slug} className="inline-flex items-center gap-2 text-sm text-muted">
-                    <Check size={15} className="text-success" /> {f.name}
+                  <li key={f.slug} className="inline-flex items-center gap-3 text-sm text-text">
+                    <Check size={17} className="shrink-0 text-success" /> {f.name}
                   </li>
                 ))}
               </ul>
@@ -155,29 +157,42 @@ export default async function ImovelPage({ params }: { params: { slug: string } 
           )}
 
           {(p.condo_fee || p.iptu) && (
-            <section className="flex flex-wrap gap-6 text-sm">
-              {p.condo_fee ? <span>Condomínio: <b>{brl(p.condo_fee)}</b></span> : null}
-              {p.iptu ? <span>IPTU: <b>{brl(p.iptu)}/ano</b></span> : null}
+            <section className="border-b border-border py-6">
+              <h2 className="mb-4 text-xl font-semibold">Custos do imóvel</h2>
+              <div className="grid gap-3 sm:grid-cols-2">
+                {p.condo_fee ? (
+                  <span className="rounded-lg border border-border bg-surface p-4 text-sm">
+                    <span className="block text-muted">Condomínio</span>
+                    <b className="mt-1 block text-base">{brl(p.condo_fee)}</b>
+                  </span>
+                ) : null}
+                {p.iptu ? (
+                  <span className="rounded-lg border border-border bg-surface p-4 text-sm">
+                    <span className="block text-muted">IPTU</span>
+                    <b className="mt-1 block text-base">{brl(p.iptu)}/ano</b>
+                  </span>
+                ) : null}
+              </div>
             </section>
           )}
 
           {showMap && (
-            <section>
-              <h2 className="mb-2 text-lg font-semibold">Localização</h2>
+            <section className="border-b border-border py-6 lg:py-8">
+              <h2 className="mb-3 text-xl font-semibold">Localização</h2>
               <a
                 href={`https://www.google.com/maps?q=${p.latitude},${p.longitude}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 text-sm text-primary"
+                className="inline-flex items-center gap-2 rounded-full border border-border px-4 py-2 text-sm font-medium text-text hover:bg-surface"
               >
-                <MapPin size={15} /> Ver no mapa
+                <MapPin size={16} className="text-primary" /> Ver no mapa
               </a>
             </section>
           )}
         </article>
 
         {/* Desktop: sidebar fixa. Mobile: barra inferior + modal (abaixo). */}
-        <aside className="hidden lg:block lg:sticky lg:top-4 lg:self-start">
+        <aside className="hidden lg:block lg:sticky lg:top-24 lg:self-start lg:pt-8">
           <ContactCard negotiations={negotiations} anunciante={anunciante} wa={wa} phone={phone} slug={p.slug} title={p.title} />
         </aside>
       </div>

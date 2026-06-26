@@ -2,16 +2,29 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { MailCheck } from 'lucide-react';
+import { Eye, EyeOff, MailCheck } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { Input, Field } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
+
+function formatPhone(value: string) {
+  const digits = value.replace(/\D/g, '').slice(0, 11);
+  const ddd = digits.slice(0, 2);
+  const rest = digits.slice(2);
+  if (digits.length <= 2) return digits.length ? `(${ddd}` : '';
+  if (rest.length <= 4) return `(${ddd}) ${rest}`;
+  if (digits.length <= 10) return `(${ddd}) ${rest.slice(0, 4)}-${rest.slice(4)}`;
+  return `(${ddd}) ${rest.slice(0, 5)}-${rest.slice(5, 9)}`;
+}
 
 export function SignupForm() {
   const router = useRouter();
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
+  const [phone, setPhone] = useState('');
+  const [email, setEmail] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -32,7 +45,7 @@ export function SignupForm() {
       const { data, error } = await sb.auth.signUp({
         email,
         password,
-        options: { data: { full_name } },
+        options: { data: { full_name, phone, whatsapp: phone } },
       });
       if (error) {
         setError(error.message.includes('registered') ? 'Este e-mail já tem conta.' : 'Não foi possível criar a conta.');
@@ -41,7 +54,7 @@ export function SignupForm() {
       }
       if (data.session && data.user) {
         // Conta já ativa: completa o telefone no profile (criado pelo trigger).
-        await sb.from('profiles').update({ phone }).eq('id', data.user.id);
+        await sb.from('profiles').update({ phone, whatsapp: phone }).eq('id', data.user.id);
         router.push('/painel');
         router.refresh();
       } else {
@@ -56,7 +69,7 @@ export function SignupForm() {
 
   if (sent)
     return (
-      <div className="space-y-3 rounded-xl border border-border bg-surface p-6 text-center">
+      <div className="space-y-3 rounded-[30px] border border-border bg-surface p-6 text-center">
         <MailCheck size={32} className="mx-auto text-success" />
         <h2 className="font-semibold">Confirme seu e-mail</h2>
         <p className="text-sm text-muted">
@@ -74,16 +87,51 @@ export function SignupForm() {
         <Input name="full_name" autoComplete="name" required placeholder="Seu nome" />
       </Field>
       <Field label="WhatsApp / Telefone">
-        <Input name="phone" type="tel" autoComplete="tel" required placeholder="(77) 90000-0000" />
+        <Input
+          name="phone"
+          type="tel"
+          inputMode="numeric"
+          autoComplete="tel"
+          required
+          placeholder="(77) 90000-0000"
+          maxLength={15}
+          value={phone}
+          onChange={(e) => setPhone(formatPhone(e.target.value))}
+        />
       </Field>
       <Field label="E-mail">
-        <Input name="email" type="email" autoComplete="email" required placeholder="voce@email.com" />
+        <Input
+          name="email"
+          type="email"
+          autoComplete="email"
+          required
+          placeholder="voce@email.com"
+          value={email}
+          onChange={(e) => setEmail(e.target.value.trim().toLowerCase())}
+        />
       </Field>
       <Field label="Senha">
-        <Input name="password" type="password" autoComplete="new-password" required minLength={6} />
+        <div className="relative">
+          <Input
+            name="password"
+            type={showPassword ? 'text' : 'password'}
+            autoComplete="new-password"
+            required
+            minLength={6}
+            className="pr-10"
+          />
+          <button
+            type="button"
+            onClick={() => setShowPassword((v) => !v)}
+            className="absolute inset-y-0 right-0 flex items-center px-3 text-muted"
+            aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
+          >
+            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+          </button>
+        </div>
       </Field>
       {error && <p className="text-sm text-danger">{error}</p>}
-      <Button type="submit" disabled={loading} className="w-full">
+      <Button type="submit" disabled={loading} rounded="lg" className="w-full">
         {loading ? 'Criando conta…' : 'Criar conta grátis'}
       </Button>
       <p className="text-center text-sm text-muted">

@@ -1,5 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ImagePlus, X, Loader2 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
@@ -18,7 +19,11 @@ const NEGOS = [
   { v: 'lancamento', label: 'Lançamento' },
 ];
 
+const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
+const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/avif'];
+
 type Neg = { on: boolean; price: string; sob: boolean };
+type PendingImage = { id: string; file: File };
 
 export function PropertyForm({
   types,
@@ -35,6 +40,7 @@ export function PropertyForm({
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState('');
+  const [previewing, setPreviewing] = useState(false);
 
   const [typeId, setTypeId] = useState(initial?.property_type_id ?? '');
   const [cityId, setCityId] = useState(initial?.city_id ?? '');
@@ -65,7 +71,7 @@ export function PropertyForm({
   const [existing, setExisting] = useState<string[]>(
     [...(initial?.property_images ?? [])].sort((a: any, b: any) => a.sort - b.sort).map((i: any) => i.url),
   );
-  const [files, setFiles] = useState<File[]>([]);
+  const [files, setFiles] = useState<PendingImage[]>([]);
 
   // Carrega bairros quando a cidade muda.
   useEffect(() => {
@@ -86,7 +92,10 @@ export function PropertyForm({
     try {
       const sb = createClient();
       const urls: string[] = [];
-      for (const f of files) {
+      for (const item of files) {
+        const f = item.file;
+        if (!ALLOWED_IMAGE_TYPES.includes(f.type)) throw new Error('Use fotos em JPG, PNG, WebP ou AVIF.');
+        if (f.size > MAX_IMAGE_SIZE) throw new Error('Cada foto precisa ter até 5 MB.');
         const path = `${crypto.randomUUID()}.${f.name.split('.').pop() || 'jpg'}`;
         const { error } = await sb.storage.from('imoveis').upload(path, f, { cacheControl: '3600' });
         if (error) throw error;
@@ -107,6 +116,10 @@ export function PropertyForm({
       priceVisibility: (negs[n.v].sob ? 'sob_consulta' : 'publico') as 'publico' | 'sob_consulta',
     }));
     if (!negotiations.length) return setError('Escolha ao menos uma modalidade.');
+    if (publish && !previewing) {
+      setPreviewing(true);
+      return;
+    }
 
     setSaving(true);
     try {
@@ -142,7 +155,7 @@ export function PropertyForm({
       router.push('/painel/imoveis');
       router.refresh();
     } catch (e: any) {
-      setError(e?.message?.includes('Bucket') ? 'Crie o bucket público "imoveis" no Supabase Storage para enviar fotos.' : 'Erro ao salvar. Tente novamente.');
+      setError(e?.message?.includes('Bucket') ? 'Crie o bucket público "imoveis" no Supabase Storage para enviar fotos.' : e?.message || 'Erro ao salvar. Tente novamente.');
       setSaving(false);
     }
   }
@@ -270,27 +283,73 @@ export function PropertyForm({
               </button>
             </div>
           ))}
-          {files.map((f, i) => (
-            <div key={i} className="relative h-24 w-32">
-              <img src={URL.createObjectURL(f)} alt="" className="h-full w-full rounded-lg object-cover" />
-              <button type="button" onClick={() => setFiles(files.filter((_, j) => j !== i))} className="absolute -right-1.5 -top-1.5 rounded-full bg-danger p-0.5 text-white">
+          {files.map((item) => (
+            <div key={item.id} className="relative h-24 w-32">
+              <img src={URL.createObjectURL(item.file)} alt="" className="h-full w-full rounded-lg object-cover" />
+              <button type="button" onClick={() => setFiles(files.filter((f) => f.id !== item.id))} className="absolute -right-1.5 -top-1.5 rounded-full bg-danger p-0.5 text-white">
                 <X size={12} />
               </button>
             </div>
           ))}
           <label className="flex h-24 w-32 cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border border-dashed border-border text-xs text-muted hover:bg-bg">
             <ImagePlus size={18} /> Adicionar
-            <input type="file" accept="image/*" multiple className="hidden" onChange={(e) => setFiles([...files, ...Array.from(e.target.files ?? [])])} />
+            <input
+              type="file"
+              accept="image/*"
+              multiple
+              className="hidden"
+              onChange={(e) => {
+                const selected = Array.from(e.target.files ?? []).map((file) => ({ id: crypto.randomUUID(), file }));
+                setFiles([...files, ...selected]);
+                e.currentTarget.value = '';
+              }}
+            />
           </label>
         </div>
       </section>
 
-      {error && <p className="text-sm text-danger">{error}</p>}
+      {error && (
+        <div className="rounded-lg border border-danger/30 bg-danger/5 p-3 text-sm">
+          <p className="text-danger">{error}</p>
+          {error.includes('perfil profissional') && (
+            <Link href="/painel/empresa" className="mt-2 inline-flex font-medium text-primary">
+              Criar perfil profissional
+            </Link>
+          )}
+        </div>
+      )}
+
+      {previewing && (
+        <section className="rounded-xl border border-primary/30 bg-primary/5 p-4">
+          <h2 className="text-sm font-semibold">Revise antes de publicar</h2>
+          <dl className="mt-3 grid gap-2 text-sm sm:grid-cols-2">
+            <div>
+              <dt className="text-muted">Título</dt>
+              <dd className="font-medium">{title || 'Sem título'}</dd>
+            </div>
+            <div>
+              <dt className="text-muted">Cidade</dt>
+              <dd className="font-medium">{cities.find((c) => c.id === cityId)?.name ?? 'Não informada'}</dd>
+            </div>
+            <div>
+              <dt className="text-muted">Tipo</dt>
+              <dd className="font-medium">{types.find((t) => t.id === typeId)?.name ?? 'Não informado'}</dd>
+            </div>
+            <div>
+              <dt className="text-muted">Fotos</dt>
+              <dd className="font-medium">{existing.length + files.length}</dd>
+            </div>
+          </dl>
+          <p className="mt-3 text-xs text-muted">
+            Ao confirmar, o anúncio será publicado ou enviado para análise, conforme a configuração de moderação.
+          </p>
+        </section>
+      )}
 
       <div className="flex flex-wrap gap-3 border-t border-border pt-4">
         <Button onClick={() => submit(true)} disabled={saving || uploading}>
           {(saving || uploading) && <Loader2 size={16} className="animate-spin" />}
-          {uploading ? 'Enviando fotos…' : saving ? 'Salvando…' : 'Publicar anúncio'}
+          {uploading ? 'Enviando fotos…' : saving ? 'Salvando…' : previewing ? 'Confirmar publicação' : 'Revisar e publicar'}
         </Button>
         <Button variant="outline" onClick={() => submit(false)} disabled={saving || uploading}>
           Salvar rascunho

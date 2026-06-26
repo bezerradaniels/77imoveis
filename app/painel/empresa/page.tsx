@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import { getMyCompany, getCitiesAll, getSpecialties } from '@/lib/data';
 import { CompanyForm } from '@/components/painel/CompanyForm';
+import { OnboardingWizard } from '@/components/painel/OnboardingWizard';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Minha empresa', robots: { index: false } };
@@ -24,7 +25,11 @@ export default async function EmpresaPage() {
           ? 'Atualize os dados da sua empresa e o perfil público.'
           : 'Crie o perfil da sua empresa para anunciar como profissional (mais imóveis, página própria e vitrine).'}
       </p>
-      <CompanyForm cities={cities as any} specialties={specialties as any} initial={company} />
+      {company ? (
+        <CompanyForm cities={cities as any} specialties={specialties as any} initial={company} />
+      ) : (
+        <OnboardingWizard cities={cities as any} specialties={specialties as any} />
+      )}
     </main>
   );
 }

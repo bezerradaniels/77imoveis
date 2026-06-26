@@ -32,6 +32,21 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(login);
   }
 
+  // Primeira visita ao painel: escolher Particular ou Profissional antes de seguir.
+  const escolhaPath = '/painel/escolha-perfil';
+  if (user && path.startsWith('/painel') && path !== escolhaPath) {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role_choice_made_at')
+      .eq('id', user.id)
+      .maybeSingle();
+    if (profile && !profile.role_choice_made_at) {
+      const escolha = request.nextUrl.clone();
+      escolha.pathname = escolhaPath;
+      return NextResponse.redirect(escolha);
+    }
+  }
+
   return response;
 }
 
