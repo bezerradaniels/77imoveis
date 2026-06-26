@@ -6,12 +6,14 @@ export const metadata: Metadata = { title: 'Entrar', robots: { index: false } };
 
 export default function EntrarPage() {
   return (
-    <main className="mx-auto max-w-sm px-4 py-12">
+    <main className="mx-auto max-w-sm px-4 py-14">
       <h1 className="mb-1 text-2xl font-bold">Entrar</h1>
       <p className="mb-6 text-sm text-muted">Acesse seu painel para gerenciar anúncios e contatos.</p>
-      <Suspense>
-        <LoginForm />
-      </Suspense>
+      <div className="rounded-xl border border-border bg-surface p-6">
+        <Suspense>
+          <LoginForm />
+        </Suspense>
+      </div>
     </main>
   );
 }

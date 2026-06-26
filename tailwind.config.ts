@@ -9,6 +9,7 @@ const config: Config = {
         // tokens via CSS variables (suporta modo claro/escuro)
         bg: 'var(--bg)',
         surface: 'var(--surface)',
+        subtle: 'var(--subtle)',
         border: 'var(--border)',
         text: 'var(--text)',
         muted: 'var(--text-muted)',
@@ -20,9 +21,6 @@ const config: Config = {
       },
       borderRadius: { xl: 'var(--radius)' },
       fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] },
-      boxShadow: {
-        card: '0 1px 2px rgba(15,23,42,.06), 0 8px 24px rgba(15,23,42,.06)',
-      },
     },
   },
   plugins: [],

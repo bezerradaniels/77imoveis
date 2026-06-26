@@ -43,7 +43,7 @@ export function Dropdown({
         <ChevronDown size={16} className={cn('text-muted transition', open && 'rotate-180')} />
       </button>
       {open && (
-        <div className="absolute left-0 right-0 top-full z-30 mt-1 overflow-hidden rounded-lg border border-border bg-surface shadow-card">
+        <div className="absolute left-0 right-0 top-full z-30 mt-1 overflow-hidden rounded-lg border border-border bg-surface">
           {options.map((o) => (
             <button
               key={o.value}

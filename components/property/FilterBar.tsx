@@ -42,7 +42,7 @@ export function FilterBar() {
   };
 
   return (
-    <div className="space-y-3 rounded-xl border border-border bg-surface p-3 shadow-card">
+    <div className="space-y-3 rounded-xl border border-border bg-surface p-3">
       <div className="flex flex-wrap gap-2">
         {modalidades.map((m) => {
           const active = (params.get('modalidade') ?? '') === m.value;

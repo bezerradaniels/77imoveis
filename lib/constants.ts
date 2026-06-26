@@ -22,3 +22,25 @@ export const companyTypes = [
 
 export const companyTypeLabel = (v: string) =>
   companyTypes.find((t) => t.value === v)?.label ?? v;
+
+// Emoji por cidade + paleta de tiles suaves (toque de cor, estilo Airbnb).
+export const cityEmoji: Record<string, string> = {
+  'vitoria-da-conquista': '🏙️',
+  barreiras: '🌾',
+  'luis-eduardo-magalhaes': '🚜',
+  guanambi: '☀️',
+  brumado: '⛏️',
+  'bom-jesus-da-lapa': '⛪',
+  'santa-maria-da-vitoria': '🌅',
+};
+export const cityEmojiFor = (slug: string) => cityEmoji[slug] ?? '📍';
+
+export const tileColors = ['#e0f2fe', '#dcfce7', '#fee2e2', '#fef9c3', '#f3e8ff', '#ffedd5', '#cffafe'];
+
+// Emoji por tipo de imóvel (chips da home).
+export const typeEmoji: Record<string, string> = {
+  casa: '🏠', apartamento: '🏢', cobertura: '🌆', kitnet: '🛏️', condominio: '🏘️',
+  'sala-comercial': '🏬', loja: '🏪', galpao: '🏭', terreno: '🌳', lote: '📐',
+  chacara: '🌿', fazenda: '🚜',
+};
+export const typeEmojiFor = (slug: string) => typeEmoji[slug] ?? '🏠';

@@ -26,7 +26,7 @@ export function SearchBar({ cities, types }: { cities: Option[]; types: Option[]
   };
 
   return (
-    <div className="rounded-xl border border-border bg-surface p-4 shadow-card">
+    <div className="rounded-xl border border-border bg-surface p-4">
       <div className="mb-3 flex gap-2">
         {modalidades.map((m) => (
           <button

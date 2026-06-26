@@ -3,29 +3,36 @@
 @tailwind utilities;
 
 :root {
-  --bg: #f8fafc;
+  /* Base neutra (estilo Airbnb) + um único acento teal discreto */
+  --bg: #f7f7f7;
   --surface: #ffffff;
-  --border: #e2e8f0;
-  --text: #0f172a;
-  --text-muted: #64748b;
-  --primary: #0891b2;
-  --primary-hover: #0e7490;
-  --accent: #0ea5e9;
-  --success: #16a34a;
-  --warning: #f59e0b;
-  --danger: #dc2626;
-  --radius: 1rem;
+  --border: #dddddd;
+  --text: #222222;
+  --text-muted: #717171;
+  --primary: #0d9488;
+  --primary-hover: #0f766e;
+  --accent: #0d9488;
+  --success: #15803d;
+  --warning: #b45309;
+  --danger: #c0392b;
+  --radius: 0.75rem;
+  /* cinza muito sutil para hovers/realces */
+  --subtle: #f7f7f7;
+  /* degradê leve do header (toque de cor) */
+  --header-grad: linear-gradient(90deg, #effdfa 0%, #ffffff 45%, #fff1f3 100%);
 }
 
 .dark {
-  --bg: #0f172a;
-  --surface: #1e293b;
-  --border: #334155;
-  --text: #f1f5f9;
-  --text-muted: #94a3b8;
-  --primary: #22d3ee;
-  --primary-hover: #06b6d4;
-  --accent: #38bdf8;
+  --bg: #161616;
+  --surface: #1f1f1f;
+  --border: #3a3a3a;
+  --text: #f5f5f5;
+  --text-muted: #b0b0b0;
+  --primary: #2dd4bf;
+  --primary-hover: #5eead4;
+  --accent: #2dd4bf;
+  --subtle: #262626;
+  --header-grad: linear-gradient(90deg, #13201f 0%, #161616 45%, #201619 100%);
 }
 
 html { color-scheme: light dark; }

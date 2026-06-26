@@ -22,7 +22,7 @@ export function ConsentBanner() {
   if (!show) return null;
 
   return (
-    <div className="fixed inset-x-0 bottom-0 z-50 border-t border-border bg-surface/95 backdrop-blur">
+    <div className="fixed inset-x-0 bottom-16 z-50 border-y border-border bg-surface/95 backdrop-blur md:bottom-0 md:border-b-0">
       <div className="mx-auto flex max-w-6xl flex-col items-start gap-3 px-4 py-3 text-sm sm:flex-row sm:items-center sm:justify-between">
         <p className="text-muted">
           Usamos cookies para melhorar sua experiência e entender o uso do site. Ao continuar, você concorda com a nossa{' '}

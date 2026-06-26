@@ -2,24 +2,17 @@ import type { Metadata } from 'next';
 import { cache } from 'react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { BedDouble, Bath, Car, Ruler, LandPlot, DoorOpen, Check, MapPin, MessageCircle } from 'lucide-react';
+import { BedDouble, Bath, Car, Ruler, LandPlot, DoorOpen, Check, MapPin } from 'lucide-react';
 import { getPropertyBySlug, getActivePropertySlugs } from '@/lib/data';
-import { brl, priceLabel } from '@/lib/format';
+import { brl } from '@/lib/format';
 import { Gallery } from '@/components/property/Gallery';
-import { LeadForm } from '@/components/property/LeadForm';
+import { ContactCard } from '@/components/property/ContactCard';
+import { MobileContactBar } from '@/components/property/MobileContactBar';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { realEstateListingLd, breadcrumbLd } from '@/lib/seo/jsonld';
 
 export const revalidate = 300;
 const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://77imoveis.com.br';
-
-const negoLabel: Record<string, string> = {
-  venda: 'Venda',
-  aluguel: 'Aluguel',
-  temporada: 'Temporada',
-  romaria: 'Romaria',
-  lancamento: 'Lançamento',
-};
 
 // Pré-gera uma página para cada imóvel ativo.
 export async function generateStaticParams() {
@@ -87,6 +80,7 @@ export default async function ImovelPage({ params }: { params: { slug: string } 
   const contact = p.companies?.whatsapp || p.profiles?.whatsapp;
   const phone = p.companies?.phone || p.profiles?.phone;
   const wa = whatsappLink(contact, p.title);
+  const anunciante = p.companies?.trade_name || p.profiles?.full_name || undefined;
   const showMap = p.latitude && p.longitude && !p.hide_exact_location;
 
   return (
@@ -182,51 +176,13 @@ export default async function ImovelPage({ params }: { params: { slug: string } 
           )}
         </article>
 
-        {/* Coluna de preço e contato (fixa no desktop) */}
-        <aside className="lg:sticky lg:top-4 lg:self-start">
-          <div className="space-y-4 rounded-xl border border-border bg-surface p-5 shadow-card">
-            <div className="space-y-1">
-              {negotiations.map((n: any) => (
-                <div key={n.negotiation} className="flex items-baseline justify-between gap-2">
-                  <span className="text-sm text-muted">{negoLabel[n.negotiation] ?? n.negotiation}</span>
-                  <span className="text-lg font-bold tabular-nums">
-                    {priceLabel({ price: n.price, priceVisibility: n.price_visibility, negotiation: n.negotiation })}
-                  </span>
-                </div>
-              ))}
-            </div>
-
-            {(p.companies?.trade_name || p.profiles?.full_name) && (
-              <p className="text-sm text-muted">
-                Anunciante: <b className="text-text">{p.companies?.trade_name || p.profiles?.full_name}</b>
-              </p>
-            )}
-
-            {wa && (
-              <a
-                href={wa}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-[#1FA855] font-semibold text-white hover:opacity-90"
-              >
-                <MessageCircle size={18} /> Conversar no WhatsApp
-              </a>
-            )}
-            {phone && (
-              <a
-                href={`tel:${phone.replace(/\D/g, '')}`}
-                className="flex h-11 w-full items-center justify-center gap-2 rounded-lg border border-border font-medium hover:bg-bg"
-              >
-                Ligar: {phone}
-              </a>
-            )}
-            <div className="border-t border-border pt-4">
-              <p className="mb-2 text-sm font-medium">Enviar mensagem ao anunciante</p>
-              <LeadForm slug={p.slug} title={p.title} />
-            </div>
-          </div>
+        {/* Desktop: sidebar fixa. Mobile: barra inferior + modal (abaixo). */}
+        <aside className="hidden lg:block lg:sticky lg:top-4 lg:self-start">
+          <ContactCard negotiations={negotiations} anunciante={anunciante} wa={wa} phone={phone} slug={p.slug} title={p.title} />
         </aside>
       </div>
+
+      <MobileContactBar negotiations={negotiations} anunciante={anunciante} wa={wa} phone={phone} slug={p.slug} title={p.title} />
     </main>
   );
 }
