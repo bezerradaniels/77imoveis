@@ -9,7 +9,7 @@ export function Gallery({ images, title }: { images: Img[]; title: string }) {
   const visibleRest = rest.slice(0, 4);
 
   return (
-    <div className="relative grid gap-2 overflow-hidden rounded-[30px] bg-surface md:grid-cols-4 md:grid-rows-2">
+    <div className="relative grid gap-2 overflow-hidden rounded-2xl bg-subtle md:grid-cols-4 md:grid-rows-2">
       <img
         src={cover.url}
         alt={cover.alt ?? title}
