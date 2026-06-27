@@ -1,9 +1,11 @@
 import type { Metadata } from 'next';
+import Image from 'next/image';
 import Link from 'next/link';
 import { Store, MessageCircle } from 'lucide-react';
 import { getActiveStorefronts } from '@/lib/data';
 
 export const revalidate = 300;
+const shouldUnoptimize = (src: string) => src.endsWith('.svg') || (/^https?:\/\//.test(src) && !src.includes('.supabase.co'));
 
 export const metadata: Metadata = {
   title: 'Vitrines de imobiliárias e profissionais',
@@ -31,15 +33,33 @@ export default async function VitrinesPage() {
                 href={`/vitrine/${s.slug}`}
                 className="overflow-hidden rounded-xl border border-border bg-surface transition hover:-translate-y-0.5 hover:border-primary/40"
               >
-                <div
-                  className="flex aspect-[5/2] items-center justify-center bg-border"
-                  style={s.cover_url ? { backgroundImage: `url(${s.cover_url})`, backgroundSize: 'cover', backgroundPosition: 'center' } : { background: s.accent_color || '#0891b2' }}
-                >
+                <div className="relative flex aspect-[5/2] items-center justify-center overflow-hidden bg-border" style={!s.cover_url ? { background: s.accent_color || '#0891b2' } : undefined}>
+                  {s.cover_url && (
+                    <Image
+                      src={s.cover_url}
+                      alt=""
+                      fill
+                      sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+                      unoptimized={shouldUnoptimize(s.cover_url)}
+                      className="object-cover"
+                    />
+                  )}
                   {!s.cover_url && <Store className="text-white" />}
                 </div>
                 <div className="flex gap-3 p-4">
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-bg">
-                    {s.logo_url ? <img src={s.logo_url} alt="" className="h-full w-full object-cover" /> : <Store size={20} className="text-muted" />}
+                  <div className="relative flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-bg">
+                    {s.logo_url ? (
+                      <Image
+                        src={s.logo_url}
+                        alt=""
+                        fill
+                        sizes="48px"
+                        unoptimized={shouldUnoptimize(s.logo_url)}
+                        className="object-cover"
+                      />
+                    ) : (
+                      <Store size={20} className="text-muted" />
+                    )}
                   </div>
                   <div className="min-w-0 flex-1">
                     <h2 className="line-clamp-1 font-semibold">{title}</h2>

@@ -1,5 +1,6 @@
+import Image from 'next/image';
 import Link from 'next/link';
-import { BedDouble, Bath, Ruler, Car, MapPin, Heart } from 'lucide-react';
+import { Bath, BedDouble, Heart, Ruler, Wallet } from 'lucide-react';
 import { priceLabel } from '@/lib/format';
 import type { CardProperty } from '@/lib/data';
 
@@ -11,53 +12,66 @@ const negoLabel: Record<string, string> = {
   lancamento: 'Lançamento',
 };
 
-// Card de imóvel (handoff): imagem com badges + dados e specs com divisória.
+const shouldUnoptimize = (src: string) =>
+  src.endsWith('.svg') || (/^https?:\/\//.test(src) && !src.includes('.supabase.co'));
+
 export function PropertyCard(p: CardProperty) {
   const specs = [
-    p.bedrooms && { Icon: BedDouble, label: `${p.bedrooms} quartos` },
-    p.bathrooms && { Icon: Bath, label: `${p.bathrooms} banh.` },
-    p.garages && { Icon: Car, label: `${p.garages} vagas` },
-    p.builtArea && { Icon: Ruler, label: `${p.builtArea} m²` },
-  ].filter(Boolean) as { Icon: any; label: string }[];
+    p.bedrooms && { Icon: BedDouble, value: p.bedrooms },
+    p.bathrooms && { Icon: Bath, value: p.bathrooms },
+    p.builtArea && { Icon: Ruler, value: `${p.builtArea} m²` },
+  ].filter(Boolean) as { Icon: typeof BedDouble; value: string | number }[];
+  const advertiser = p.advertiserName || 'Anunciante particular';
 
   return (
     <Link
       href={`/imovel/${p.slug}`}
-      className="group block overflow-hidden rounded-2xl border border-border bg-surface transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_22px_40px_-24px_rgba(8,30,22,.4)]"
+      className="group block w-[200px] rounded-[20px] outline-none transition-transform duration-200 hover:-translate-y-0.5 focus-visible:ring-4 focus-visible:ring-primary/15"
     >
-      <div className="relative h-[190px] overflow-hidden bg-subtle">
-        <img
+      <div className="relative h-[200px] w-[200px] overflow-hidden rounded-[20px] bg-slate-200">
+        <Image
           src={p.coverUrl}
           alt={p.title}
-          loading="lazy"
-          width={400}
-          height={190}
-          className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+          fill
+          sizes="200px"
+          unoptimized={shouldUnoptimize(p.coverUrl)}
+          className="object-cover transition duration-500 group-hover:scale-[1.035]"
         />
         {p.isFeatured && (
-          <span className="absolute left-3 top-3 rounded-full bg-primary px-2.5 py-1 text-[11px] font-bold text-white">
+          <span className="absolute left-3 top-3 max-w-[132px] rounded-[14px] bg-white/90 px-3 py-2 text-[12px] font-bold leading-none text-slate-900 shadow-[0_10px_24px_-16px_rgba(15,23,42,.55)] backdrop-blur">
             Destaque
           </span>
         )}
-        <span className="absolute right-2.5 top-2.5 flex h-[34px] w-[34px] items-center justify-center rounded-full bg-white/90" aria-hidden>
-          <Heart size={17} className="text-[#3a463f]" />
+        <span className="absolute right-2.5 top-2.5 flex h-9 w-9 items-center justify-center rounded-full bg-white/90 shadow-[0_10px_24px_-16px_rgba(15,23,42,.55)] backdrop-blur" aria-hidden>
+          <Heart size={18} className="text-slate-800" />
         </span>
-        <span className="absolute bottom-3 left-3 rounded-md bg-black/60 px-2.5 py-1 text-[11px] font-semibold text-white">
+        <span className="absolute left-2.5 top-2.5 rounded-lg bg-black/70 px-3 py-1.5 text-[12px] font-semibold leading-none text-white shadow-[0_10px_24px_-16px_rgba(0,0,0,.7)]">
           {negoLabel[p.negotiation] ?? p.negotiation}
         </span>
       </div>
-      <div className="px-[18px] pb-[18px] pt-4">
-        <div className="text-xl font-extrabold tracking-tight text-text">{priceLabel(p)}</div>
-        <div className="mt-1.5 line-clamp-1 text-[15px] font-semibold text-[#28332d] dark:text-text">{p.title}</div>
-        <div className="mt-1 flex items-center gap-1.5 text-[13px] text-muted">
-          <MapPin size={14} />
-          <span className="line-clamp-1">{p.neighborhoodName ? `${p.neighborhoodName}, ` : ''}{p.cityName}</span>
+      <div className="pt-3">
+        <div className="line-clamp-1 text-[15px] font-semibold leading-5 text-slate-950 dark:text-text">{advertiser}</div>
+        <div className="mt-0.5 line-clamp-1 text-[15px] font-medium leading-5 text-slate-900 dark:text-text">{p.title}</div>
+        <div className="mt-0.5 flex items-center gap-1.5 text-[15px] font-semibold leading-5 text-slate-900 dark:text-text">
+          <Wallet size={14} className="shrink-0 text-primary" />
+          <span className="line-clamp-1">{priceLabel(p)}</span>
         </div>
+        {p.cityName && (
+          <div className="mt-0.5 line-clamp-1 text-[12px] font-medium leading-5 text-slate-500 dark:text-muted">
+            {p.cityName}
+          </div>
+        )}
+        {p.neighborhoodName && (
+          <div className="mt-0.5 line-clamp-1 text-[12px] font-medium leading-5 text-slate-500 dark:text-muted">
+            Bairro: {p.neighborhoodName}
+          </div>
+        )}
         {!!specs.length && (
-          <div className="mt-3.5 flex flex-wrap gap-4 border-t border-border pt-3.5 text-[13px] text-[#3a463f] dark:text-muted">
-            {specs.map((s, i) => (
-              <span key={i} className="inline-flex items-center gap-1.5">
-                <s.Icon size={17} className="text-primary" /> {s.label}
+          <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-[13px] font-medium leading-5 text-slate-600 dark:text-muted">
+            {specs.map(({ Icon, value }, i) => (
+              <span key={i} className="inline-flex items-center gap-1">
+                <Icon size={14} className="text-primary" />
+                {value}
               </span>
             ))}
           </div>

@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import { ImageOff } from 'lucide-react';
 
 type Img = { url: string; alt?: string | null };
@@ -10,18 +11,26 @@ export function Gallery({ images, title }: { images: Img[]; title: string }) {
 
   return (
     <div className="relative grid gap-2 overflow-hidden rounded-2xl bg-subtle md:grid-cols-4 md:grid-rows-2">
-      <img
-        src={cover.url}
-        alt={cover.alt ?? title}
-        className="aspect-video w-full object-cover md:col-span-2 md:row-span-2 md:aspect-auto md:h-[430px]"
-      />
+      <div className="relative aspect-video w-full overflow-hidden md:col-span-2 md:row-span-2 md:aspect-auto md:h-[430px]">
+        <Image
+          src={cover.url}
+          alt={cover.alt ?? title}
+          fill
+          priority
+          sizes="(min-width: 768px) 50vw, 100vw"
+          unoptimized={cover.url.endsWith('.svg')}
+          className="object-cover"
+        />
+      </div>
       {visibleRest.map((im, i) => (
-        <div key={i} className="relative hidden md:block">
-          <img
+        <div key={i} className="relative hidden overflow-hidden md:block">
+          <Image
             src={im.url}
             alt={im.alt ?? title}
-            loading="lazy"
-            className="h-full min-h-0 w-full object-cover"
+            fill
+            sizes="25vw"
+            unoptimized={im.url.endsWith('.svg')}
+            className="object-cover"
           />
           {i === visibleRest.length - 1 && images.length > 1 && (
             <span className="absolute bottom-4 right-4 rounded-lg border border-border bg-surface px-4 py-2 text-sm font-semibold shadow-sm">

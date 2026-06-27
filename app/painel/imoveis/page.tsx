@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import Link from 'next/link';
 import { Plus, Eye, MessageSquare, ArrowLeft } from 'lucide-react';
 import { getMyProperties } from '@/lib/data';
@@ -15,6 +16,7 @@ const statusBadge: Record<string, { label: string; cls: string }> = {
   em_moderacao: { label: 'Em moderação', cls: 'bg-accent/15 text-accent' },
   reprovado: { label: 'Reprovado', cls: 'bg-danger/15 text-danger' },
 };
+const shouldUnoptimize = (src: string) => src.endsWith('.svg') || (/^https?:\/\//.test(src) && !src.includes('.supabase.co'));
 
 export default async function MeusImoveisPage() {
   const items = await getMyProperties();
@@ -43,7 +45,16 @@ export default async function MeusImoveisPage() {
                 key={p.id}
                 className="flex flex-col gap-3 rounded-xl border border-border bg-surface p-3 sm:flex-row sm:items-center"
               >
-                <img src={p.coverUrl} alt="" className="h-20 w-28 shrink-0 rounded-lg object-cover" />
+                <div className="relative h-20 w-28 shrink-0 overflow-hidden rounded-lg bg-subtle">
+                  <Image
+                    src={p.coverUrl}
+                    alt=""
+                    fill
+                    sizes="112px"
+                    unoptimized={shouldUnoptimize(p.coverUrl)}
+                    className="object-cover"
+                  />
+                </div>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
                     <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${b.cls}`}>{b.label}</span>

@@ -5,6 +5,7 @@ import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { ConsentBanner } from '@/components/layout/ConsentBanner';
 import { MobileBottomBar } from '@/components/layout/MobileBottomBar';
+import { ScrollToTop } from '@/components/layout/ScrollToTop';
 
 const dmSans = DM_Sans({
   subsets: ['latin'],
@@ -34,8 +35,9 @@ const themeInit = `(function(){try{var t=localStorage.getItem('theme');if(t==='d
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="pt-BR" suppressHydrationWarning className={dmSans.variable}>
-      <body className="font-sans antialiased pb-16 md:pb-0">
+      <body className="font-sans antialiased pb-16 pt-[65px] md:pb-0">
         <script dangerouslySetInnerHTML={{ __html: themeInit }} />
+        <ScrollToTop />
         <Header />
         {children}
         <Footer />

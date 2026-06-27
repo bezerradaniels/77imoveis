@@ -31,6 +31,7 @@ export type CardProperty = {
   builtArea?: number | null;
   cityName?: string;
   neighborhoodName?: string | null;
+  advertiserName?: string | null;
   coverUrl: string;
   isFeatured?: boolean;
 };
@@ -52,13 +53,14 @@ function toCard(p: any): CardProperty {
     builtArea: p.built_area,
     cityName: p.cities?.name,
     neighborhoodName: p.neighborhoods?.name,
+    advertiserName: p.companies?.trade_name ?? p.profiles?.full_name ?? null,
     coverUrl: cover?.url ?? PLACEHOLDER,
     isFeatured: p.is_featured,
   };
 }
 
 const PROP_SELECT =
-  'slug,reference_code,title,price,price_visibility,negotiation,bedrooms,bathrooms,garages,built_area,is_featured,cities(name,slug),neighborhoods(name),property_images(url,is_cover)';
+  'slug,reference_code,title,price,price_visibility,negotiation,bedrooms,bathrooms,garages,built_area,is_featured,cities(name,slug),neighborhoods(name),companies(trade_name),profiles!properties_owner_id_fkey(full_name),property_images(url,is_cover)';
 
 export async function getFeaturedCities() {
   if (!hasEnv()) return [];
@@ -172,6 +174,7 @@ export type SearchFilters = {
   cityId?: string;
   typeId?: string;
   negotiation?: Negotiation;
+  acceptsExchange?: boolean;
   bedrooms?: number;
   minPrice?: number;
   maxPrice?: number;
@@ -198,6 +201,7 @@ export async function searchProperties(
   if (f.cityId) q = q.eq('city_id', f.cityId);
   if (f.typeId) q = q.eq('property_type_id', f.typeId);
   if (f.negotiation) q = q.eq('property_negotiations.negotiation', f.negotiation);
+  if (f.acceptsExchange) q = q.eq('accepts_exchange', true);
   if (f.bedrooms) q = q.gte('bedrooms', f.bedrooms);
   if (f.minPrice != null) q = q.gte(f.negotiation ? 'property_negotiations.price' : 'price', f.minPrice);
   if (f.maxPrice != null) q = q.lte(f.negotiation ? 'property_negotiations.price' : 'price', f.maxPrice);

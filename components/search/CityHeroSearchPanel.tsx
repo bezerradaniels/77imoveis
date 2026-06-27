@@ -11,6 +11,7 @@ const negotiationOptions = [
   { value: '', label: 'Comprar ou alugar' },
   { value: 'venda', label: 'Comprar' },
   { value: 'aluguel', label: 'Alugar' },
+  { value: 'troca', label: 'Trocar' },
   { value: 'temporada', label: 'Temporada' },
   { value: 'romaria', label: 'Romaria' },
   { value: 'lancamento', label: 'Lançamento' },
@@ -87,6 +88,7 @@ export function CityHeroSearchPanel({
   types,
   currentTypeSlug,
   currentNegotiation,
+  acceptsExchange,
 }: {
   city: { name: string; slug: string };
   total: number;
@@ -96,13 +98,19 @@ export function CityHeroSearchPanel({
   types: Option[];
   currentTypeSlug?: string;
   currentNegotiation?: string;
+  acceptsExchange?: boolean;
 }) {
   const router = useRouter();
   const typeLabel = types.find((t) => t.value === currentTypeSlug)?.label ?? 'Todos';
-  const negotiationLabel = negotiationOptions.find((n) => n.value === currentNegotiation)?.label ?? 'Comprar ou alugar';
+  const currentPurpose = acceptsExchange ? 'troca' : currentNegotiation ?? '';
+  const negotiationLabel = negotiationOptions.find((n) => n.value === currentPurpose)?.label ?? 'Comprar ou alugar';
 
-  const goWithNegotiation = (basePath: string, negotiation: string) => {
-    router.push(negotiation ? `${basePath}?modalidade=${negotiation}` : basePath);
+  const goWithPurpose = (basePath: string, purpose: string) => {
+    if (purpose === 'troca') {
+      router.push(`${basePath}?troca=1`);
+      return;
+    }
+    router.push(purpose ? `${basePath}?modalidade=${purpose}` : basePath);
   };
 
   return (
@@ -125,13 +133,13 @@ export function CityHeroSearchPanel({
             label="Tipo"
             value={typeLabel}
             options={[{ value: '', label: 'Todos' }, ...types]}
-            onSelect={(slug) => goWithNegotiation(slug ? `/${city.slug}/${slug}s` : `/${city.slug}`, currentNegotiation ?? '')}
+            onSelect={(slug) => goWithPurpose(slug ? `/${city.slug}/${slug}s` : `/${city.slug}`, currentPurpose)}
           />
           <FieldDropdown
             label="Modalidade"
             value={negotiationLabel}
             options={negotiationOptions}
-            onSelect={(negotiation) => goWithNegotiation(path, negotiation)}
+            onSelect={(purpose) => goWithPurpose(path, purpose)}
           />
         </div>
       </div>

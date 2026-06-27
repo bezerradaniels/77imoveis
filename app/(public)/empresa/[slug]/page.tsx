@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { BadgeCheck, Globe, Instagram, MessageCircle, Phone, MapPin } from 'lucide-react';
@@ -10,6 +11,7 @@ import { localBusinessLd, breadcrumbLd } from '@/lib/seo/jsonld';
 
 export const revalidate = 300;
 const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://77imoveis.com.br';
+const shouldUnoptimize = (src: string) => src.endsWith('.svg') || (/^https?:\/\//.test(src) && !src.includes('.supabase.co'));
 
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
   const res = await getCompanyBySlug(params.slug);
@@ -49,14 +51,31 @@ export default async function EmpresaPublicaPage({ params }: { params: { slug: s
       />
 
       {c.cover_url && (
-        <div className="mb-4 aspect-[5/1] w-full overflow-hidden rounded-xl bg-border">
-          <img src={c.cover_url} alt="" className="h-full w-full object-cover" />
+        <div className="relative mb-4 aspect-[5/1] w-full overflow-hidden rounded-xl bg-border">
+          <Image
+            src={c.cover_url}
+            alt=""
+            fill
+            priority
+            sizes="(min-width: 1024px) 1024px, 100vw"
+            unoptimized={shouldUnoptimize(c.cover_url)}
+            className="object-cover"
+          />
         </div>
       )}
 
       <header className="flex flex-wrap items-start gap-4">
-        <div className="h-20 w-20 shrink-0 overflow-hidden rounded-xl border border-border bg-surface">
-          {c.logo_url && <img src={c.logo_url} alt={c.trade_name} className="h-full w-full object-cover" />}
+        <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-xl border border-border bg-surface">
+          {c.logo_url && (
+            <Image
+              src={c.logo_url}
+              alt={c.trade_name}
+              fill
+              sizes="80px"
+              unoptimized={shouldUnoptimize(c.logo_url)}
+              className="object-cover"
+            />
+          )}
         </div>
         <div className="min-w-0 flex-1">
           <h1 className="flex items-center gap-2 text-2xl font-bold">
@@ -102,7 +121,7 @@ export default async function EmpresaPublicaPage({ params }: { params: { slug: s
       <section className="mt-8">
         <h2 className="mb-3 text-xl font-semibold">Imóveis ({res.properties.length})</h2>
         {res.properties.length ? (
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-5 [grid-template-columns:repeat(auto-fill,200px)]">
             {res.properties.map((p) => <PropertyCard key={p.slug} {...p} />)}
           </div>
         ) : (

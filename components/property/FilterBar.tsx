@@ -9,6 +9,7 @@ const modalidades = [
   { value: '', label: 'Todas' },
   { value: 'venda', label: 'Comprar' },
   { value: 'aluguel', label: 'Alugar' },
+  { value: 'troca', label: 'Trocar' },
   { value: 'temporada', label: 'Temporada' },
   { value: 'romaria', label: 'Romaria' },
   { value: 'lancamento', label: 'Lançamento' },
@@ -28,7 +29,7 @@ const quartos = [
   { value: '4', label: '4+' },
 ];
 
-// Filtros da busca — escrevem na URL (?modalidade, ?quartos, ?min, ?max, ?ordem).
+// Filtros da busca — escrevem na URL (?modalidade, ?troca, ?quartos, ?min, ?max, ?ordem).
 // No mobile os filtros secundários ficam recolhidos para mostrar resultados antes.
 export function FilterBar() {
   const router = useRouter();
@@ -43,18 +44,34 @@ export function FilterBar() {
     router.push(`${pathname}?${next.toString()}`);
   };
 
-  const ativos = ['quartos', 'min', 'max'].filter((k) => params.get(k)).length + (params.get('ordem') && params.get('ordem') !== 'recentes' ? 1 : 0);
+  const setPurpose = (value: string) => {
+    const next = new URLSearchParams(params.toString());
+    if (value === 'troca') {
+      next.delete('modalidade');
+      next.set('troca', '1');
+    } else {
+      next.delete('troca');
+      value ? next.set('modalidade', value) : next.delete('modalidade');
+    }
+    next.delete('pagina');
+    router.push(`${pathname}?${next.toString()}`);
+  };
+
+  const currentPurpose = params.get('troca') === '1' ? 'troca' : params.get('modalidade') ?? '';
+  const ativos = ['quartos', 'min', 'max'].filter((k) => params.get(k)).length +
+    (params.get('troca') === '1' ? 1 : 0) +
+    (params.get('ordem') && params.get('ordem') !== 'recentes' ? 1 : 0);
 
   return (
     <div className="space-y-3 rounded-xl border border-border bg-surface p-3">
       {/* modalidade — rolagem horizontal */}
       <div className="no-scrollbar -mx-3 flex gap-2 overflow-x-auto px-3">
         {modalidades.map((m) => {
-          const active = (params.get('modalidade') ?? '') === m.value;
+          const active = currentPurpose === m.value;
           return (
             <button
               key={m.value || 'todas'}
-              onClick={() => setParam('modalidade', m.value)}
+              onClick={() => setPurpose(m.value)}
               className={cn(
                 'shrink-0 whitespace-nowrap rounded-full px-3.5 py-1.5 text-sm transition-colors',
                 active ? 'bg-primary text-white' : 'border border-border text-muted hover:bg-bg',

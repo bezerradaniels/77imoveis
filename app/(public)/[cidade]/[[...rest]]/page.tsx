@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { cache } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import {
@@ -73,6 +74,11 @@ function heading(city: { name: string }, type: { name: string } | null, neg?: Ne
   return `${what}${neg ? ` ${negoText[neg]}` : ''} em ${city.name}`;
 }
 
+function exchangeText(value: string | string[] | undefined) {
+  const normalized = str(value)?.toLowerCase();
+  return normalized === '1' || normalized === 'true' || normalized === 'sim';
+}
+
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
   const { city, type } = await resolve(params);
   const title = `${heading(city, type)} (BA) | 77Imóveis`;
@@ -84,14 +90,17 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
 }
 
 function HeroImage({ items, cityName }: { items: CardProperty[]; cityName: string }) {
-  const image = items.find((p) => p.coverUrl && !p.coverUrl.includes('placeholder'))?.coverUrl ?? '/search-city-hero.png';
+  const image = items.find((p) => p.coverUrl && !p.coverUrl.includes('placeholder'))?.coverUrl ?? '/search-city-hero.jpg';
 
   return (
     <div className="relative h-[calc((100vw-32px)*0.5625-4px)] max-h-[calc((1280px-32px)*0.78*0.5625-4px)] w-full overflow-hidden rounded-[24px] bg-subtle lg:h-[calc(min((100vw-32px)*0.78,998.4px)*0.5625-4px)] lg:rounded-[28px]">
-      <img
+      <Image
         src={image}
         alt={`Imóveis em ${cityName}`}
-        className="h-full w-full object-cover"
+        fill
+        priority
+        sizes="(min-width: 1024px) 78vw, 100vw"
+        className="object-cover"
       />
     </div>
   );
@@ -136,7 +145,7 @@ function FeaturedRow({ cityName, items }: { cityName: string; items: CardPropert
         <h2 className="text-2xl font-bold">Imóveis em destaque em {cityName}</h2>
         <p className="mt-2 text-sm text-muted">Uma seleção rápida para começar a comparar localização, preço e perfil do imóvel.</p>
       </div>
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-5 [grid-template-columns:repeat(auto-fill,200px)]">
         {items.slice(0, 4).map((p) => (
           <PropertyCard key={p.slug} {...p} />
         ))}
@@ -217,7 +226,7 @@ function Results({
     <section id="resultados" className="mx-auto max-w-6xl px-4 pt-16">
       <h2 className="mb-7 text-center text-2xl font-bold">Outros imóveis excelentes para conhecer</h2>
       {items.length ? (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-5 [grid-template-columns:repeat(auto-fill,200px)]">
           {items.map((p) => (
             <PropertyCard key={p.slug} {...p} />
           ))}
@@ -291,6 +300,7 @@ export default async function ListagemPage({
 
   const modalidade = str(searchParams.modalidade) as Negotiation | undefined;
   const negotiation = modalidade && NEGOS.includes(modalidade) ? modalidade : undefined;
+  const acceptsExchange = exchangeText(searchParams.troca) || exchangeText(searchParams.permuta);
   const page = num(searchParams.pagina) ?? 1;
   const sort = (str(searchParams.ordem) as any) || 'recentes';
 
@@ -299,6 +309,7 @@ export default async function ListagemPage({
       cityId: city.id,
       typeId: type?.id,
       negotiation,
+      acceptsExchange,
       bedrooms: num(searchParams.quartos),
       minPrice: num(searchParams.min),
       maxPrice: num(searchParams.max),
@@ -311,7 +322,7 @@ export default async function ListagemPage({
   ]);
 
   const pages = Math.ceil(total / PER_PAGE);
-  const h1 = heading(city, type, negotiation);
+  const h1 = `${heading(city, type, negotiation)}${acceptsExchange ? ' que aceitam troca' : ''}`;
   const path = type ? `/${city.slug}/${params.rest![0]}` : `/${city.slug}`;
   const featured = [...items].sort((a, b) => Number(b.isFeatured) - Number(a.isFeatured));
 
@@ -353,6 +364,7 @@ export default async function ListagemPage({
               types={(types as PropertyType[]).map((t) => ({ value: t.slug, label: plural(t.name) }))}
               currentTypeSlug={type?.slug}
               currentNegotiation={negotiation}
+              acceptsExchange={acceptsExchange}
             />
           </div>
         </div>

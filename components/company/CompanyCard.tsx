@@ -1,6 +1,9 @@
+import Image from 'next/image';
 import Link from 'next/link';
 import { BadgeCheck, Building2 } from 'lucide-react';
 import { companyTypeLabel } from '@/lib/constants';
+
+const shouldUnoptimize = (src: string) => src.endsWith('.svg') || (/^https?:\/\//.test(src) && !src.includes('.supabase.co'));
 
 // Card de empresa/profissional no diretório.
 export function CompanyCard(c: any) {
@@ -11,7 +14,14 @@ export function CompanyCard(c: any) {
     >
       <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-bg">
         {c.logo_url ? (
-          <img src={c.logo_url} alt={c.trade_name} className="h-full w-full object-cover" />
+          <Image
+            src={c.logo_url}
+            alt={c.trade_name}
+            width={56}
+            height={56}
+            unoptimized={shouldUnoptimize(c.logo_url)}
+            className="h-full w-full object-cover"
+          />
         ) : (
           <Building2 size={22} className="text-muted" />
         )}

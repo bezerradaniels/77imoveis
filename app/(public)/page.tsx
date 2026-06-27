@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import Link from 'next/link';
 import {
   MapPin, ArrowRight, Building2, Home, Trees, Store, Sparkles,
@@ -24,16 +25,6 @@ const profissionais = [
   { Icon: Handshake, label: 'Corretores', desc: 'Corretores credenciados para te ajudar em cada etapa da negociação.', href: '/profissionais/corretor_autonomo' },
 ];
 
-const cityGrads = [
-  'linear-gradient(150deg,#27496d,#3a6b6e)',
-  'linear-gradient(150deg,#6b4f2a,#b07b3a)',
-  'linear-gradient(150deg,#2f5a3a,#6f9a45)',
-  'linear-gradient(150deg,#7a5a2a,#d39a4a)',
-  'linear-gradient(150deg,#3e3a52,#6b5a72)',
-  'linear-gradient(150deg,#1f5a55,#3a8f86)',
-  'linear-gradient(150deg,#3a5a32,#7aa14e)',
-];
-
 function SectionTitle({ title, sub }: { title: string; sub: string }) {
   return (
     <div>
@@ -43,18 +34,25 @@ function SectionTitle({ title, sub }: { title: string; sub: string }) {
   );
 }
 
-const commonsImage = (file: string) =>
-  `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(file)}`;
-
 const cityImages: Record<string, string> = {
-  'vitoria-da-conquista': commonsImage('Vitória da Conquista banner.jpg'),
-  barreiras: commonsImage('Cidade de Barreiras 2022-2023 jpg.jpg'),
-  'luis-eduardo-magalhaes': commonsImage('06.06.2023 - Cerimônia de abertura da 17ª Bahia Farm Show (52955296372).jpg'),
-  guanambi: commonsImage('Guanambi dezembro06c.jpg'),
-  brumado: commonsImage('Brumado.jpg'),
-  'bom-jesus-da-lapa': commonsImage('Montagem - Bom Jesus da Lapa.jpg'),
-  'santa-maria-da-vitoria': commonsImage('Avenida Perimetral, Santa Maria da Vitória, janeiro de 2023 (3).jpg'),
+  'bom-jesus-da-lapa': '/bom jesus da lapa.jpg',
+  'vitoria-da-conquista': '/vitoria da conquista.jpg',
+  barreiras: '/barreiras.jpg',
+  'luis-eduardo-magalhaes': '/luis eduardo magalhaes.jpg',
+  guanambi: '/guanambi.jpg',
+  brumado: '/brumado.jpg',
+  'santa-maria-da-vitoria': '/santa maria da vitoria.jpg',
 };
+
+const citySequence = [
+  { slug: 'bom-jesus-da-lapa', name: 'Bom Jesus da Lapa' },
+  { slug: 'vitoria-da-conquista', name: 'Vitória da Conquista' },
+  { slug: 'barreiras', name: 'Barreiras' },
+  { slug: 'luis-eduardo-magalhaes', name: 'Luís Eduardo Magalhães' },
+  { slug: 'guanambi', name: 'Guanambi' },
+  { slug: 'brumado', name: 'Brumado' },
+  { slug: 'santa-maria-da-vitoria', name: 'Santa Maria da Vitória' },
+];
 
 export default async function HomePage() {
   const [cities, types, venda, counts] = await Promise.all([
@@ -65,30 +63,34 @@ export default async function HomePage() {
   ]);
   const cityOpts = cities.map((c) => ({ value: c.slug, label: c.name }));
   const typeOpts = types.map((t) => ({ value: t.slug, label: t.name }));
+  const cityCards = citySequence.map((item) => cities.find((city) => city.slug === item.slug) ?? item);
 
   return (
     <main className="w-full overflow-x-hidden">
       {/* HERO */}
-      <section className="relative flex min-h-[430px] items-center overflow-hidden px-0 pb-[92px] pt-11 md:min-h-[clamp(560px,70vh,740px)] md:pb-[clamp(130px,11vw,170px)] md:pt-[clamp(54px,7vw,82px)]">
-        <div aria-hidden className="absolute inset-0 bg-cover bg-[68%_32%] md:bg-[center_34%]" style={{ backgroundImage: 'url("/hero-family-moving.png")' }} />
+      <section className="relative flex min-h-[496px] items-center overflow-hidden px-0 py-10 md:min-h-[clamp(496px,58vh,608px)] md:py-10">
+        <Image
+          src="/hero-family-moving.jpg"
+          alt=""
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover object-[68%_32%] md:object-[center_34%]"
+        />
         <div aria-hidden className="absolute inset-0" style={{ background: 'linear-gradient(90deg,rgba(6,11,9,.86) 0%,rgba(6,11,9,.62) 42%,rgba(6,11,9,.22) 100%),linear-gradient(180deg,rgba(6,11,9,.14) 0%,rgba(6,11,9,.62) 100%)' }} />
         <div className="relative z-[2] mx-auto w-full max-w-[1200px] px-6">
-          <div className="mb-4 inline-flex items-center gap-2 text-[13px] font-bold uppercase tracking-[.12em] text-[#8be9c9]">
-            <MapPin size={16} className="fill-[#8be9c9]" /> Portal imobiliário · DDD 77 — Bahia
+          <div className="max-w-[440px] rounded-[30px] bg-white p-5 text-slate-900 shadow-[0_20px_45px_-24px_rgba(15,23,42,.45)] sm:p-6">
+            <h1 className="mb-5 text-4xl font-extrabold leading-[1] text-slate-900">
+              O imóvel dos seus sonhos está aqui
+            </h1>
+            <HomeSearch cities={cityOpts} types={typeOpts} variant="hero" />
           </div>
-          <h1 className="m-0 max-w-[760px] text-[clamp(34px,5.4vw,62px)] font-extrabold leading-[1.04] tracking-[-.025em] text-white">
-            Encontre imóveis na região 77
-          </h1>
-          <p className="mt-5 max-w-[620px] text-[clamp(16px,1.7vw,20px)] leading-[1.5] text-white/85">
-            Casas, apartamentos, terrenos, imóveis comerciais e oportunidades em cidades do sudoeste da Bahia.
-          </p>
         </div>
       </section>
 
-      {/* SEARCH CARD (overlap) */}
-      <div id="busca" className="relative z-[5] mx-auto -mt-28 max-w-[1100px] px-6 md:mt-[clamp(-110px,-9vw,-90px)]">
-        <HomeSearch cities={cityOpts} types={typeOpts} />
-        <div className="mt-6 flex flex-wrap justify-center gap-x-[clamp(20px,5vw,56px)] gap-y-3">
+      {/* TRUST BAR */}
+      <section id="busca" className="mx-auto max-w-[1100px] px-6 py-8">
+        <div className="flex flex-wrap justify-center gap-x-[clamp(20px,5vw,56px)] gap-y-3">
           {[
             { Icon: Building2, strong: '+3.000', rest: 'imóveis anunciados' },
             { Icon: MapPin, strong: '10 cidades', rest: 'da região 77' },
@@ -100,58 +102,40 @@ export default async function HomePage() {
             </div>
           ))}
         </div>
-      </div>
-
-      {/* CATEGORIAS */}
-      <section className="mx-auto max-w-[1200px] px-6 pb-3 pt-[clamp(56px,7vw,84px)]">
-        <SectionTitle title="Explore por tipo de imóvel" sub="Encontre o imóvel certo para comprar ou alugar na região 77." />
-        <div className="mt-6 grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(180px,1fr))]">
-          {categorias.map((c) => (
-            <Link key={c.label} href={c.href} className="flex flex-col gap-3.5 rounded-2xl border border-border bg-surface p-[22px] transition-all hover:-translate-y-1 hover:border-primary/40 hover:shadow-[0_18px_34px_-22px_rgba(8,30,22,.45)]">
-              <span className="flex h-12 w-12 items-center justify-center rounded-[13px] bg-[#e6f4ef] dark:bg-primary/15">
-                <c.Icon size={24} className="text-primary" />
-              </span>
-              <span>
-                <span className="block text-base font-bold text-text">{c.label}</span>
-                <span className="mt-0.5 block text-[13px] text-muted">{c.sub}</span>
-              </span>
-            </Link>
-          ))}
-        </div>
       </section>
 
-      {/* CIDADES */}
+            {/* CIDADES */}
       <section className="bg-[#fafafa] py-[clamp(48px,6vw,72px)]">
         <div className="mx-auto max-w-[1200px] px-6">
           <div className="mb-6">
-            <SectionTitle title="Busque imóveis por cidade" sub="Cobertura nas principais cidades do sudoeste e oeste da Bahia." />
+            <SectionTitle title="Encontre imóveis por cidade" sub="Cobertura nas principais cidades do sudoeste e oeste da Bahia." />
           </div>
-          <div className="grid gap-4 [grid-template-columns:repeat(auto-fill,minmax(210px,1fr))]">
-            {cities.map((c, i) => (
-              <Link
-                key={c.slug}
-                href={`/${c.slug}`}
-                className="group relative block h-[190px] overflow-hidden rounded-2xl bg-cover bg-center transition-transform hover:-translate-y-1"
-                style={{
-                  backgroundImage: `linear-gradient(to top,rgba(7,11,9,.82) 0%,rgba(7,11,9,.32) 52%,rgba(7,11,9,.08) 100%),url("${cityImages[c.slug] ?? commonsImage('Vista aérea Bom Jesus da Lapa.jpg')}")`,
-                  backgroundColor: cityGrads[i % cityGrads.length],
-                }}
-              >
-                <span className="absolute inset-0 bg-black/0 transition-colors group-hover:bg-black/10" />
-              <span className="absolute inset-x-4 bottom-3.5">
-                <span className="block text-[17px] font-bold leading-tight text-white">{c.name}</span>
-                <span className="mt-0.5 block text-[12.5px] text-white/75">
-                  {counts[c.slug] ? `${counts[c.slug]} imóveis` : 'Ver imóveis'}
-                </span>
-              </span>
-              </Link>
-            ))}
+          <div className="no-scrollbar snap-x snap-mandatory overflow-x-auto pb-2">
+            <div className="grid grid-flow-col auto-cols-[180px] gap-5">
+              {cityCards.map((c) => (
+                <Link key={c.slug} href={`/${c.slug}`} className="group block snap-start">
+                  <span
+                    aria-hidden
+                    className="block h-[180px] w-[180px] overflow-hidden rounded-2xl bg-slate-200 bg-cover bg-center transition-transform duration-200 group-hover:scale-[1.015]"
+                    style={{
+                      backgroundImage: `url("${cityImages[c.slug] ?? '/search-city-hero.jpg'}")`,
+                    }}
+                  />
+                  <span className="block pt-3">
+                    <span className="block truncate text-[14px] font-semibold leading-5 text-slate-950">{c.name}</span>
+                    <span className="mt-0.5 block text-[14px] font-semibold leading-5 text-slate-500">
+                      {counts[c.slug] ? `${counts[c.slug]} imóveis` : 'Ver imóveis'}
+                    </span>
+                  </span>
+                </Link>
+              ))}
+            </div>
           </div>
         </div>
       </section>
 
       {/* DESTAQUES */}
-      <section className="border-y border-[#eceeec] bg-subtle">
+      <section className="bg-white">
         <div className="mx-auto max-w-[1200px] px-6 py-[clamp(48px,6vw,72px)]">
           <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
             <SectionTitle title="Imóveis em destaque" sub="Seleção de oportunidades recentes na região 77." />
@@ -160,7 +144,7 @@ export default async function HomePage() {
             </Link>
           </div>
           {venda.length ? (
-            <div className="grid gap-5 [grid-template-columns:repeat(auto-fill,minmax(290px,1fr))]">
+            <div className="grid gap-5 [grid-template-columns:repeat(auto-fill,200px)]">
               {venda.map((p) => <PropertyCard key={p.slug} {...p} />)}
             </div>
           ) : (
@@ -171,22 +155,45 @@ export default async function HomePage() {
         </div>
       </section>
 
+      {/* CATEGORIAS */}
+      <section className="bg-[#fafafa]">
+        <div className="mx-auto max-w-[1200px] px-6 py-[clamp(48px,6vw,72px)]">
+          <SectionTitle title="Explore por tipo de imóvel" sub="Encontre o imóvel certo para comprar ou alugar na região 77." />
+          <div className="mt-6 grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(180px,1fr))]">
+            {categorias.map((c) => (
+              <Link key={c.label} href={c.href} className="flex flex-col gap-3.5 rounded-2xl border border-border bg-white p-[22px] transition-all hover:-translate-y-1 hover:border-primary/40 hover:shadow-[0_18px_34px_-22px_rgba(8,30,22,.45)]">
+                <span className="flex h-12 w-12 items-center justify-center rounded-[13px] bg-[#e6f4ef] dark:bg-primary/15">
+                  <c.Icon size={24} className="text-primary" />
+                </span>
+                <span>
+                  <span className="block text-base font-bold text-text">{c.label}</span>
+                  <span className="mt-0.5 block text-[13px] text-muted">{c.sub}</span>
+                </span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+
       {/* PROFISSIONAIS */}
-      <section className="mx-auto max-w-[1200px] px-6 py-[clamp(48px,6vw,72px)]">
-        <SectionTitle title="Profissionais e empresas da região" sub="Conecte-se com quem constrói, vende e cuida do seu imóvel no DDD 77." />
-        <div className="mt-6 grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(230px,1fr))]">
-          {profissionais.map((p) => (
-            <Link key={p.label} href={p.href} className="flex flex-col gap-3.5 rounded-2xl border border-border bg-surface p-6 transition-all hover:-translate-y-1 hover:border-primary/40 hover:shadow-[0_18px_34px_-22px_rgba(8,30,22,.45)]">
-              <span className="flex h-[50px] w-[50px] items-center justify-center rounded-[14px] bg-[#e6f4ef] dark:bg-primary/15">
-                <p.Icon size={26} className="text-primary" />
-              </span>
-              <span className="text-[17px] font-bold text-text">{p.label}</span>
-              <span className="text-[13.5px] leading-relaxed text-muted">{p.desc}</span>
-              <span className="mt-auto inline-flex items-center gap-1.5 text-sm font-bold text-primary">
-                Ver {p.label.toLowerCase()} <ArrowRight size={14} />
-              </span>
-            </Link>
-          ))}
+      <section className="bg-white">
+        <div className="mx-auto max-w-[1200px] px-6 py-[clamp(48px,6vw,72px)]">
+          <SectionTitle title="Profissionais e empresas da região" sub="Conecte-se com quem constrói, vende e cuida do seu imóvel no DDD 77." />
+          <div className="mt-6 grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(230px,1fr))]">
+            {profissionais.map((p) => (
+              <Link key={p.label} href={p.href} className="flex flex-col gap-3.5 rounded-2xl border border-border bg-white p-6 transition-all hover:-translate-y-1 hover:border-primary/40 hover:shadow-[0_18px_34px_-22px_rgba(8,30,22,.45)]">
+                <span className="flex h-[50px] w-[50px] items-center justify-center rounded-[14px] bg-[#e6f4ef] dark:bg-primary/15">
+                  <p.Icon size={26} className="text-primary" />
+                </span>
+                <span className="text-[17px] font-bold text-text">{p.label}</span>
+                <span className="text-[13.5px] leading-relaxed text-muted">{p.desc}</span>
+                <span className="mt-auto inline-flex items-center gap-1.5 text-sm font-bold text-primary">
+                  Ver {p.label.toLowerCase()} <ArrowRight size={14} />
+                </span>
+              </Link>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -216,7 +223,7 @@ export default async function HomePage() {
       </section>
 
       {/* SEO */}
-      <section className="border-t border-[#eceeec] bg-subtle">
+      <section id="sobre" className="scroll-mt-24 bg-[#fafafa]">
         <div className="mx-auto max-w-[920px] px-6 py-[clamp(48px,6vw,72px)]">
           <h2 className="mb-4 text-[clamp(20px,2.4vw,28px)] font-extrabold tracking-tight text-text">Imóveis na região do DDD 77, na Bahia</h2>
           <p className="mb-3.5 text-base leading-[1.7] text-[#46514a] dark:text-muted">

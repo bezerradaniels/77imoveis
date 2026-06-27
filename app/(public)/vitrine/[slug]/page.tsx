@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import { MessageCircle } from 'lucide-react';
 import { getStorefrontBySlug } from '@/lib/data';
@@ -8,6 +9,7 @@ import { localBusinessLd } from '@/lib/seo/jsonld';
 
 export const revalidate = 300;
 const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://77imoveis.com.br';
+const shouldUnoptimize = (src: string) => src.endsWith('.svg') || (/^https?:\/\//.test(src) && !src.includes('.supabase.co'));
 
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
   const res = await getStorefrontBySlug(params.slug);
@@ -38,11 +40,32 @@ export default async function VitrinePublicaPage({ params }: { params: { slug: s
 
       {/* Cabeçalho com a marca da empresa */}
       <header className="relative">
-        <div className="h-40 w-full bg-border sm:h-56" style={s.cover_url ? { backgroundImage: `url(${s.cover_url})`, backgroundSize: 'cover', backgroundPosition: 'center' } : { background: accent }} />
+        <div className="relative h-40 w-full overflow-hidden bg-border sm:h-56" style={!s.cover_url ? { background: accent } : undefined}>
+          {s.cover_url && (
+            <Image
+              src={s.cover_url}
+              alt=""
+              fill
+              priority
+              sizes="100vw"
+              unoptimized={shouldUnoptimize(s.cover_url)}
+              className="object-cover"
+            />
+          )}
+        </div>
         <div className="mx-auto -mt-10 max-w-6xl px-4">
           <div className="flex items-end gap-4">
-            <div className="h-20 w-20 shrink-0 overflow-hidden rounded-xl border-4 border-bg bg-surface">
-              {s.logo_url && <img src={s.logo_url} alt={c.trade_name} className="h-full w-full object-cover" />}
+            <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-xl border-4 border-bg bg-surface">
+              {s.logo_url && (
+                <Image
+                  src={s.logo_url}
+                  alt={c.trade_name}
+                  fill
+                  sizes="80px"
+                  unoptimized={shouldUnoptimize(s.logo_url)}
+                  className="object-cover"
+                />
+              )}
             </div>
             <div className="pb-2">
               <h1 className="text-2xl font-bold" style={{ color: accent }}>{s.headline || c.trade_name}</h1>
@@ -62,7 +85,7 @@ export default async function VitrinePublicaPage({ params }: { params: { slug: s
 
         <h2 className="mb-3 text-xl font-semibold">Imóveis ({res.properties.length})</h2>
         {res.properties.length ? (
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-5 [grid-template-columns:repeat(auto-fill,200px)]">
             {res.properties.map((p) => <PropertyCard key={p.slug} {...p} />)}
           </div>
         ) : (
