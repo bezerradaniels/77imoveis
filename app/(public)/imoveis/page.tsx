@@ -76,8 +76,8 @@ function Results({
     <>
       {items.length ? (
         <div className="flex flex-col gap-2.5 sm:gap-3">
-          {items.map((p) => (
-            <PropertyRow key={p.slug} {...p} />
+          {items.map((p, i) => (
+            <PropertyRow key={p.slug} {...p} priority={i === 0} />
           ))}
         </div>
       ) : (

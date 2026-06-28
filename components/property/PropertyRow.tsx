@@ -17,7 +17,7 @@ const shouldUnoptimize = (src: string) =>
 
 // Card de resultado em linha (imagem à esquerda, dados à direita) — usado na
 // lista de busca/listagem. Para grades de destaque, use PropertyCard.
-export function PropertyRow(p: CardProperty) {
+export function PropertyRow({ priority = false, ...p }: CardProperty & { priority?: boolean }) {
   const specs = [
     p.bedrooms && { Icon: BedDouble, value: `${p.bedrooms} qto${p.bedrooms > 1 ? 's' : ''}` },
     p.bathrooms && { Icon: Bath, value: `${p.bathrooms} banh.` },
@@ -37,6 +37,7 @@ export function PropertyRow(p: CardProperty) {
           alt={p.title}
           fill
           sizes="(min-width: 640px) 200px, 120px"
+          priority={priority}
           unoptimized={shouldUnoptimize(p.coverUrl)}
           className="object-cover transition duration-500 group-hover:scale-[1.03]"
         />

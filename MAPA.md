@@ -23,7 +23,7 @@ components/               → peças reutilizáveis
   layout/   Header, Footer, ThemeToggle
   ui/       Button, Dropdown (peças genéricas)
   property/ PropertyCard, FilterBar (filtros da busca), Gallery (fotos)
-  home/     HomeSearch (card de busca da home), SearchBar (legado)
+  home/     HomeSearch (card de busca da home)
   seo/      JsonLd (dados para Google/IA)
 lib/                      → lógica e dados (sem visual)
   data.ts                → TODAS as consultas ao banco

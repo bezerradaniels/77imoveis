@@ -1,26 +1,29 @@
 'use client';
 import { useEffect, useState } from 'react';
+import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { LayoutDashboard } from 'lucide-react';
-import { createClient } from '@/lib/supabase/client';
 
-// Mostra "Entrar" ou "Painel/Sair" conforme a sessão — no cliente, para
-// não tornar as páginas públicas dinâmicas (mantém o cache/SEO).
+// Detecta a sessão pela presença do cookie de auth do Supabase, SEM carregar o
+// SDK do Supabase nas páginas públicas (mantém o bundle leve e o cache/SEO).
+// É só para alternar "Login"/"Painel": o middleware é quem protege as rotas.
+function hasAuthCookie() {
+  if (typeof document === 'undefined') return false;
+  const ref = (process.env.NEXT_PUBLIC_SUPABASE_URL ?? '')
+    .replace(/^https?:\/\//, '')
+    .split('.')[0];
+  if (!ref) return false;
+  return document.cookie.split('; ').some((c) => c.startsWith(`sb-${ref}-auth-token`));
+}
+
 export function AuthNav() {
+  const pathname = usePathname();
   const [logged, setLogged] = useState<boolean | null>(null);
 
+  // Reavalia a cada navegação — após login/logout o cookie já está atualizado.
   useEffect(() => {
-    let unsub = () => {};
-    try {
-      const sb = createClient();
-      sb.auth.getSession().then(({ data }) => setLogged(!!data.session));
-      const { data } = sb.auth.onAuthStateChange((_e, session) => setLogged(!!session));
-      unsub = () => data.subscription.unsubscribe();
-    } catch {
-      setLogged(false);
-    }
-    return unsub;
-  }, []);
+    setLogged(hasAuthCookie());
+  }, [pathname]);
 
   if (logged === null) return <span className="h-8 w-16" aria-hidden />;
 

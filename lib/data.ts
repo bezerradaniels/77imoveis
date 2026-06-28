@@ -103,19 +103,6 @@ export async function getFeaturedProperties(negotiation: Negotiation, limit = 4)
   return (data ?? []).map(toCard);
 }
 
-export async function getHomeProperties(limit = 24): Promise<CardProperty[]> {
-  if (!hasEnv()) return [];
-  const { data } = await db()
-    .from('properties')
-    .select(PROP_SELECT)
-    .eq('status', 'ativo')
-    .order('is_featured', { ascending: false })
-    .order('published_at', { ascending: false, nullsFirst: false })
-    .order('created_at', { ascending: false })
-    .limit(limit);
-  return (data ?? []).map(toCard);
-}
-
 // =====================================================================
 // LISTAGEM / BUSCA  (/[cidade]/[tipo])
 // =====================================================================

@@ -57,13 +57,3 @@ export const cityImages: Record<string, string> = {
 };
 
 export const cityImageFor = (slug: string) => cityImages[slug] ?? '/search-city-hero.jpg';
-
-export const tileColors = ['#e0f2fe', '#dcfce7', '#fee2e2', '#fef9c3', '#f3e8ff', '#ffedd5', '#cffafe'];
-
-// Emoji por tipo de imóvel (chips da home).
-export const typeEmoji: Record<string, string> = {
-  casa: '🏠', apartamento: '🏢', cobertura: '🌆', kitnet: '🛏️', condominio: '🏘️',
-  'sala-comercial': '🏬', loja: '🏪', galpao: '🏭', terreno: '🌳', lote: '📐',
-  chacara: '🌿', fazenda: '🚜',
-};
-export const typeEmojiFor = (slug: string) => typeEmoji[slug] ?? '🏠';

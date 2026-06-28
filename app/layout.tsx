@@ -5,7 +5,6 @@ import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { ConsentBanner } from '@/components/layout/ConsentBanner';
 import { MobileBottomBar } from '@/components/layout/MobileBottomBar';
-import { ScrollToTop } from '@/components/layout/ScrollToTop';
 
 const interTight = Inter_Tight({
   subsets: ['latin'],
@@ -37,7 +36,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="pt-BR" suppressHydrationWarning className={interTight.variable}>
       <body className="font-sans antialiased pb-16 pt-[65px] md:pb-0">
         <script dangerouslySetInnerHTML={{ __html: themeInit }} />
-        <ScrollToTop />
         <Header />
         {children}
         <Footer />

@@ -15,7 +15,10 @@ import { RelatedProperties } from '@/components/property/RelatedProperties';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { realEstateListingLd, breadcrumbLd } from '@/lib/seo/jsonld';
 
-export const dynamic = 'force-dynamic';
+// ISR: a página é renderizada e cacheada por 5 min (TTFB/LCP rápidos e menos
+// carga no banco). Imóveis novos aparecem na 1ª visita (cache miss); edições
+// se propagam em até 5 min. Não usa cookies/headers, então é seguro cachear.
+export const revalidate = 300;
 const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://77imoveis.com.br';
 
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
