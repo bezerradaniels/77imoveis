@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { DM_Sans } from 'next/font/google';
+import { Inter_Tight } from 'next/font/google';
 import './globals.css';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
@@ -7,10 +7,10 @@ import { ConsentBanner } from '@/components/layout/ConsentBanner';
 import { MobileBottomBar } from '@/components/layout/MobileBottomBar';
 import { ScrollToTop } from '@/components/layout/ScrollToTop';
 
-const dmSans = DM_Sans({
+const interTight = Inter_Tight({
   subsets: ['latin'],
   display: 'swap',
-  variable: '--font-dm-sans',
+  variable: '--font-inter-tight',
 });
 const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://77imoveis.com.br';
 
@@ -34,7 +34,7 @@ const themeInit = `(function(){try{var t=localStorage.getItem('theme');if(t==='d
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="pt-BR" suppressHydrationWarning className={dmSans.variable}>
+    <html lang="pt-BR" suppressHydrationWarning className={interTight.variable}>
       <body className="font-sans antialiased pb-16 pt-[65px] md:pb-0">
         <script dangerouslySetInnerHTML={{ __html: themeInit }} />
         <ScrollToTop />

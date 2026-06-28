@@ -1,4 +1,5 @@
 import { priceLabel } from '@/lib/format';
+import { BadgeCheck, Lock } from 'lucide-react';
 import { ContactActions } from './ContactActions';
 import { LeadForm } from './LeadForm';
 
@@ -10,50 +11,105 @@ export const negoLabel: Record<string, string> = {
   lancamento: 'Lançamento',
 };
 
-export type Neg = { negotiation: string; price: number | null; price_visibility: 'publico' | 'sob_consulta' };
+export type Neg = {
+  negotiation: string;
+  price: number | null;
+  price_visibility: 'publico' | 'sob_consulta';
+};
 
-// Conteúdo de preço + contato + lead. Usado na sidebar (desktop) e no modal (mobile).
-export function ContactCard({
-  negotiations,
-  anunciante,
-  wa,
-  phone,
-  slug,
-  title,
-}: {
+export type ContactCardProps = {
   negotiations: Neg[];
   anunciante?: string;
+  advertiserLogo?: string | null;
+  acceptsFinancing?: boolean;
+  acceptsExchange?: boolean;
   wa?: string | null;
+  waVisit?: string | null;
   phone?: string | null;
   slug: string;
   title: string;
-}) {
+};
+
+// Card de conversão (âncora de CRO): preço + selos + identidade do anunciante +
+// CTAs (WhatsApp/visita/ligar) + formulário de lead. Usado na sidebar fixa
+// (desktop) e dentro do bottom sheet (mobile).
+export function ContactCard({
+  negotiations,
+  anunciante,
+  advertiserLogo,
+  acceptsFinancing,
+  acceptsExchange,
+  wa,
+  waVisit,
+  phone,
+  slug,
+  title,
+}: ContactCardProps) {
+  const initials = (anunciante ?? 'A')
+    .split(' ')
+    .map((s) => s[0])
+    .filter(Boolean)
+    .slice(0, 2)
+    .join('')
+    .toUpperCase();
+  const chips = [acceptsFinancing && 'Aceita financiamento', acceptsExchange && 'Aceita permuta'].filter(
+    Boolean,
+  ) as string[];
+
   return (
-    <div className="space-y-5 rounded-xl border border-border bg-surface p-5 shadow-[0_12px_34px_rgba(0,0,0,0.10)]">
-      <div className="space-y-3">
-        {negotiations.map((n) => (
-          <div key={n.negotiation} className="flex items-start justify-between gap-4">
-            <span className="pt-1 text-sm font-medium text-muted">{negoLabel[n.negotiation] ?? n.negotiation}</span>
-            <span className="text-right text-xl font-bold tabular-nums">
-              {priceLabel({ price: n.price, priceVisibility: n.price_visibility, negotiation: n.negotiation })}
-            </span>
+    <div className="overflow-hidden rounded-2xl border border-border bg-surface shadow-[0_18px_44px_-22px_rgba(15,40,30,0.4)]">
+      {/* Preço(s) */}
+      <div className="p-5 pb-4">
+        {negotiations.map((nn, k) => (
+          <div key={nn.negotiation} className={k ? 'mt-2.5' : ''}>
+            <div className="text-xs font-medium text-muted">{negoLabel[nn.negotiation] ?? nn.negotiation}</div>
+            <div className="text-[30px] font-extrabold leading-none tracking-tight tabular-nums">
+              {priceLabel({ price: nn.price, priceVisibility: nn.price_visibility, negotiation: nn.negotiation })}
+            </div>
           </div>
         ))}
+        {chips.length > 0 && (
+          <div className="mt-3 flex flex-wrap gap-2">
+            {chips.map((c) => (
+              <span key={c} className="rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-bold text-primary">
+                {c}
+              </span>
+            ))}
+          </div>
+        )}
       </div>
 
+      {/* Identidade do anunciante (confiança) */}
       {anunciante && (
-        <p className="rounded-lg bg-bg px-3 py-2.5 text-sm text-muted">
-          Anunciante: <b className="text-text">{anunciante}</b>
-        </p>
+        <div className="flex items-center gap-3 border-y border-border bg-bg px-5 py-4">
+          {advertiserLogo ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={advertiserLogo} alt={anunciante} className="h-11 w-11 rounded-full object-cover" />
+          ) : (
+            <div className="flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-br from-primary to-primary-hover text-sm font-bold text-white">
+              {initials}
+            </div>
+          )}
+          <div className="min-w-0">
+            <div className="flex items-center gap-1.5 text-sm font-semibold">
+              <span className="truncate">{anunciante}</span>
+              <BadgeCheck size={15} className="shrink-0 text-primary" />
+            </div>
+            <div className="text-xs text-muted">Anunciante no 77Imóveis</div>
+          </div>
+        </div>
       )}
 
-      <div className="space-y-2.5">
-        <ContactActions wa={wa} phone={phone} slug={slug} />
-      </div>
-
-      <div className="border-t border-border pt-4">
-        <p className="mb-3 text-sm font-semibold">Enviar mensagem ao anunciante</p>
-        <LeadForm slug={slug} title={title} />
+      {/* CTAs + formulário */}
+      <div className="space-y-4 p-5">
+        <ContactActions wa={wa} waVisit={waVisit} phone={phone} slug={slug} />
+        <div className="border-t border-border pt-4">
+          <p className="mb-3 text-sm font-semibold">Solicitar mais informações</p>
+          <LeadForm slug={slug} title={title} />
+        </div>
+        <p className="flex items-center justify-center gap-1.5 text-[11px] text-muted">
+          <Lock size={12} /> Seus dados são protegidos e não ficam públicos.
+        </p>
       </div>
     </div>
   );

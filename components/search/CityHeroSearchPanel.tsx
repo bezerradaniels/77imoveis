@@ -2,34 +2,22 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { ChevronDown, Search } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { cn } from '@/lib/cn';
 
 type Option = { value: string; label: string };
-
-const negotiationOptions = [
-  { value: '', label: 'Comprar ou alugar' },
-  { value: 'venda', label: 'Comprar' },
-  { value: 'aluguel', label: 'Alugar' },
-  { value: 'troca', label: 'Trocar' },
-  { value: 'temporada', label: 'Temporada' },
-  { value: 'romaria', label: 'Romaria' },
-  { value: 'lancamento', label: 'Lançamento' },
-];
 
 function FieldDropdown({
   label,
   value,
   options,
   onSelect,
-  icon,
   className,
 }: {
   label: string;
   value: string;
   options: Option[];
   onSelect: (value: string) => void;
-  icon?: React.ReactNode;
   className?: string;
 }) {
   const [open, setOpen] = useState(false);
@@ -44,22 +32,21 @@ function FieldDropdown({
   }, []);
 
   return (
-    <div ref={ref} className={cn('relative', className)}>
+    <div ref={ref} className={cn('relative min-w-0', className)}>
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="block w-full rounded-xl border border-border bg-surface px-4 py-3 text-left transition hover:border-primary/50 hover:bg-bg"
+        className="block h-11 w-full rounded-lg border border-border bg-surface px-3 text-left transition hover:border-primary/50 hover:bg-bg sm:h-12"
       >
-        <span className="block text-[12px] font-semibold leading-4 text-text">{label}</span>
-        <span className="mt-1 flex min-w-0 items-center gap-2 text-[14px] leading-5 text-muted">
-          {icon}
+        <span className="block text-[10px] font-semibold leading-3 text-muted">{label}</span>
+        <span className="mt-0.5 flex min-w-0 items-center gap-1.5 text-[13px] leading-4 text-text sm:text-sm">
           <span className="truncate">{value}</span>
-          <ChevronDown size={15} className={cn('ml-auto shrink-0 transition', open && 'rotate-180')} />
+          <ChevronDown size={14} className={cn('ml-auto shrink-0 text-muted transition', open && 'rotate-180')} />
         </span>
       </button>
 
       {open && (
-        <div className="absolute left-0 right-0 top-full z-40 mt-2 max-h-64 overflow-auto rounded-xl border border-border bg-surface py-1 shadow-xl shadow-black/10">
+        <div className="absolute left-0 right-0 top-full z-40 mt-1.5 max-h-64 overflow-auto rounded-lg border border-border bg-surface py-1 shadow-xl shadow-black/10">
           {options.map((option) => (
             <button
               key={option.value || 'all'}
@@ -68,7 +55,7 @@ function FieldDropdown({
                 onSelect(option.value);
                 setOpen(false);
               }}
-              className="block w-full px-4 py-2.5 text-left text-[14px] text-text transition hover:bg-bg"
+              className="block w-full px-3 py-2 text-left text-sm text-text transition hover:bg-bg"
             >
               {option.label}
             </button>
@@ -79,79 +66,65 @@ function FieldDropdown({
   );
 }
 
+// Barra de busca compacta (sem foto de fundo): Localização, Bairro e Tipo.
+// Modalidade fica só nos Filtros (evita duplicar a mesma escolha duas vezes
+// na tela). Fica acima dos resultados — visível antes do scroll no mobile.
 export function CityHeroSearchPanel({
   city,
-  total,
-  h1,
   path,
   cities,
   types,
+  neighborhoods,
   currentTypeSlug,
-  currentNegotiation,
-  acceptsExchange,
 }: {
   city: { name: string; slug: string };
-  total: number;
-  h1: string;
   path: string;
   cities: Option[];
   types: Option[];
+  neighborhoods: Option[];
   currentTypeSlug?: string;
-  currentNegotiation?: string;
-  acceptsExchange?: boolean;
 }) {
   const router = useRouter();
-  const typeLabel = types.find((t) => t.value === currentTypeSlug)?.label ?? 'Todos';
-  const currentPurpose = acceptsExchange ? 'troca' : currentNegotiation ?? '';
-  const negotiationLabel = negotiationOptions.find((n) => n.value === currentPurpose)?.label ?? 'Comprar ou alugar';
+  const pathname = usePathname();
+  const params = useSearchParams();
+  const typeLabel = types.find((t) => t.value === currentTypeSlug)?.label ?? 'Todos os tipos';
+  const bairroSlug = params.get('bairro') ?? '';
+  const bairroLabel = neighborhoods.find((n) => n.value === bairroSlug)?.label ?? 'Todos os bairros';
 
-  const goWithPurpose = (basePath: string, purpose: string) => {
-    if (purpose === 'troca') {
-      router.push(`${basePath}?troca=1`);
-      return;
-    }
-    router.push(purpose ? `${basePath}?modalidade=${purpose}` : basePath);
+  const setBairro = (slug: string) => {
+    const next = new URLSearchParams(params.toString());
+    slug ? next.set('bairro', slug) : next.delete('bairro');
+    router.push(`${pathname}?${next.toString()}`);
   };
 
   return (
-    <section className="relative z-10 w-full bg-bg md:rounded-[22px] md:bg-surface md:p-8 md:shadow-2xl md:shadow-black/10 lg:max-w-[460px]">
-      <h1 className="text-[26px] font-bold leading-[1.08] text-text">{h1}</h1>
-      <p className="mt-2 text-sm text-muted">
-        {total ? `${total} opções ativas para comparar em ${city.name}.` : `Confira novas oportunidades em ${city.name} assim que forem publicadas.`}
-      </p>
-
-      <div className="mt-6 space-y-3">
-        <FieldDropdown
-          label="Localização"
-          value={`${city.name}, Bahia`}
-          options={cities}
-          onSelect={(slug) => router.push(`/${slug}`)}
-        />
-
-        <div className="grid grid-cols-2 gap-3">
-          <FieldDropdown
-            label="Tipo"
-            value={typeLabel}
-            options={[{ value: '', label: 'Todos' }, ...types]}
-            onSelect={(slug) => goWithPurpose(slug ? `/${city.slug}/${slug}s` : `/${city.slug}`, currentPurpose)}
-          />
-          <FieldDropdown
-            label="Modalidade"
-            value={negotiationLabel}
-            options={negotiationOptions}
-            onSelect={(purpose) => goWithPurpose(path, purpose)}
-          />
-        </div>
-      </div>
-
+    <div className="grid gap-2 sm:grid-cols-[1.1fr_1fr_1fr_auto] sm:gap-2.5">
+      <FieldDropdown
+        label="Localização"
+        value={`${city.name}, BA`}
+        options={cities}
+        onSelect={(slug) => router.push(`/${slug}`)}
+      />
+      <FieldDropdown
+        label="Bairro"
+        value={bairroLabel}
+        options={[{ value: '', label: 'Todos os bairros' }, ...neighborhoods]}
+        onSelect={setBairro}
+      />
+      <FieldDropdown
+        label="Tipo"
+        value={typeLabel}
+        options={[{ value: '', label: 'Todos os tipos' }, ...types]}
+        onSelect={(slug) => router.push(slug ? `/${city.slug}/${slug}s` : `/${city.slug}`)}
+      />
       <button
         type="button"
         onClick={() => router.push(path)}
-        className="mt-6 inline-flex h-14 w-full items-center justify-center gap-3 rounded-xl bg-primary px-4 text-base font-semibold text-white transition hover:bg-primary-hover"
+        className="inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-primary px-4 text-sm font-semibold text-white transition hover:bg-primary-hover sm:h-12"
       >
-        <Search size={21} />
-        Ver imóveis
+        <Search size={17} />
+        <span className="sm:hidden">Buscar</span>
       </button>
-    </section>
+    </div>
   );
 }

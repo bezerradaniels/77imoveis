@@ -46,6 +46,18 @@ export const cityTagline: Record<string, string> = {
 };
 export const cityTaglineFor = (slug: string) => cityTagline[slug] ?? 'Cidade do DDD 77';
 
+export const cityImages: Record<string, string> = {
+  'bom-jesus-da-lapa': '/bom jesus da lapa.jpg',
+  'vitoria-da-conquista': '/vitoria da conquista.jpg',
+  barreiras: '/barreiras.jpg',
+  'luis-eduardo-magalhaes': '/luis eduardo magalhaes.jpg',
+  guanambi: '/guanambi.jpg',
+  brumado: '/brumado.jpg',
+  'santa-maria-da-vitoria': '/santa maria da vitoria.jpg',
+};
+
+export const cityImageFor = (slug: string) => cityImages[slug] ?? '/search-city-hero.jpg';
+
 export const tileColors = ['#e0f2fe', '#dcfce7', '#fee2e2', '#fef9c3', '#f3e8ff', '#ffedd5', '#cffafe'];
 
 // Emoji por tipo de imóvel (chips da home).

@@ -1,21 +1,8 @@
 import type { Metadata } from 'next';
 import { cache } from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import {
-  Building2,
-  ChevronLeft,
-  ChevronRight,
-  Home,
-  MapPin,
-  ShieldCheck,
-  Sparkles,
-  Star,
-  Trees,
-  Waves,
-  Wifi,
-} from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import {
   getCityBySlug,
   getCitySearchInsights,
@@ -25,10 +12,11 @@ import {
   type CardProperty,
   type Negotiation,
 } from '@/lib/data';
-import { cityEmojiFor, cityTaglineFor, typeEmojiFor } from '@/lib/constants';
+import { cityEmojiFor, cityTaglineFor } from '@/lib/constants';
 import { plural } from '@/lib/format';
-import { PropertyCard } from '@/components/property/PropertyCard';
+import { PropertyRow } from '@/components/property/PropertyRow';
 import { FilterBar } from '@/components/property/FilterBar';
+import { SortDropdown } from '@/components/property/SortDropdown';
 import { CityHeroSearchPanel } from '@/components/search/CityHeroSearchPanel';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { breadcrumbLd, faqLd, itemListLd } from '@/lib/seo/jsonld';
@@ -55,6 +43,7 @@ const num = (v: string | string[] | undefined) => {
   const n = Number(str(v));
   return Number.isFinite(n) && n > 0 ? n : undefined;
 };
+const list = (v: string | string[] | undefined) => (str(v) ?? '').split(',').filter(Boolean);
 
 const loadCity = cache((slug: string) => getCityBySlug(slug));
 const loadType = cache((slug: string) => getTypeByUrlSlug(slug));
@@ -69,9 +58,10 @@ async function resolve({ cidade, rest }: Params) {
   return { city, type };
 }
 
-function heading(city: { name: string }, type: { name: string } | null, neg?: Negotiation) {
+function heading(city: { name: string }, type: { name: string } | null, negs: Negotiation[] = []) {
   const what = type ? plural(type.name) : 'Imóveis';
-  return `${what}${neg ? ` ${negoText[neg]}` : ''} em ${city.name}`;
+  const negSuffix = negs.length ? ` ${negs.map((n) => negoText[n]).join(' ou ')}` : '';
+  return `${what}${negSuffix} em ${city.name}`;
 }
 
 function exchangeText(value: string | string[] | undefined) {
@@ -89,128 +79,6 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
   return { title, description, alternates: { canonical: `${SITE}${path}` } };
 }
 
-function HeroImage({ items, cityName }: { items: CardProperty[]; cityName: string }) {
-  const image = items.find((p) => p.coverUrl && !p.coverUrl.includes('placeholder'))?.coverUrl ?? '/search-city-hero.jpg';
-
-  return (
-    <div className="relative h-[calc((100vw-32px)*0.5625-4px)] max-h-[calc((1280px-32px)*0.78*0.5625-4px)] w-full overflow-hidden rounded-[24px] bg-subtle lg:h-[calc(min((100vw-32px)*0.78,998.4px)*0.5625-4px)] lg:rounded-[28px]">
-      <Image
-        src={image}
-        alt={`Imóveis em ${cityName}`}
-        fill
-        priority
-        sizes="(min-width: 1024px) 78vw, 100vw"
-        className="object-cover"
-      />
-    </div>
-  );
-}
-
-function QuickStats({
-  cityName,
-  total,
-  companies,
-  neighborhoods,
-}: {
-  cityName: string;
-  total: number;
-  companies: number;
-  neighborhoods: number;
-}) {
-  const stats = [
-    { icon: Home, title: 'Total de imóveis', text: `${total} anúncios ativos em ${cityName}` },
-    { icon: ShieldCheck, title: 'Anunciantes locais', text: `${companies} profissionais e empresas na cidade` },
-    { icon: MapPin, title: 'Regiões mapeadas', text: `${neighborhoods} bairros para refinar sua busca` },
-    { icon: Sparkles, title: 'Busca atualizada', text: 'Filtros por preço, quartos, tipo e modalidade' },
-  ];
-
-  return (
-    <section className="mx-auto mt-8 grid max-w-6xl gap-3 px-4 sm:grid-cols-2 lg:-mt-10 lg:grid-cols-4">
-      {stats.map(({ icon: Icon, title, text }) => (
-        <article key={title} className="rounded-lg border border-border bg-surface p-4 shadow-sm">
-          <Icon size={22} className="mb-3 text-primary" />
-          <h2 className="text-sm font-semibold">{title}</h2>
-          <p className="mt-1 text-sm text-muted">{text}</p>
-        </article>
-      ))}
-    </section>
-  );
-}
-
-function FeaturedRow({ cityName, items }: { cityName: string; items: CardProperty[] }) {
-  if (!items.length) return null;
-  return (
-    <section className="mx-auto max-w-6xl px-4 pt-16">
-      <div className="mb-7 text-center">
-        <h2 className="text-2xl font-bold">Imóveis em destaque em {cityName}</h2>
-        <p className="mt-2 text-sm text-muted">Uma seleção rápida para começar a comparar localização, preço e perfil do imóvel.</p>
-      </div>
-      <div className="grid gap-5 [grid-template-columns:repeat(auto-fill,200px)]">
-        {items.slice(0, 4).map((p) => (
-          <PropertyCard key={p.slug} {...p} />
-        ))}
-      </div>
-    </section>
-  );
-}
-
-function TypeTiles({ citySlug, types }: { citySlug: string; types: PropertyType[] }) {
-  if (!types.length) return null;
-  return (
-    <section className="mx-auto max-w-6xl px-4 pt-16">
-      <h2 className="mb-7 text-center text-2xl font-bold">Tipos populares em {citySlug.replace(/-/g, ' ')}</h2>
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
-        {types.slice(0, 5).map((t) => (
-          <Link key={t.slug} href={`/${citySlug}/${t.slug}s`} className="rounded-lg border border-border bg-surface p-5 text-center transition hover:border-primary/50 hover:bg-bg">
-            <span className="block text-3xl">{typeEmojiFor(t.slug)}</span>
-            <span className="mt-3 block text-sm font-semibold">{plural(t.name)}</span>
-          </Link>
-        ))}
-      </div>
-    </section>
-  );
-}
-
-function Neighborhoods({ cityName, citySlug, neighborhoods }: { cityName: string; citySlug: string; neighborhoods: { name: string; slug: string }[] }) {
-  if (!neighborhoods.length) return null;
-  return (
-    <section className="mx-auto max-w-6xl px-4 pt-16">
-      <h2 className="mb-7 text-center text-2xl font-bold">Fique perto dos principais bairros de {cityName}</h2>
-      <div className="grid gap-3 md:grid-cols-3">
-        {neighborhoods.slice(0, 6).map((n) => (
-          <Link key={n.slug} href={`/${citySlug}?bairro=${n.slug}`} className="rounded-lg border border-border bg-surface p-5 transition hover:border-primary/50 hover:bg-bg">
-            <h3 className="text-sm font-semibold">{n.name}</h3>
-            <p className="mt-1 text-sm text-muted">Veja imóveis próximos nesta região</p>
-          </Link>
-        ))}
-      </div>
-    </section>
-  );
-}
-
-function Amenities() {
-  const amenities = [
-    { Icon: Wifi, label: 'Boa conexão' },
-    { Icon: Building2, label: 'Condomínio' },
-    { Icon: Trees, label: 'Área externa' },
-    { Icon: Waves, label: 'Lazer' },
-    { Icon: Star, label: 'Destaques' },
-  ];
-  return (
-    <section className="mx-auto max-w-6xl px-4 pt-16">
-      <h2 className="mb-7 text-center text-2xl font-bold">Comodidades buscadas na região</h2>
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
-        {amenities.map(({ Icon, label }) => (
-          <div key={label} className="rounded-lg border border-border bg-surface p-5 text-center">
-            <Icon size={28} className="mx-auto text-primary" />
-            <p className="mt-3 text-sm font-semibold">{label}</p>
-          </div>
-        ))}
-      </div>
-    </section>
-  );
-}
-
 function Results({
   items,
   pages,
@@ -223,12 +91,11 @@ function Results({
   pageHref: (n: number) => string;
 }) {
   return (
-    <section id="resultados" className="mx-auto max-w-6xl px-4 pt-16">
-      <h2 className="mb-7 text-center text-2xl font-bold">Outros imóveis excelentes para conhecer</h2>
+    <>
       {items.length ? (
-        <div className="grid gap-5 [grid-template-columns:repeat(auto-fill,200px)]">
+        <div className="flex flex-col gap-2.5 sm:gap-3">
           {items.map((p) => (
-            <PropertyCard key={p.slug} {...p} />
+            <PropertyRow key={p.slug} {...p} />
           ))}
         </div>
       ) : (
@@ -238,7 +105,7 @@ function Results({
       )}
 
       {pages > 1 && (
-        <nav className="mt-8 flex flex-wrap justify-center gap-2" aria-label="paginação">
+        <nav className="mt-6 flex flex-wrap justify-center gap-2" aria-label="paginação">
           {page > 1 && (
             <Link href={pageHref(page - 1)} className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-border bg-surface hover:bg-bg" aria-label="Página anterior">
               <ChevronLeft size={17} />
@@ -260,14 +127,23 @@ function Results({
           )}
         </nav>
       )}
-    </section>
+    </>
   );
 }
 
-function SearchFiltersSection() {
+function Neighborhoods({ cityName, citySlug, neighborhoods }: { cityName: string; citySlug: string; neighborhoods: { name: string; slug: string }[] }) {
+  if (!neighborhoods.length) return null;
   return (
-    <section id="filtros" className="mx-auto max-w-6xl px-4 pt-12">
-      <FilterBar />
+    <section className="mx-auto max-w-[1200px] px-6 pt-12">
+      <h2 className="mb-5 text-lg font-bold">Principais bairros de {cityName}</h2>
+      <div className="grid gap-3 md:grid-cols-3">
+        {neighborhoods.slice(0, 6).map((n) => (
+          <Link key={n.slug} href={`?bairro=${n.slug}`} className="rounded-lg border border-border bg-surface p-4 transition hover:border-primary/50 hover:bg-bg">
+            <h3 className="text-sm font-semibold">{n.name}</h3>
+            <p className="mt-1 text-sm text-muted">Veja imóveis próximos nesta região</p>
+          </Link>
+        ))}
+      </div>
     </section>
   );
 }
@@ -275,8 +151,8 @@ function SearchFiltersSection() {
 function Destinations({ cities }: { cities: { name: string; slug: string }[] }) {
   if (!cities.length) return null;
   return (
-    <section className="mx-auto max-w-6xl px-4 py-16">
-      <h2 className="mb-4 text-xl font-bold">Destinos para conhecer</h2>
+    <section className="mx-auto max-w-[1200px] px-6 py-12">
+      <h2 className="mb-4 text-lg font-bold">Destinos para conhecer</h2>
       <div className="grid gap-x-6 gap-y-4 border-t border-border pt-5 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-6">
         {cities.map((c) => (
           <Link key={c.slug} href={`/${c.slug}`} className="text-sm hover:text-primary">
@@ -298,33 +174,34 @@ export default async function ListagemPage({
 }) {
   const { city, type } = await resolve(params);
 
-  const modalidade = str(searchParams.modalidade) as Negotiation | undefined;
-  const negotiation = modalidade && NEGOS.includes(modalidade) ? modalidade : undefined;
+  const negotiations = list(searchParams.modalidade).filter((m): m is Negotiation => NEGOS.includes(m as Negotiation));
   const acceptsExchange = exchangeText(searchParams.troca) || exchangeText(searchParams.permuta);
   const page = num(searchParams.pagina) ?? 1;
   const sort = (str(searchParams.ordem) as any) || 'recentes';
+  const bairroSlug = str(searchParams.bairro);
 
-  const [{ items, total }, types, insights] = await Promise.all([
-    searchProperties({
-      cityId: city.id,
-      typeId: type?.id,
-      negotiation,
-      acceptsExchange,
-      bedrooms: num(searchParams.quartos),
-      minPrice: num(searchParams.min),
-      maxPrice: num(searchParams.max),
-      sort,
-      page,
-      perPage: PER_PAGE,
-    }),
-    getPropertyTypes(),
-    getCitySearchInsights(city.id, city.slug),
-  ]);
+  const [types, insights] = await Promise.all([getPropertyTypes(), getCitySearchInsights(city.id, city.slug)]);
+  const neighborhoodId = bairroSlug ? insights.neighborhoods.find((n) => n.slug === bairroSlug)?.id : undefined;
+
+  const { items, total } = await searchProperties({
+    cityId: city.id,
+    typeId: type?.id,
+    neighborhoodId,
+    negotiations,
+    acceptsExchange,
+    bedrooms: list(searchParams.quartos),
+    bathrooms: list(searchParams.banheiros),
+    garages: list(searchParams.vagas),
+    minPrice: num(searchParams.min),
+    maxPrice: num(searchParams.max),
+    sort,
+    page,
+    perPage: PER_PAGE,
+  });
 
   const pages = Math.ceil(total / PER_PAGE);
-  const h1 = `${heading(city, type, negotiation)}${acceptsExchange ? ' que aceitam troca' : ''}`;
+  const h1 = `${heading(city, type, negotiations)}${acceptsExchange ? ' que aceitam troca' : ''}`;
   const path = type ? `/${city.slug}/${params.rest![0]}` : `/${city.slug}`;
-  const featured = [...items].sort((a, b) => Number(b.isFeatured) - Number(a.isFeatured));
 
   const pageHref = (n: number) => {
     const sp = new URLSearchParams();
@@ -337,7 +214,7 @@ export default async function ListagemPage({
   };
 
   return (
-    <main className="bg-bg">
+    <main className="bg-slate-50 dark:bg-bg">
       <JsonLd
         data={breadcrumbLd([
           { name: 'Início', url: SITE },
@@ -349,43 +226,40 @@ export default async function ListagemPage({
         <JsonLd data={itemListLd(items.map((p) => ({ name: p.title, url: `${SITE}/imovel/${p.slug}` })))} />
       )}
 
-      <section className="mx-auto max-w-[1280px] px-4 pb-8 pt-6 md:pt-8 lg:pb-14">
-        <div className="relative">
-          <div className="lg:ml-auto lg:w-[78%]">
-            <HeroImage items={items} cityName={city.name} />
-          </div>
-          <div className="relative z-10 mt-6 w-full lg:absolute lg:left-0 lg:top-1/2 lg:mt-0 lg:max-w-[480px] lg:-translate-y-1/2 lg:px-0">
-            <CityHeroSearchPanel
-              city={city}
-              total={total}
-              h1={h1}
-              path={path}
-              cities={[{ value: city.slug, label: city.name }, ...insights.cities.map((c) => ({ value: c.slug, label: c.name }))]}
-              types={(types as PropertyType[]).map((t) => ({ value: t.slug, label: plural(t.name) }))}
-              currentTypeSlug={type?.slug}
-              currentNegotiation={negotiation}
-              acceptsExchange={acceptsExchange}
-            />
-          </div>
+      <section className="mx-auto max-w-[1200px] px-6 pb-3 pt-5">
+        <h1 className="text-xl font-bold leading-tight text-text sm:text-2xl">{h1}</h1>
+        <p className="mt-1 text-sm text-muted">
+          {total ? `${total} imóve${total > 1 ? 'is' : 'l'} encontrado${total > 1 ? 's' : ''} em ${city.name}` : `Nenhum imóvel encontrado em ${city.name} ainda`}
+        </p>
+
+        <div className="mt-3">
+          <CityHeroSearchPanel
+            city={city}
+            path={path}
+            cities={[{ value: city.slug, label: city.name }, ...insights.cities.map((c) => ({ value: c.slug, label: c.name }))]}
+            types={(types as PropertyType[]).map((t) => ({ value: t.slug, label: plural(t.name) }))}
+            neighborhoods={insights.neighborhoods.map((n) => ({ value: n.slug, label: n.name }))}
+            currentTypeSlug={type?.slug}
+          />
         </div>
       </section>
 
-      <QuickStats
-        cityName={city.name}
-        total={insights.activeProperties || total}
-        companies={insights.companies}
-        neighborhoods={insights.neighborhoods.length}
-      />
+      <section className="mx-auto max-w-[1200px] gap-6 px-6 pb-14 lg:grid lg:grid-cols-[280px_1fr]">
+        <aside>
+          <FilterBar hideNeighborhoods />
+        </aside>
 
-      <FeaturedRow cityName={city.name} items={featured} />
-      <TypeTiles citySlug={city.slug} types={types as PropertyType[]} />
-      <SearchFiltersSection />
-      <Amenities />
-      <Neighborhoods cityName={city.name} citySlug={city.slug} neighborhoods={insights.neighborhoods} />
-      <Results items={items} pages={pages} page={page} pageHref={pageHref} />
+        <div className="mt-3 lg:mt-0">
+          <div className="mb-3 flex items-center justify-between">
+            <span className="text-sm text-muted">{total} resultado{total === 1 ? '' : 's'}</span>
+            <SortDropdown value={sort} />
+          </div>
+          <Results items={items} pages={pages} page={page} pageHref={pageHref} />
+        </div>
+      </section>
 
       {!type && city.intro_text && (
-        <section className="mx-auto max-w-6xl px-4 pt-12">
+        <section className="mx-auto max-w-[1200px] px-6 pb-12">
           <div className="rounded-lg border border-border bg-surface p-5 text-sm text-muted">
             <h2 className="mb-2 text-base font-semibold text-text">Sobre o mercado em {city.name}</h2>
             <p>{city.intro_text}</p>
@@ -393,8 +267,10 @@ export default async function ListagemPage({
         </section>
       )}
 
+      <Neighborhoods cityName={city.name} citySlug={city.slug} neighborhoods={insights.neighborhoods} />
+
       {!type && (
-        <section className="mx-auto max-w-6xl px-4 pt-12">
+        <section className="mx-auto max-w-[1200px] px-6 pt-12">
           <JsonLd
             data={faqLd([
               { q: `Como encontrar imóveis à venda em ${city.name}?`, a: `Use os filtros de tipo, preço e número de quartos nesta página de ${city.name}. Os anúncios são atualizados por imobiliárias, corretores e particulares da região do DDD 77.` },

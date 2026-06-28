@@ -136,7 +136,7 @@ export async function getCitySearchInsights(cityId: string, citySlug: string) {
     return {
       activeProperties: 0,
       companies: 0,
-      neighborhoods: [] as { name: string; slug: string }[],
+      neighborhoods: [] as { id: string; name: string; slug: string }[],
       cities: [] as { name: string; slug: string }[],
     };
   }
@@ -145,7 +145,7 @@ export async function getCitySearchInsights(cityId: string, citySlug: string) {
   const [properties, companies, neighborhoods, cities] = await Promise.all([
     db().from('properties').select('*', head).eq('status', 'ativo').eq('city_id', cityId),
     db().from('companies').select('*', head).eq('status', 'ativo').eq('city_id', cityId),
-    db().from('neighborhoods').select('name,slug').eq('city_id', cityId).order('name').limit(6),
+    db().from('neighborhoods').select('id,name,slug').eq('city_id', cityId).order('name'),
     db().from('cities').select('name,slug').neq('slug', citySlug).order('population', { ascending: false, nullsFirst: false }).limit(12),
   ]);
 
@@ -173,9 +173,12 @@ export async function getTypeByUrlSlug(tipoUrl: string) {
 export type SearchFilters = {
   cityId?: string;
   typeId?: string;
-  negotiation?: Negotiation;
+  neighborhoodId?: string;
+  negotiations?: Negotiation[];
   acceptsExchange?: boolean;
-  bedrooms?: number;
+  bedrooms?: string[]; // '1' | '2' | '3' | '4+' (múltipla escolha)
+  bathrooms?: string[];
+  garages?: string[];
   minPrice?: number;
   maxPrice?: number;
   sort?: 'recentes' | 'menor-preco' | 'maior-preco';
@@ -185,6 +188,8 @@ export type SearchFilters = {
 
 // Busca de imóveis ativos com filtros. Retorna a página e o total (paginação).
 // A busca por modalidade consulta property_negotiations (um imóvel pode ter várias).
+// Com 2+ modalidades marcadas, resolve os ids batendo antes (evita duplicar a
+// linha do imóvel quando ele bate em mais de uma modalidade selecionada).
 export async function searchProperties(
   f: SearchFilters,
 ): Promise<{ items: CardProperty[]; total: number }> {
@@ -192,26 +197,47 @@ export async function searchProperties(
   const perPage = f.perPage ?? 12;
   const page = Math.max(1, f.page ?? 1);
   const from = (page - 1) * perPage;
+  const single = f.negotiations?.length === 1 ? f.negotiations[0] : undefined;
+  const multi = (f.negotiations?.length ?? 0) > 1;
 
-  const select = f.negotiation
+  let matchedIds: string[] | undefined;
+  if (multi) {
+    const { data: negos } = await db()
+      .from('property_negotiations')
+      .select('property_id')
+      .in('negotiation', f.negotiations!);
+    matchedIds = [...new Set((negos ?? []).map((n: any) => n.property_id))];
+    if (!matchedIds.length) return { items: [], total: 0 };
+  }
+
+  const select = single
     ? `${PROP_SELECT},property_negotiations!inner(negotiation,price,price_visibility)`
     : PROP_SELECT;
 
   let q = db().from('properties').select(select, { count: 'exact' }).eq('status', 'ativo');
   if (f.cityId) q = q.eq('city_id', f.cityId);
   if (f.typeId) q = q.eq('property_type_id', f.typeId);
-  if (f.negotiation) q = q.eq('property_negotiations.negotiation', f.negotiation);
+  if (f.neighborhoodId) q = q.eq('neighborhood_id', f.neighborhoodId);
+  if (single) q = q.eq('property_negotiations.negotiation', single);
+  if (matchedIds) q = q.in('id', matchedIds);
   if (f.acceptsExchange) q = q.eq('accepts_exchange', true);
-  if (f.bedrooms) q = q.gte('bedrooms', f.bedrooms);
-  if (f.minPrice != null) q = q.gte(f.negotiation ? 'property_negotiations.price' : 'price', f.minPrice);
-  if (f.maxPrice != null) q = q.lte(f.negotiation ? 'property_negotiations.price' : 'price', f.maxPrice);
+  const orList = (column: string, values?: string[]) =>
+    values?.length ? values.map((v) => (v === '4+' ? `${column}.gte.4` : `${column}.eq.${v}`)).join(',') : undefined;
+  const bedroomsOr = orList('bedrooms', f.bedrooms);
+  if (bedroomsOr) q = q.or(bedroomsOr);
+  const bathroomsOr = orList('bathrooms', f.bathrooms);
+  if (bathroomsOr) q = q.or(bathroomsOr);
+  const garagesOr = orList('garages', f.garages);
+  if (garagesOr) q = q.or(garagesOr);
+  if (f.minPrice != null) q = q.gte(single ? 'property_negotiations.price' : 'price', f.minPrice);
+  if (f.maxPrice != null) q = q.lte(single ? 'property_negotiations.price' : 'price', f.maxPrice);
 
   if (f.sort === 'menor-preco')
-    q = f.negotiation
+    q = single
       ? q.order('price', { ascending: true, nullsFirst: false, foreignTable: 'property_negotiations' } as any)
       : q.order('price', { ascending: true, nullsFirst: false });
   else if (f.sort === 'maior-preco')
-    q = f.negotiation
+    q = single
       ? q.order('price', { ascending: false, nullsFirst: false, foreignTable: 'property_negotiations' } as any)
       : q.order('price', { ascending: false, nullsFirst: false });
   else q = q.order('is_featured', { ascending: false }).order('published_at', { ascending: false });
@@ -220,7 +246,7 @@ export async function searchProperties(
 
   const items = (data ?? []).map((p: any) => {
     const card = toCard(p);
-    // Ao filtrar por modalidade, mostra o preço daquela modalidade (não o principal).
+    // Ao filtrar por uma única modalidade, mostra o preço daquela modalidade (não o principal).
     const neg = p.property_negotiations?.[0];
     if (neg) {
       card.negotiation = neg.negotiation;
@@ -241,6 +267,55 @@ export async function getActivePropertySlugs(): Promise<string[]> {
   if (!hasEnv()) return [];
   const { data } = await db().from('properties').select('slug').eq('status', 'ativo');
   return (data ?? []).map((p: any) => p.slug);
+}
+
+// Imóveis parecidos: mesma cidade (e mesmo tipo, quando houver), excluindo o
+// próprio anúncio. Se faltarem do mesmo tipo, completa com outros da cidade.
+export async function getRelatedProperties(
+  cityId: string,
+  typeId: string | null,
+  excludeSlug: string,
+  limit = 8,
+): Promise<CardProperty[]> {
+  if (!hasEnv() || !cityId) return [];
+
+  let q = db()
+    .from('properties')
+    .select(PROP_SELECT)
+    .eq('status', 'ativo')
+    .eq('city_id', cityId)
+    .neq('slug', excludeSlug);
+  if (typeId) q = q.eq('property_type_id', typeId);
+
+  const { data } = await q
+    .order('is_featured', { ascending: false })
+    .order('published_at', { ascending: false, nullsFirst: false })
+    .limit(limit);
+
+  let items = (data ?? []).map(toCard);
+
+  // Fallback: poucos do mesmo tipo → completa com outros imóveis da cidade.
+  if (items.length < 4 && typeId) {
+    const { data: more } = await db()
+      .from('properties')
+      .select(PROP_SELECT)
+      .eq('status', 'ativo')
+      .eq('city_id', cityId)
+      .neq('slug', excludeSlug)
+      .order('is_featured', { ascending: false })
+      .limit(limit);
+    const seen = new Set(items.map((i) => i.slug));
+    for (const row of more ?? []) {
+      const c = toCard(row);
+      if (!seen.has(c.slug)) {
+        items.push(c);
+        seen.add(c.slug);
+      }
+    }
+    items = items.slice(0, limit);
+  }
+
+  return items;
 }
 
 // =====================================================================
@@ -306,7 +381,7 @@ export async function getCitiesAll() {
 
 export async function getNeighborhoods(cityId: string) {
   if (!hasEnv()) return [];
-  const { data } = await db().from('neighborhoods').select('id,name').eq('city_id', cityId).order('name');
+  const { data } = await db().from('neighborhoods').select('id,name,slug').eq('city_id', cityId).order('name');
   return data ?? [];
 }
 

@@ -7,15 +7,16 @@ import {
 import { getFeaturedCities, getPropertyTypes, getFeaturedProperties, getCityCounts } from '@/lib/data';
 import { PropertyCard } from '@/components/property/PropertyCard';
 import { HomeSearch } from '@/components/home/HomeSearch';
+import { cityImageFor } from '@/lib/constants';
 
 export const revalidate = 300;
 
 const categorias = [
-  { Icon: Home, label: 'Casas', sub: 'Para morar com a família', href: '/vitoria-da-conquista/casas' },
-  { Icon: Building2, label: 'Apartamentos', sub: 'Praticidade e localização', href: '/vitoria-da-conquista/apartamentos' },
-  { Icon: Trees, label: 'Terrenos', sub: 'Construa do seu jeito', href: '/vitoria-da-conquista/terrenos' },
-  { Icon: Store, label: 'Imóveis comerciais', sub: 'Salas, lojas e galpões', href: '/vitoria-da-conquista/sala-comercials' },
-  { Icon: Sparkles, label: 'Lançamentos', sub: 'Novos empreendimentos', href: '/vitoria-da-conquista?modalidade=lancamento' },
+  { Icon: Home, label: 'Casas', sub: 'Para morar com a família', href: '/imoveis?tipo=casa' },
+  { Icon: Building2, label: 'Apartamentos', sub: 'Praticidade e localização', href: '/imoveis?tipo=apartamento' },
+  { Icon: Trees, label: 'Terrenos', sub: 'Construa do seu jeito', href: '/imoveis?tipo=terreno' },
+  { Icon: Store, label: 'Imóveis comerciais', sub: 'Salas, lojas e galpões', href: '/imoveis?tipo=sala-comercial' },
+  { Icon: Sparkles, label: 'Lançamentos', sub: 'Novos empreendimentos', href: '/imoveis?modalidade=lancamento' },
 ];
 
 const profissionais = [
@@ -33,16 +34,6 @@ function SectionTitle({ title, sub }: { title: string; sub: string }) {
     </div>
   );
 }
-
-const cityImages: Record<string, string> = {
-  'bom-jesus-da-lapa': '/bom jesus da lapa.jpg',
-  'vitoria-da-conquista': '/vitoria da conquista.jpg',
-  barreiras: '/barreiras.jpg',
-  'luis-eduardo-magalhaes': '/luis eduardo magalhaes.jpg',
-  guanambi: '/guanambi.jpg',
-  brumado: '/brumado.jpg',
-  'santa-maria-da-vitoria': '/santa maria da vitoria.jpg',
-};
 
 const citySequence = [
   { slug: 'bom-jesus-da-lapa', name: 'Bom Jesus da Lapa' },
@@ -118,7 +109,7 @@ export default async function HomePage() {
                     aria-hidden
                     className="block h-[180px] w-[180px] overflow-hidden rounded-2xl bg-slate-200 bg-cover bg-center transition-transform duration-200 group-hover:scale-[1.015]"
                     style={{
-                      backgroundImage: `url("${cityImages[c.slug] ?? '/search-city-hero.jpg'}")`,
+                      backgroundImage: `url("${cityImageFor(c.slug)}")`,
                     }}
                   />
                   <span className="block pt-3">
@@ -139,7 +130,7 @@ export default async function HomePage() {
         <div className="mx-auto max-w-[1200px] px-6 py-[clamp(48px,6vw,72px)]">
           <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
             <SectionTitle title="Imóveis em destaque" sub="Seleção de oportunidades recentes na região 77." />
-            <Link href="/vitoria-da-conquista/casas" className="inline-flex items-center gap-1.5 text-[15px] font-bold text-primary">
+            <Link href="/imoveis" className="inline-flex items-center gap-1.5 text-[15px] font-bold text-primary">
               Ver todos os imóveis <ArrowRight size={15} />
             </Link>
           </div>

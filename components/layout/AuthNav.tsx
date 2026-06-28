@@ -26,7 +26,7 @@ export function AuthNav() {
 
   if (!logged)
     return (
-      <Link href="/entrar" className="rounded-full border border-border px-3 py-1.5 text-sm font-semibold hover:bg-bg">
+      <Link href="/entrar" className="text-sm font-bold text-text/75 transition-colors hover:text-primary">
         Login
       </Link>
     );
