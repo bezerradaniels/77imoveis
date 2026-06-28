@@ -71,7 +71,7 @@ export function ContactCard({
         {chips.length > 0 && (
           <div className="mt-3 flex flex-wrap gap-2">
             {chips.map((c) => (
-              <span key={c} className="rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-bold text-primary">
+              <span key={c} className="rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-bold text-link">
                 {c}
               </span>
             ))}
@@ -86,14 +86,14 @@ export function ContactCard({
             // eslint-disable-next-line @next/next/no-img-element
             <img src={advertiserLogo} alt={anunciante} className="h-11 w-11 rounded-full object-cover" />
           ) : (
-            <div className="flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-br from-primary to-primary-hover text-sm font-bold text-white">
+            <div className="flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-br from-primary to-primary-hover text-sm font-bold text-on-primary">
               {initials}
             </div>
           )}
           <div className="min-w-0">
             <div className="flex items-center gap-1.5 text-sm font-semibold">
               <span className="truncate">{anunciante}</span>
-              <BadgeCheck size={15} className="shrink-0 text-primary" />
+              <BadgeCheck size={15} className="shrink-0 text-link" />
             </div>
             <div className="text-xs text-muted">Anunciante no 77Imóveis</div>
           </div>

@@ -19,7 +19,7 @@ export function CompanyAdmin({ id, status, verified, featured }: { id: string; s
   return (
     <div className="flex flex-col items-end gap-1">
       <div className="flex flex-wrap items-center gap-1.5">
-        <button disabled={pending} onClick={() => run({ is_verified: !verified })} className={`${btn} ${verified ? 'text-primary' : 'text-muted'}`}>
+        <button disabled={pending} onClick={() => run({ is_verified: !verified })} className={`${btn} ${verified ? 'text-link' : 'text-muted'}`}>
           <BadgeCheck size={13} /> {verified ? 'Verificada' : 'Verificar'}
         </button>
         <button disabled={pending} onClick={() => run({ is_featured: !featured })} className={`${btn} ${featured ? 'text-accent' : 'text-muted'}`}>

@@ -29,7 +29,7 @@ export function MobileContactBar(props: ContactCardProps) {
           target="_blank"
           rel="noopener noreferrer"
           aria-label="Conversar no WhatsApp"
-          className="fixed bottom-[88px] right-4 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-[#1FA855] text-white shadow-[0_12px_26px_-10px_rgba(31,168,85,0.8)] lg:hidden"
+          className="fixed bottom-[88px] right-4 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-[#1FA855] text-on-primary shadow-[0_12px_26px_-10px_rgba(31,168,85,0.8)] lg:hidden"
         >
           <MessageCircle size={26} />
         </a>
@@ -53,7 +53,7 @@ export function MobileContactBar(props: ContactCardProps) {
         </div>
         <button
           onClick={() => setOpen(true)}
-          className="h-12 shrink-0 rounded-xl bg-primary px-5 text-sm font-bold text-white transition hover:bg-primary-hover"
+          className="h-12 shrink-0 rounded-xl bg-primary px-5 text-sm font-bold text-on-primary transition hover:bg-primary-hover"
         >
           Falar com anunciante
         </button>

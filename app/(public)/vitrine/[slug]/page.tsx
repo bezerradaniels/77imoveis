@@ -12,6 +12,14 @@ export const revalidate = 300;
 const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://77imoveis.com.br';
 const shouldUnoptimize = (src: string) => src.endsWith('.svg') || (/^https?:\/\//.test(src) && !src.includes('.supabase.co'));
 
+function readableTextOn(hex: string) {
+  const match = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex.trim());
+  if (!match) return '#10231d';
+  const [r, g, b] = match.slice(1).map((v) => parseInt(v, 16));
+  const luminance = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
+  return luminance > 0.55 ? '#10231d' : '#ffffff';
+}
+
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
   const res = await getStorefrontBySlug(params.slug);
   // Vitrine inexistente ou inativa: não indexar.
@@ -39,6 +47,7 @@ export default async function VitrinePublicaPage({ params }: { params: { slug: s
   const s: any = res.storefront;
   const c = s.companies;
   const accent = s.accent_color || '#0891b2';
+  const accentText = readableTextOn(accent);
   const wa = s.show_whatsapp && (c.whatsapp || c.phone) ? `https://wa.me/55${(c.whatsapp || c.phone).replace(/\D/g, '')}` : null;
 
   return (
@@ -79,7 +88,7 @@ export default async function VitrinePublicaPage({ params }: { params: { slug: s
               <p className="text-sm text-muted">{c.trade_name}</p>
             </div>
             {wa && (
-              <a href={wa} target="_blank" rel="noopener noreferrer" className="mb-2 ml-auto inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold text-white" style={{ background: accent }}>
+              <a href={wa} target="_blank" rel="noopener noreferrer" className="mb-2 ml-auto inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold" style={{ background: accent, color: accentText }}>
                 <MessageCircle size={16} /> Falar conosco
               </a>
             )}

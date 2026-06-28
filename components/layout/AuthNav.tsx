@@ -29,7 +29,7 @@ export function AuthNav() {
 
   if (!logged)
     return (
-      <Link href="/entrar" className="text-sm font-bold text-text/75 transition-colors hover:text-primary">
+      <Link href="/entrar" className="text-sm font-bold text-text/75 transition-colors hover:text-link-hover">
         Login
       </Link>
     );
@@ -37,7 +37,7 @@ export function AuthNav() {
   return (
     <Link
       href="/painel"
-      className="inline-flex items-center gap-1.5 rounded-full bg-primary px-3 py-1.5 text-sm font-medium text-white"
+      className="inline-flex items-center gap-1.5 rounded-full bg-primary px-3 py-1.5 text-sm font-medium text-on-primary"
     >
       <LayoutDashboard size={15} /> Painel
     </Link>

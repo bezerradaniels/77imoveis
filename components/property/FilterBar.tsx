@@ -27,7 +27,7 @@ function Chip({ active, onClick, children }: { active: boolean; onClick: () => v
       onClick={onClick}
       className={cn(
         'inline-flex w-full items-center justify-center gap-1 rounded-[10px] px-2 py-1.5 text-[13px] font-medium transition-colors',
-        active ? 'bg-primary text-white' : 'border border-border text-slate-900 hover:bg-bg dark:text-white',
+        active ? 'bg-primary text-on-primary' : 'border border-border text-slate-900 hover:bg-bg dark:text-on-primary',
       )}
     >
       {active && <Check size={13} />}
@@ -110,7 +110,7 @@ export function FilterBar({
         <div className="flex items-center justify-between">
           <span className="text-sm font-semibold text-text">Filtros</span>
           {!!activeCount && (
-            <button onClick={clearAll} className="inline-flex items-center gap-1 text-xs text-muted hover:text-primary">
+            <button onClick={clearAll} className="inline-flex items-center gap-1 text-xs text-muted hover:text-link-hover">
               <X size={13} /> Limpar
             </button>
           )}

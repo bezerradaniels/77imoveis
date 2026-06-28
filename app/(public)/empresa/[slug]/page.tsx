@@ -99,7 +99,7 @@ export default async function EmpresaPublicaPage({ params }: { params: { slug: s
         <div className="min-w-0 flex-1">
           <h1 className="flex items-center gap-2 text-2xl font-bold">
             {c.trade_name}
-            {c.is_verified && <BadgeCheck size={20} className="text-primary" />}
+            {c.is_verified && <BadgeCheck size={20} className="text-link" />}
           </h1>
           <p className="text-muted">{companyTypeLabel(c.type)}</p>
           {c.cities?.name && (
@@ -110,7 +110,7 @@ export default async function EmpresaPublicaPage({ params }: { params: { slug: s
         </div>
         <div className="flex flex-wrap gap-2">
           {wa(c.whatsapp || c.phone) && (
-            <a href={wa(c.whatsapp || c.phone)!} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-full bg-[#1FA855] px-4 py-2 text-sm font-semibold text-white">
+            <a href={wa(c.whatsapp || c.phone)!} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-full bg-[#1FA855] px-4 py-2 text-sm font-semibold text-on-primary">
               <MessageCircle size={16} /> WhatsApp
             </a>
           )}

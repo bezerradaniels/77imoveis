@@ -25,7 +25,7 @@ export function MobileBottomBar() {
           <Link
             key={href}
             href={href}
-            className={cn('flex flex-col items-center gap-0.5 py-2 text-[11px]', on ? 'text-primary' : 'text-muted')}
+            className={cn('flex flex-col items-center gap-0.5 py-2 text-[11px]', on ? 'text-link' : 'text-muted')}
           >
             <Icon size={20} />
             {label}

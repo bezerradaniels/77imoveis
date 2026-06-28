@@ -32,7 +32,7 @@ export function PropertySpecs(p: {
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
         {specs.map((s, k) => (
           <div key={k} className="rounded-xl bg-subtle p-4">
-            <s.Icon size={21} className="text-primary" />
+            <s.Icon size={21} className="text-link" />
             <div className="mt-2 text-lg font-extrabold leading-none tabular-nums">{s.value}</div>
             <div className="mt-1 text-xs text-muted">{s.label}</div>
           </div>

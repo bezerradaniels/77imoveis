@@ -69,7 +69,7 @@ export function PropertyActions({ id, slug, status }: { id: string; slug: string
         <div className="max-w-xs text-right text-xs">
           <p className="text-danger">{error}</p>
           {error.includes('perfil profissional') && (
-            <Link href="/painel/empresa" className="font-medium text-primary">
+            <Link href="/painel/empresa" className="font-medium text-link">
               Criar perfil profissional
             </Link>
           )}

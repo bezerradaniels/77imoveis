@@ -29,7 +29,7 @@ export function CompanyCard(c: any) {
       <div className="min-w-0">
         <p className="flex items-center gap-1 truncate font-medium">
           {c.trade_name}
-          {c.is_verified && <BadgeCheck size={15} className="text-primary" />}
+          {c.is_verified && <BadgeCheck size={15} className="text-link" />}
         </p>
         <p className="text-sm text-muted">{companyTypeLabel(c.type)}</p>
         {c.cities?.name && <p className="text-xs text-muted">{c.cities.name}</p>}

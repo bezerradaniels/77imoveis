@@ -120,7 +120,7 @@ export function CityHeroSearchPanel({
       <button
         type="button"
         onClick={() => router.push(path)}
-        className="inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-primary px-4 text-sm font-semibold text-white transition hover:bg-primary-hover sm:h-12"
+        className="inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-primary px-4 text-sm font-semibold text-on-primary transition hover:bg-primary-hover sm:h-12"
       >
         <Search size={17} />
         <span className="sm:hidden">Buscar</span>

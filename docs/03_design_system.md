@@ -6,7 +6,7 @@ handoff de design `Home 77imoveis.dc.html`.)
 
 ## 1. Cores (tokens)
 
-Acento único **verde** (`#0E9D74`) sobre base neutra. Definidas como variáveis CSS
+Acento único **verde água** (`#69F1CF`) sobre base neutra. Definidas como variáveis CSS
 em `app/globals.css` (claro/escuro) e mapeadas no `tailwind.config.ts`.
 
 ```css
@@ -17,9 +17,12 @@ em `app/globals.css` (claro/escuro) e mapeadas no `tailwind.config.ts`.
   --border: #e7eae7;
   --text: #1d2722;
   --text-muted: #6b756f;
-  --primary: #0e9d74;       /* verde 77imóveis */
-  --primary-hover: #0b835f;
-  --accent: #0e9d74;
+  --primary: #69f1cf;       /* verde água 77imóveis */
+  --primary-hover: #49d9b8;
+  --on-primary: #10231d;    /* texto sobre fundo verde água */
+  --link: #0ea5e9;          /* links sobre fundo claro */
+  --link-hover: #0284c7;
+  --accent: #69f1cf;
   --success: #15803d;
   --warning: #b45309;
   --danger: #c0392b;
@@ -33,9 +36,12 @@ em `app/globals.css` (claro/escuro) e mapeadas no `tailwind.config.ts`.
   --border: #2a352f;
   --text: #f1f5f3;
   --text-muted: #9aa6a0;
-  --primary: #16b387;
-  --primary-hover: #3fd0a4;
-  --accent: #16b387;
+  --primary: #69f1cf;
+  --primary-hover: #49d9b8;
+  --on-primary: #10231d;
+  --link: #38bdf8;
+  --link-hover: #7dd3fc;
+  --accent: #69f1cf;
   --header-grad: linear-gradient(90deg, #112019 0%, #0f1714 46%, #1a1614 100%);
 }
 ```

@@ -101,7 +101,7 @@ function SelectField({
                   className={cn(
                     'flex min-h-10 w-full items-center rounded-lg px-3 text-left text-sm font-semibold transition-colors hover:bg-primary/10',
                     heroStyle ? 'text-slate-900' : 'text-text',
-                    value === option.value && 'bg-primary text-white hover:bg-primary',
+                    value === option.value && 'bg-primary text-on-primary hover:bg-primary',
                   )}
                 >
                   {option.label}
@@ -181,7 +181,7 @@ function CityField({
                 }}
                 className={cn(
                   'flex min-h-10 w-full items-center rounded-lg px-3 text-left text-sm font-semibold transition-colors hover:bg-primary/10',
-                  !value && !query ? 'bg-primary text-white hover:bg-primary' : heroStyle ? 'text-slate-900' : 'text-text',
+                  !value && !query ? 'bg-primary text-on-primary hover:bg-primary' : heroStyle ? 'text-slate-900' : 'text-text',
                 )}
               >
                 Todas as cidades
@@ -198,7 +198,7 @@ function CityField({
                   className={cn(
                     'flex min-h-10 w-full items-center rounded-lg px-3 text-left text-sm font-semibold transition-colors hover:bg-primary/10',
                     heroStyle ? 'text-slate-900' : 'text-text',
-                    value === city.value && 'bg-primary text-white hover:bg-primary',
+                    value === city.value && 'bg-primary text-on-primary hover:bg-primary',
                   )}
                 >
                   {city.label}
@@ -275,7 +275,7 @@ export function HomeSearch({
           type="button"
           onClick={buscar}
           className={cn(
-            'flex h-12 items-center justify-center gap-2 rounded-xl bg-primary px-4 text-[15px] font-bold text-white shadow-[0_10px_22px_-10px_rgba(14,157,116,.7)] transition-colors hover:bg-primary-hover',
+            'flex h-12 items-center justify-center gap-2 rounded-xl bg-primary px-4 text-[15px] font-bold text-on-primary shadow-[0_10px_22px_-10px_rgba(105,241,207,.7)] transition-colors hover:bg-primary-hover',
             compact ? 'w-full' : 'flex-[1_1_150px]',
           )}
         >

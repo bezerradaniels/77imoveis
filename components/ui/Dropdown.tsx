@@ -54,7 +54,7 @@ export function Dropdown({
               }}
               className={cn(
                 'block w-full px-3 py-2 text-left text-sm hover:bg-bg',
-                o.value === value && 'bg-primary/10 text-primary',
+                o.value === value && 'bg-primary/10 text-link',
               )}
             >
               {o.label}

@@ -83,7 +83,7 @@ export function StorefrontForm({
               {storefront?.expires_at && <> · válida até {fmt(storefront.expires_at)}</>}
             </p>
             {publicUrl && (
-              <a href={publicUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-sm text-primary">
+              <a href={publicUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-sm text-link">
                 Ver vitrine <ExternalLink size={14} />
               </a>
             )}

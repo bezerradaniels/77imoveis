@@ -69,7 +69,7 @@ export function Gallery({
         {/* Selos */}
         <div className="absolute left-4 top-4 flex gap-2">
           {badge && (
-            <span className="rounded-full bg-primary px-3 py-1.5 text-xs font-bold text-white shadow-sm">
+            <span className="rounded-full bg-primary px-3 py-1.5 text-xs font-bold text-on-primary shadow-sm">
               {badge}
             </span>
           )}

@@ -14,6 +14,8 @@ const config: Config = {
         text: 'var(--text)',
         muted: 'var(--text-muted)',
         primary: { DEFAULT: 'var(--primary)', hover: 'var(--primary-hover)' },
+        'on-primary': 'var(--on-primary)',
+        link: { DEFAULT: 'var(--link)', hover: 'var(--link-hover)' },
         accent: 'var(--accent)',
         success: 'var(--success)',
         warning: 'var(--warning)',

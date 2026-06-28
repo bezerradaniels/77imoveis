@@ -65,7 +65,7 @@ export default async function VitrinesPage() {
                     <h2 className="line-clamp-1 font-semibold">{title}</h2>
                     {company?.trade_name && <p className="text-sm text-muted">{company.trade_name}</p>}
                     {wa && (
-                      <p className="mt-2 inline-flex items-center gap-1 text-sm text-[#1FA855]">
+                      <p className="mt-2 inline-flex items-center gap-1 text-sm text-link">
                         <MessageCircle size={14} /> Atendimento por WhatsApp
                       </p>
                     )}
@@ -79,7 +79,7 @@ export default async function VitrinesPage() {
         <div className="rounded-xl border border-dashed border-border p-12 text-center">
           <Store className="mx-auto mb-2 text-muted" />
           <p className="text-muted">Ainda não há vitrines ativas.</p>
-          <Link href="/profissionais" className="mt-4 inline-flex rounded-full bg-primary px-4 py-2 font-semibold text-white">
+          <Link href="/profissionais" className="mt-4 inline-flex rounded-full bg-primary px-4 py-2 font-semibold text-on-primary">
             Ver profissionais
           </Link>
         </div>

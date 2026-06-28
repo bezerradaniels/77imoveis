@@ -78,11 +78,11 @@ export function OnboardingWizard({ cities, specialties }: { cities: Opt[]; speci
     <div className="space-y-6">
       <div>
         <div className="flex justify-between items-center mb-1">
-          <p className="text-sm font-semibold text-[#008A70]">Passo {step + 1} de {total}</p>
-          <p className="text-sm font-semibold text-[#008A70]">{Math.round(((step + 1) / total) * 100)}%</p>
+          <p className="text-sm font-semibold text-link">Passo {step + 1} de {total}</p>
+          <p className="text-sm font-semibold text-link">{Math.round(((step + 1) / total) * 100)}%</p>
         </div>
         <div className="h-1.5 w-full rounded-full bg-border">
-          <div className="h-1.5 rounded-full bg-[#008A70] transition-all" style={{ width: `${((step + 1) / total) * 100}%` }} />
+          <div className="h-1.5 rounded-full bg-primary transition-all" style={{ width: `${((step + 1) / total) * 100}%` }} />
         </div>
       </div>
 

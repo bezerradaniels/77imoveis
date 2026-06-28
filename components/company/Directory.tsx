@@ -4,7 +4,7 @@ import { CompanyCard } from './CompanyCard';
 
 const chip = (active: boolean) =>
   active
-    ? 'rounded-full bg-primary px-3 py-1 text-sm text-white'
+    ? 'rounded-full bg-primary px-3 py-1 text-sm text-on-primary'
     : 'rounded-full border border-border bg-surface px-3 py-1 text-sm hover:bg-bg';
 
 // Corpo do diretório de profissionais (filtros por tipo + grade de cards).

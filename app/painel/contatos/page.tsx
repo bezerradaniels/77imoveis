@@ -33,7 +33,7 @@ export default async function ContatosPage() {
                 <div>
                   <p className="font-medium">{l.name}</p>
                   {l.properties?.slug && (
-                    <Link href={`/imovel/${l.properties.slug}`} className="text-xs text-primary">
+                    <Link href={`/imovel/${l.properties.slug}`} className="text-xs text-link">
                       {l.properties.title}
                     </Link>
                   )}
@@ -48,7 +48,7 @@ export default async function ContatosPage() {
               {l.message && <p className="mt-2 text-sm text-muted">{l.message}</p>}
               <div className="mt-3 flex flex-wrap gap-3 text-sm">
                 {l.phone && (
-                  <a href={`https://wa.me/55${l.phone.replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-[#1FA855]">
+                  <a href={`https://wa.me/55${l.phone.replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-link">
                     <MessageCircle size={14} /> WhatsApp
                   </a>
                 )}

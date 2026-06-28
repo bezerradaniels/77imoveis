@@ -32,7 +32,7 @@ export default async function VitrinePage() {
         <div className="rounded-xl border border-dashed border-border p-10 text-center">
           <Building2 className="mx-auto mb-2 text-muted" />
           <p className="text-muted">A vitrine é um recurso para empresas.</p>
-          <Link href="/painel/empresa" className="mt-4 inline-block rounded-full bg-primary px-4 py-2 font-semibold text-white">
+          <Link href="/painel/empresa" className="mt-4 inline-block rounded-full bg-primary px-4 py-2 font-semibold text-on-primary">
             Criar minha empresa
           </Link>
         </div>

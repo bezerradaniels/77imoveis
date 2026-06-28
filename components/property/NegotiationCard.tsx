@@ -43,7 +43,7 @@ export function NegotiationCard({
             key={k}
             className="flex items-center gap-3 rounded-xl border border-primary/15 bg-primary/[0.04] p-4"
           >
-            <it.Icon size={20} className="shrink-0 text-primary" />
+            <it.Icon size={20} className="shrink-0 text-link" />
             <div>
               <div className="text-sm font-semibold">{it.title}</div>
               <div className="text-xs text-muted">{it.sub}</div>

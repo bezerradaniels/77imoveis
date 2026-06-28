@@ -17,7 +17,7 @@ export const metadata: Metadata = { alternates: { canonical: '/' } };
 
 // Padrão de pontos sutil para fundos de seção (GEO/mapa discreto).
 const dotPattern = {
-  backgroundImage: 'radial-gradient(circle, rgba(14,157,116,.06) 1px, transparent 1px)',
+  backgroundImage: 'radial-gradient(circle, rgba(105,241,207,.10) 1px, transparent 1px)',
   backgroundSize: '22px 22px',
 };
 
@@ -115,7 +115,7 @@ export default async function HomePage() {
             ].map((t, i) => (
               <div key={i} className="flex items-center gap-2.5 text-[#3a463f] dark:text-muted">
                 <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#e6f4ef] dark:bg-primary/15">
-                  <t.Icon size={18} className="text-primary" />
+                  <t.Icon size={18} className="text-link" />
                 </span>
                 <span className="text-[13.5px]"><strong className="font-extrabold text-text">{t.strong}</strong> {t.rest}</span>
               </div>
@@ -162,7 +162,7 @@ export default async function HomePage() {
         <div className="mx-auto max-w-[1200px] px-6 py-[clamp(40px,5.5vw,68px)]">
           <div className="mb-5 flex flex-wrap items-end justify-between gap-4">
             <SectionTitle title="Imóveis em destaque" sub="Seleção de oportunidades recentes no Oeste da Bahia." />
-            <Link href="/imoveis" className="inline-flex items-center gap-1.5 text-[14px] font-bold text-primary hover:text-primary-hover">
+            <Link href="/imoveis" className="inline-flex items-center gap-1.5 text-[14px] font-bold text-link hover:text-link-hover">
               Ver todos os imóveis <ArrowRight size={15} />
             </Link>
           </div>
@@ -197,7 +197,7 @@ export default async function HomePage() {
                 className="flex w-[210px] shrink-0 snap-start flex-col gap-3 rounded-2xl border border-border bg-surface p-5 outline-none transition-all hover:-translate-y-1 hover:border-primary/40 hover:shadow-[0_18px_34px_-22px_rgba(8,30,22,.45)] focus-visible:ring-2 focus-visible:ring-primary md:w-auto"
               >
                 <span className="flex h-11 w-11 items-center justify-center rounded-[13px] bg-[#e6f4ef] dark:bg-primary/15">
-                  <c.Icon size={22} className="text-primary" />
+                  <c.Icon size={22} className="text-link" />
                 </span>
                 <span>
                   <span className="block text-[15px] font-bold text-text">{c.label}</span>
@@ -223,11 +223,11 @@ export default async function HomePage() {
                 className="flex w-[250px] shrink-0 snap-start flex-col gap-3 rounded-2xl border border-border bg-surface p-5 outline-none transition-all hover:-translate-y-1 hover:border-primary/40 hover:shadow-[0_18px_34px_-22px_rgba(8,30,22,.45)] focus-visible:ring-2 focus-visible:ring-primary md:w-auto"
               >
                 <span className="flex h-12 w-12 items-center justify-center rounded-[14px] bg-[#e6f4ef] dark:bg-primary/15">
-                  <p.Icon size={24} className="text-primary" />
+                  <p.Icon size={24} className="text-link" />
                 </span>
                 <span className="text-[15px] font-bold text-text">{p.label}</span>
                 <span className="text-[13px] leading-relaxed text-muted">{p.desc}</span>
-                <span className="mt-auto inline-flex items-center gap-1.5 text-[13px] font-bold text-primary">
+                <span className="mt-auto inline-flex items-center gap-1.5 text-[13px] font-bold text-link">
                   Ver {p.label.toLowerCase()} <ArrowRight size={14} />
                 </span>
               </Link>
@@ -237,27 +237,25 @@ export default async function HomePage() {
       </section>
 
       {/* CTA ANUNCIANTE */}
-      <section id="anunciar" className="relative overflow-hidden" style={{ background: 'linear-gradient(120deg,#0c5a44 0%,#0e9d74 60%,#16b387 100%)' }}>
-        <div aria-hidden className="pointer-events-none absolute -right-20 -top-24 h-80 w-80 rounded-full bg-white/10 blur-2xl" />
-        <div aria-hidden className="pointer-events-none absolute -bottom-28 left-1/4 h-72 w-72 rounded-full bg-white/10 blur-2xl" />
-        <div aria-hidden className="pointer-events-none absolute inset-0 opacity-30" style={{ backgroundImage: 'radial-gradient(circle, rgba(255,255,255,.18) 1px, transparent 1px)', backgroundSize: '26px 26px' }} />
+      <section id="anunciar" className="relative overflow-hidden bg-primary">
+        <div aria-hidden className="pointer-events-none absolute inset-0 opacity-25" style={{ backgroundImage: 'radial-gradient(circle, rgba(16,35,29,.16) 1px, transparent 1px)', backgroundSize: '26px 26px' }} />
         <div className="relative mx-auto flex max-w-[1200px] flex-col items-start justify-between gap-7 px-6 py-[clamp(40px,5.5vw,64px)] md:flex-row md:items-center">
           <div className="max-w-[620px]">
-            <div className="mb-3 inline-flex items-center gap-2 text-[12px] font-bold uppercase tracking-[.08em] text-[#bdf3e2]">
+            <div className="mb-3 inline-flex items-center gap-2 text-[12px] font-bold uppercase tracking-[.08em] text-[#10231d]/75">
               <Megaphone size={16} /> Para anunciantes
             </div>
-            <h2 className="m-0 mb-3 text-[clamp(20px,2.6vw,28px)] font-extrabold leading-[1.12] tracking-tight text-white">
+            <h2 className="m-0 mb-3 text-[clamp(20px,2.6vw,28px)] font-extrabold leading-[1.12] tracking-tight text-on-primary">
               Anuncie seu imóvel ou sua empresa
             </h2>
-            <p className="m-0 text-[14px] leading-relaxed text-white/90 md:text-[15px]">
-              Proprietários particulares anunciam <strong className="text-white">grátis</strong>. Imobiliárias, construtoras e profissionais contam com planos para destacar seus imóveis e captar mais clientes no Oeste da Bahia.
+            <p className="m-0 text-[14px] leading-relaxed text-[#10231d]/80 md:text-[15px]">
+              Proprietários particulares anunciam <strong className="text-on-primary">grátis</strong>. Imobiliárias, construtoras e profissionais contam com planos para destacar seus imóveis e captar mais clientes no Oeste da Bahia.
             </p>
           </div>
           <div className="flex w-full flex-col gap-3 md:w-auto md:min-w-[240px]">
-            <Link href="/anunciar" className="flex items-center justify-center gap-2 rounded-xl bg-white px-7 py-3.5 text-[15px] font-extrabold text-[#0c5a44] shadow-[0_14px_30px_-12px_rgba(0,0,0,.4)] transition-transform hover:-translate-y-0.5">
+            <Link href="/anunciar" className="flex items-center justify-center gap-2 rounded-xl bg-white px-7 py-3.5 text-[15px] font-extrabold text-link shadow-[0_14px_30px_-12px_rgba(0,0,0,.22)] transition-transform hover:-translate-y-0.5 hover:text-link-hover">
               <PlusCircle size={18} /> Anunciar grátis
             </Link>
-            <Link href="/anunciar" className="flex items-center justify-center gap-2 rounded-xl border border-white/50 bg-white/10 px-7 py-3.5 text-[15px] font-bold text-white transition-colors hover:bg-white/20">
+            <Link href="/anunciar" className="flex items-center justify-center gap-2 rounded-xl border border-[#10231d]/25 bg-[#10231d]/10 px-7 py-3.5 text-[15px] font-bold text-on-primary transition-colors hover:bg-[#10231d]/15">
               Ver planos para empresas
             </Link>
           </div>
@@ -273,12 +271,12 @@ export default async function HomePage() {
           </p>
           <div className="flex flex-wrap gap-2">
             {cities.map((c) => (
-              <Link key={c.slug} href={`/${c.slug}`} className="rounded-full bg-[#e6f4ef] px-3.5 py-1.5 text-[12.5px] font-semibold text-[#28433a] transition-colors hover:bg-[#d3ecdf] dark:bg-primary/15 dark:text-primary">
+              <Link key={c.slug} href={`/${c.slug}`} className="rounded-full bg-[#e6f4ef] px-3.5 py-1.5 text-[12.5px] font-semibold text-link transition-colors hover:bg-[#d3ecdf] hover:text-link-hover dark:bg-primary/15">
                 Imóveis em {c.name}
               </Link>
             ))}
             {seoChips.map((chip) => (
-              <Link key={chip.label} href={chip.href} className="rounded-full bg-[#e6f4ef] px-3.5 py-1.5 text-[12.5px] font-semibold text-[#28433a] transition-colors hover:bg-[#d3ecdf] dark:bg-primary/15 dark:text-primary">
+              <Link key={chip.label} href={chip.href} className="rounded-full bg-[#e6f4ef] px-3.5 py-1.5 text-[12.5px] font-semibold text-link transition-colors hover:bg-[#d3ecdf] hover:text-link-hover dark:bg-primary/15">
                 {chip.label}
               </Link>
             ))}

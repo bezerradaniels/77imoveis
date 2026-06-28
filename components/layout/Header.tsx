@@ -18,12 +18,12 @@ export function Header() {
       <div className="mx-auto flex max-w-[1200px] items-center justify-between gap-4 px-6 py-4">
         <div className="flex items-center gap-6">
           <Link href="/" className="text-2xl font-extrabold tracking-tight">
-            <span className="text-primary">77</span>
+            <span className="text-link">77</span>
             <span className="text-text">imóveis</span>
           </Link>
           <div className="hidden items-center gap-5 md:flex">
             {menu.map((item) => (
-              <Link key={item.href} href={item.href} className="text-sm font-bold text-text/75 transition-colors hover:text-primary">
+              <Link key={item.href} href={item.href} className="text-sm font-bold text-text/75 transition-colors hover:text-link-hover">
                 {item.label}
               </Link>
             ))}
@@ -33,7 +33,7 @@ export function Header() {
         <nav className="flex items-center gap-3 sm:gap-4">
           <Link
             href="/anunciar"
-            className="hidden rounded-full bg-primary px-4 py-2 text-sm font-extrabold text-white shadow-[0_10px_22px_-14px_rgba(14,157,116,.8)] transition-colors hover:bg-primary-hover md:inline-flex"
+            className="hidden rounded-full bg-primary px-4 py-2 text-sm font-extrabold text-on-primary shadow-[0_10px_22px_-14px_rgba(105,241,207,.8)] transition-colors hover:bg-primary-hover md:inline-flex"
           >
             Anunciar imóvel
           </Link>

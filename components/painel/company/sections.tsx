@@ -35,7 +35,7 @@ export function TypeSection({ value, onChange }: { value: string; onChange: (v: 
               onClick={() => onChange(t.value)}
               className={`w-full flex items-center justify-between p-4 rounded-xl border text-left transition-all ${
                 active
-                  ? 'border-[#008A70] bg-[#008A70]/5 ring-1 ring-[#008A70]'
+                  ? 'border-primary bg-primary/5 ring-1 ring-primary'
                   : 'border-border bg-surface hover:bg-bg'
               }`}
             >
@@ -46,7 +46,7 @@ export function TypeSection({ value, onChange }: { value: string; onChange: (v: 
               <div
                 className={`h-5 w-5 rounded-full border flex items-center justify-center transition-all ${
                   active
-                    ? 'border-[#008A70] bg-[#008A70] text-white'
+                    ? 'border-primary bg-primary text-on-primary'
                     : 'border-muted bg-transparent'
                 }`}
               >
@@ -70,7 +70,7 @@ export function TypeSection({ value, onChange }: { value: string; onChange: (v: 
           }}
           className={`w-full flex items-center justify-between p-4 rounded-xl border text-left transition-all ${
             isOther || value === 'outro'
-              ? 'border-[#008A70] bg-[#008A70]/5 ring-1 ring-[#008A70]'
+              ? 'border-primary bg-primary/5 ring-1 ring-primary'
               : 'border-border bg-surface hover:bg-bg'
           }`}
         >
@@ -81,7 +81,7 @@ export function TypeSection({ value, onChange }: { value: string; onChange: (v: 
           <div
             className={`h-5 w-5 rounded-full border flex items-center justify-center transition-all ${
               isOther || value === 'outro'
-                ? 'border-[#008A70] bg-[#008A70] text-white'
+                ? 'border-primary bg-primary text-on-primary'
                 : 'border-muted bg-transparent'
             }`}
           >
@@ -289,7 +289,7 @@ export function CitiesSection({
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold text-text">Cidades de atuação</h3>
         {selectedCount > 0 && (
-          <span className="rounded-full bg-[#008A70]/10 px-2.5 py-0.5 text-xs font-semibold text-[#008A70]">
+          <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-semibold text-link">
             {selectedCount} {selectedCount === 1 ? 'selecionada' : 'selecionadas'}
           </span>
         )}
@@ -305,14 +305,14 @@ export function CitiesSection({
               onClick={() => toggle(c.id)}
               className={`flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition-all ${
                 active
-                  ? 'border-[#008A70] bg-[#008A70]/5 text-text ring-1 ring-[#008A70]'
+                  ? 'border-primary bg-primary/5 text-text ring-1 ring-primary'
                   : 'border-border bg-surface text-text hover:bg-bg'
               }`}
             >
               <div
                 className={`flex h-4 w-4 shrink-0 items-center justify-center rounded border transition-all ${
                   active
-                    ? 'border-[#008A70] bg-[#008A70] text-white'
+                    ? 'border-primary bg-primary text-on-primary'
                     : 'border-muted bg-transparent'
                 }`}
               >
@@ -367,7 +367,7 @@ export function DescriptionSection({ value, onChange }: { value: string; onChang
       }
     >
       <textarea
-        className="min-h-36 w-full rounded-lg border border-border bg-surface p-3 text-sm focus:border-[#008A70] focus:ring-1 focus:ring-[#008A70]"
+        className="min-h-36 w-full rounded-lg border border-border bg-surface p-3 text-sm focus:border-primary focus:ring-1 focus:ring-primary"
         value={value}
         onChange={(e) => onChange(e.target.value.slice(0, 600))}
         placeholder="Conte sobre a sua empresa, diferenciais e formas de atendimento."
@@ -496,7 +496,7 @@ export function BrokersSection({ brokers, addBroker, removeBroker, updateBroker 
       <button
         type="button"
         onClick={addBroker}
-        className="w-full flex items-center justify-center gap-1.5 py-3 rounded-xl border border-dashed border-[#008A70] text-[#008A70] font-semibold text-sm hover:bg-[#008A70]/5 transition-all"
+        className="w-full flex items-center justify-center gap-1.5 py-3 rounded-xl border border-dashed border-primary text-link font-semibold text-sm hover:bg-primary/5 transition-all"
       >
         <span className="text-lg">+</span> Adicionar corretor
       </button>
@@ -520,7 +520,7 @@ export function SpecialtiesSection({
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold text-text">Especialidades</h3>
         {selectedCount > 0 && (
-          <span className="rounded-full bg-[#008A70]/10 px-2.5 py-0.5 text-xs font-semibold text-[#008A70]">
+          <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-semibold text-link">
             {selectedCount} {selectedCount === 1 ? 'selecionada' : 'selecionadas'}
           </span>
         )}
@@ -536,14 +536,14 @@ export function SpecialtiesSection({
               onClick={() => toggle(s.id)}
               className={`flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition-all ${
                 active
-                  ? 'border-[#008A70] bg-[#008A70]/5 text-text ring-1 ring-[#008A70]'
+                  ? 'border-primary bg-primary/5 text-text ring-1 ring-primary'
                   : 'border-border bg-surface text-text hover:bg-bg'
               }`}
             >
               <div
                 className={`flex h-4 w-4 shrink-0 items-center justify-center rounded border transition-all ${
                   active
-                    ? 'border-[#008A70] bg-[#008A70] text-white'
+                    ? 'border-primary bg-primary text-on-primary'
                     : 'border-muted bg-transparent'
                 }`}
               >

@@ -19,7 +19,7 @@ export default async function AdminHome() {
     <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
       {cards.map((card) => (
         <Link key={card.label} href={card.href} className="rounded-xl border border-border bg-surface p-4 hover:bg-bg">
-          <card.Icon size={20} className="text-primary" />
+          <card.Icon size={20} className="text-link" />
           <p className="mt-2 text-2xl font-bold tabular-nums">{card.value ?? '—'}</p>
           <p className="text-sm text-muted">{card.label}</p>
         </Link>

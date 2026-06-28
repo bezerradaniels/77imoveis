@@ -26,7 +26,7 @@ export function ConsentBanner() {
     <div className="fixed inset-x-0 bottom-16 z-50 px-4 pb-4 md:bottom-0">
       <div className="mx-auto flex max-w-3xl flex-col items-start gap-4 rounded-2xl border border-border bg-surface p-5 shadow-lg sm:flex-row sm:items-center">
         <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-bg">
-          <Cookie className="h-5 w-5 text-primary" />
+          <Cookie className="h-5 w-5 text-link" />
         </span>
         <div className="flex-1 text-sm">
           <p className="mb-1 font-semibold text-text">Cookies no 77Imóveis</p>
@@ -47,7 +47,7 @@ export function ConsentBanner() {
           </button>
           <button
             onClick={() => respond('accepted')}
-            className="flex-1 rounded-full bg-primary px-4 py-2 font-medium text-white sm:flex-none"
+            className="flex-1 rounded-full bg-primary px-4 py-2 font-medium text-on-primary sm:flex-none"
           >
             Aceitar
           </button>

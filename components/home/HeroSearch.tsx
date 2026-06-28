@@ -30,7 +30,7 @@ export function HeroSearch({ cities, types }: { cities: Option[]; types: Option[
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="mx-auto flex h-12 w-full max-w-[300px] items-center justify-center gap-2 rounded-xl border-2 border-[#69f1cf] px-4 text-[15px] font-bold text-[#69f1cf] transition-colors hover:bg-[#69f1cf]/10 md:hidden"
+        className="mx-auto flex h-12 w-full max-w-[300px] items-center justify-center gap-2 rounded-xl border-2 border-primary px-4 text-[15px] font-bold text-link transition-colors hover:bg-primary/10 md:hidden"
       >
         <Search size={18} /> Buscar imóveis
       </button>

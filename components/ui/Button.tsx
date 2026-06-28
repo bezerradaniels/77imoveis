@@ -12,10 +12,10 @@ export function Button({ variant = 'primary', rounded = 'full', className, ...pr
       className={cn(
         'inline-flex h-10 items-center justify-center gap-2 px-4 text-sm font-medium transition disabled:opacity-50',
         rounded === 'full' ? 'rounded-full' : 'rounded-lg',
-        variant === 'primary' && 'bg-primary text-white hover:bg-primary-hover',
+        variant === 'primary' && 'bg-primary text-on-primary hover:bg-primary-hover',
         variant === 'outline' && 'border border-border text-text hover:bg-surface',
         variant === 'ghost' && 'text-muted hover:text-text',
-        variant === 'whatsapp' && 'bg-[#1FA855] text-white hover:opacity-90',
+        variant === 'whatsapp' && 'bg-[#1FA855] text-on-primary hover:opacity-90',
         className,
       )}
       {...props}

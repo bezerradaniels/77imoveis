@@ -49,7 +49,7 @@ export function LoginForm() {
       </Button>
       <p className="text-center text-sm text-muted">
         Não tem conta?{' '}
-        <Link href="/cadastro" className="text-primary">
+        <Link href="/cadastro" className="text-link">
           Cadastre-se grátis
         </Link>
       </p>

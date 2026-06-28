@@ -27,7 +27,7 @@ export function ContactActions({
           target="_blank"
           rel="noopener noreferrer"
           onClick={() => track(slug, 'whatsapp', phone)}
-          className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#1FA855] px-4 text-[15px] font-bold text-white transition hover:opacity-90"
+          className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#1FA855] px-4 text-[15px] font-bold text-on-primary transition hover:opacity-90"
         >
           <MessageCircle size={20} /> Conversar no WhatsApp
         </a>
@@ -40,7 +40,7 @@ export function ContactActions({
           onClick={() => track(slug, 'whatsapp', phone)}
           className="flex h-11 flex-1 items-center justify-center gap-2 rounded-xl border border-border text-sm font-semibold text-text transition hover:bg-subtle"
         >
-          <CalendarDays size={17} className="text-primary" /> Agendar visita
+          <CalendarDays size={17} className="text-link" /> Agendar visita
         </a>
         {phone && (
           <a

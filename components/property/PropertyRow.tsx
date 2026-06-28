@@ -64,7 +64,7 @@ export function PropertyRow({ priority = false, ...p }: CardProperty & { priorit
           <div className="mt-1.5 flex flex-wrap items-center gap-x-2.5 gap-y-1 text-[12px] font-medium text-slate-900 dark:text-white sm:text-[13px]">
             {specs.map(({ Icon, value }, i) => (
               <span key={i} className="inline-flex items-center gap-1">
-                <Icon size={13} className="text-primary" />
+                <Icon size={13} className="text-link" />
                 {value}
               </span>
             ))}

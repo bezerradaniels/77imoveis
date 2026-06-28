@@ -25,7 +25,7 @@ export default async function AdminImoveis({ searchParams }: { searchParams: { s
           <Link
             key={s.v || 'all'}
             href={s.v ? `/admin/imoveis?status=${s.v}` : '/admin/imoveis'}
-            className={status === s.v ? 'rounded-full bg-primary px-3 py-1 text-sm text-white' : 'rounded-full border border-border px-3 py-1 text-sm hover:bg-surface'}
+            className={status === s.v ? 'rounded-full bg-primary px-3 py-1 text-sm text-on-primary' : 'rounded-full border border-border px-3 py-1 text-sm hover:bg-surface'}
           >
             {s.l}
           </Link>
@@ -41,7 +41,7 @@ export default async function AdminImoveis({ searchParams }: { searchParams: { s
                 <span>{priceLabel(p)}</span>
                 <span>· {p.cities?.name}</span>
               </div>
-              <Link href={`/imovel/${p.slug}`} className="line-clamp-1 text-sm font-medium hover:text-primary">{p.title}</Link>
+              <Link href={`/imovel/${p.slug}`} className="line-clamp-1 text-sm font-medium hover:text-link-hover">{p.title}</Link>
               <p className="text-xs text-muted">por {p.profiles?.full_name ?? '—'}</p>
             </div>
             <PropertyModeration id={p.id} status={p.status} featured={p.is_featured} />

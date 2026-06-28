@@ -220,7 +220,7 @@ export default async function ImovelPage({ params }: { params: { slug: string } 
               <section className="rounded-2xl border border-border p-6">
                 <div className="mb-2.5 flex flex-wrap items-center gap-2.5">
                   {p.reference_code && (
-                    <span className="rounded-full border border-border bg-subtle px-2.5 py-1 text-[11px] font-bold text-primary">
+                    <span className="rounded-full border border-border bg-subtle px-2.5 py-1 text-[11px] font-bold text-link">
                       Cód. {p.reference_code}
                     </span>
                   )}
@@ -232,7 +232,7 @@ export default async function ImovelPage({ params }: { params: { slug: string } 
                 </div>
                 <h1 className="text-2xl font-extrabold leading-tight tracking-tight md:text-[28px]">{p.title}</h1>
                 <p className="mt-2 flex items-start gap-1.5 text-sm text-muted md:text-[15px]">
-                  <MapPin size={16} className="mt-0.5 shrink-0 text-primary" />
+                  <MapPin size={16} className="mt-0.5 shrink-0 text-link" />
                   <span>{[address, cityLine].filter(Boolean).join(' · ')}</span>
                 </p>
               </section>
@@ -304,7 +304,7 @@ export default async function ImovelPage({ params }: { params: { slug: string } 
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-2 rounded-full border border-border px-4 py-2 text-sm font-medium text-text transition hover:bg-subtle"
                   >
-                    <MapPin size={16} className="text-primary" /> Ver no mapa
+                    <MapPin size={16} className="text-link" /> Ver no mapa
                   </a>
                 </section>
               )}

@@ -118,7 +118,7 @@ function Results({
             <Link
               key={n}
               href={pageHref(n)}
-              className={n === page ? 'rounded-lg bg-primary px-3 py-2 text-sm text-white' : 'rounded-lg border border-border bg-surface px-3 py-2 text-sm hover:bg-bg'}
+              className={n === page ? 'rounded-lg bg-primary px-3 py-2 text-sm text-on-primary' : 'rounded-lg border border-border bg-surface px-3 py-2 text-sm hover:bg-bg'}
             >
               {n}
             </Link>
@@ -158,7 +158,7 @@ function Destinations({ cities }: { cities: { name: string; slug: string }[] }) 
       <h2 className="mb-4 text-lg font-bold">Destinos para conhecer</h2>
       <div className="grid gap-x-6 gap-y-4 border-t border-border pt-5 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-6">
         {cities.map((c) => (
-          <Link key={c.slug} href={`/${c.slug}`} className="text-sm hover:text-primary">
+          <Link key={c.slug} href={`/${c.slug}`} className="text-sm hover:text-link-hover">
             <span className="block font-semibold">{cityEmojiFor(c.slug)} {c.name}</span>
             <span className="block text-muted">{cityTaglineFor(c.slug)}</span>
           </Link>

@@ -27,7 +27,7 @@ export default async function PainelPage() {
         </div>
         <Link
           href="/painel/imoveis/novo"
-          className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 font-semibold text-white"
+          className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 font-semibold text-on-primary"
         >
           <Plus size={18} /> Novo anúncio
         </Link>
@@ -38,7 +38,7 @@ export default async function PainelPage() {
           href="/painel/imoveis"
           className="flex items-center gap-3 rounded-xl border border-border bg-surface p-5 hover:bg-bg"
         >
-          <Home size={22} className="text-primary" />
+          <Home size={22} className="text-link" />
           <div>
             <p className="font-medium">Meus imóveis</p>
             <p className="text-sm text-muted">Criar, editar, ativar ou pausar</p>
@@ -48,7 +48,7 @@ export default async function PainelPage() {
           href="/painel/contatos"
           className="flex items-center gap-3 rounded-xl border border-border bg-surface p-5 hover:bg-bg"
         >
-          <MessageSquare size={22} className="text-primary" />
+          <MessageSquare size={22} className="text-link" />
           <div>
             <p className="font-medium">Contatos recebidos</p>
             <p className="text-sm text-muted">Leads dos seus anúncios</p>
@@ -58,7 +58,7 @@ export default async function PainelPage() {
           href="/painel/empresa"
           className="flex items-center gap-3 rounded-xl border border-border bg-surface p-5 hover:bg-bg"
         >
-          <Building2 size={22} className="text-primary" />
+          <Building2 size={22} className="text-link" />
           <div>
             <p className="font-medium">{profile?.role === 'profissional' ? 'Minha empresa' : 'Tornar-se profissional'}</p>
             <p className="text-sm text-muted">Perfil de empresa, vitrine e mais imóveis</p>
@@ -68,7 +68,7 @@ export default async function PainelPage() {
           href="/painel/vitrine"
           className="flex items-center gap-3 rounded-xl border border-border bg-surface p-5 hover:bg-bg"
         >
-          <Store size={22} className="text-primary" />
+          <Store size={22} className="text-link" />
           <div>
             <p className="font-medium">Minha vitrine</p>
             <p className="text-sm text-muted">Página própria com seus imóveis</p>
@@ -78,7 +78,7 @@ export default async function PainelPage() {
           href="/painel/planos"
           className="flex items-center gap-3 rounded-xl border border-border bg-surface p-5 hover:bg-bg"
         >
-          <CreditCard size={22} className="text-primary" />
+          <CreditCard size={22} className="text-link" />
           <div>
             <p className="font-medium">Planos e upgrade</p>
             <p className="text-sm text-muted">Limites, destaques e recursos profissionais</p>
@@ -89,7 +89,7 @@ export default async function PainelPage() {
             href="/admin"
             className="flex items-center gap-3 rounded-xl border border-primary/40 bg-primary/5 p-5 hover:bg-primary/10"
           >
-            <Shield size={22} className="text-primary" />
+            <Shield size={22} className="text-link" />
             <div>
               <p className="font-medium">Administração</p>
               <p className="text-sm text-muted">Moderação, empresas, usuários, cidades</p>

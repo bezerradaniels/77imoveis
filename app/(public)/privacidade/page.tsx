@@ -43,7 +43,7 @@ export default function PrivacidadePage() {
 
       <h2 className="pt-2 text-lg font-semibold text-text">Contato</h2>
       <p>
-        Dúvidas sobre privacidade: <a href="mailto:contato@77imoveis.com.br" className="text-primary">contato@77imoveis.com.br</a>.
+        Dúvidas sobre privacidade: <a href="mailto:contato@77imoveis.com.br" className="text-link">contato@77imoveis.com.br</a>.
       </p>
     </main>
   );

@@ -52,7 +52,7 @@ export function AmenitiesCard({ features }: { features: Feature[] }) {
           const Icon = ICON[f.slug] ?? Check;
           return (
             <li key={f.slug} className="flex items-center gap-3 text-sm text-text">
-              <Icon size={18} className="shrink-0 text-primary" /> {f.name}
+              <Icon size={18} className="shrink-0 text-link" /> {f.name}
             </li>
           );
         })}

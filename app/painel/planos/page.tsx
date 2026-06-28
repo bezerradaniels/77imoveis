@@ -24,10 +24,10 @@ export default async function PlanosPage() {
       {!company && (
         <div className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-primary/30 bg-primary/10 p-4">
           <div className="flex items-center gap-3">
-            <Building2 className="text-primary" />
+            <Building2 className="text-link" />
             <p className="text-sm">Crie uma empresa para acessar os planos profissionais.</p>
           </div>
-          <Link href="/painel/empresa" className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white">
+          <Link href="/painel/empresa" className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-on-primary">
             Criar perfil profissional
           </Link>
         </div>
@@ -36,7 +36,7 @@ export default async function PlanosPage() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {plans.map((p: any) => (
           <article key={p.slug} className={`rounded-xl border bg-surface p-5 ${p.highlight ? 'border-primary shadow-sm' : 'border-border'}`}>
-            {p.highlight && <p className="mb-2 text-xs font-semibold uppercase text-primary">Mais escolhido</p>}
+            {p.highlight && <p className="mb-2 text-xs font-semibold uppercase text-link">Mais escolhido</p>}
             <h2 className="text-lg font-semibold">{p.name}</h2>
             <p className="mt-1 text-sm text-muted">
               {p.max_active_listings >= 100000 ? 'Imóveis ilimitados' : `${p.max_active_listings} imóveis ativos`}

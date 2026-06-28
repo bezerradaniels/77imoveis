@@ -260,7 +260,7 @@ export function PropertyForm({
                   type="button"
                   onClick={() => toggleFeat(f.id)}
                   className={featSet.has(f.id)
-                    ? 'rounded-full bg-primary px-3 py-1 text-sm text-white'
+                    ? 'rounded-full bg-primary px-3 py-1 text-sm text-on-primary'
                     : 'rounded-full border border-border px-3 py-1 text-sm hover:bg-bg'}
                 >
                   {f.name}
@@ -277,7 +277,7 @@ export function PropertyForm({
           {existing.map((url, i) => (
             <div key={url} className="relative h-24 w-32">
               <img src={url} alt="" className="h-full w-full rounded-lg object-cover" />
-              {i === 0 && <span className="absolute left-1 top-1 rounded bg-accent px-1.5 text-xs text-white">Capa</span>}
+              {i === 0 && <span className="absolute left-1 top-1 rounded bg-accent px-1.5 text-xs text-on-primary">Capa</span>}
               <button type="button" onClick={() => setExisting(existing.filter((u) => u !== url))} className="absolute -right-1.5 -top-1.5 rounded-full bg-danger p-0.5 text-white">
                 <X size={12} />
               </button>
@@ -312,7 +312,7 @@ export function PropertyForm({
         <div className="rounded-lg border border-danger/30 bg-danger/5 p-3 text-sm">
           <p className="text-danger">{error}</p>
           {error.includes('perfil profissional') && (
-            <Link href="/painel/empresa" className="mt-2 inline-flex font-medium text-primary">
+            <Link href="/painel/empresa" className="mt-2 inline-flex font-medium text-link">
               Criar perfil profissional
             </Link>
           )}

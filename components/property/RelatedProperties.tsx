@@ -24,7 +24,7 @@ export function RelatedProperties({
         {citySlug && (
           <Link
             href={`/${citySlug}`}
-            className="inline-flex shrink-0 items-center gap-1 text-sm font-semibold text-primary hover:text-primary-hover"
+            className="inline-flex shrink-0 items-center gap-1 text-sm font-semibold text-link hover:text-link-hover"
           >
             Ver todos <ArrowRight size={16} />
           </Link>

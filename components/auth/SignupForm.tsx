@@ -75,7 +75,7 @@ export function SignupForm() {
         <p className="text-sm text-muted">
           Enviamos um link de confirmação. Abra-o para ativar sua conta e entrar.
         </p>
-        <Link href="/entrar" className="inline-block text-sm text-primary">
+        <Link href="/entrar" className="inline-block text-sm text-link">
           Voltar para o login
         </Link>
       </div>
@@ -136,7 +136,7 @@ export function SignupForm() {
       </Button>
       <p className="text-center text-sm text-muted">
         Já tem conta?{' '}
-        <Link href="/entrar" className="text-primary">
+        <Link href="/entrar" className="text-link">
           Entrar
         </Link>
       </p>
