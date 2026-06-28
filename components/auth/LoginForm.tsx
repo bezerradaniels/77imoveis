@@ -1,14 +1,14 @@
 'use client';
 import { useState } from 'react';
 import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { Input, Field } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 
 export function LoginForm() {
-  const router = useRouter();
-  const next = useSearchParams().get('next') || '/painel';
+  const nextParam = useSearchParams().get('next');
+  const next = nextParam?.startsWith('/') && !nextParam.startsWith('//') ? nextParam : '/painel';
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -27,8 +27,7 @@ export function LoginForm() {
         setLoading(false);
         return;
       }
-      router.push(next);
-      router.refresh();
+      window.location.assign(next);
     } catch {
       setError('Login indisponível: configuração do servidor ausente.');
       setLoading(false);

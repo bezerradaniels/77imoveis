@@ -11,7 +11,7 @@ const menu = [
   { href: '/profissionais', label: 'Profissionais' },
 ];
 
-// Cabeçalho do site (handoff): logo, "Anuncie", tema e entrar — com degradê verde.
+// Cabeçalho do site (handoff): logo, "Anuncie", tema e entrar — com degradê sutil.
 export function Header() {
   return (
     <header className="fixed inset-x-0 top-0 z-50 border-b border-black/5" style={{ backgroundImage: 'var(--header-grad)' }}>
@@ -33,7 +33,7 @@ export function Header() {
         <nav className="flex items-center gap-3 sm:gap-4">
           <Link
             href="/anunciar"
-            className="hidden rounded-full bg-primary px-4 py-2 text-sm font-extrabold text-on-primary shadow-[0_10px_22px_-14px_rgba(105,241,207,.8)] transition-colors hover:bg-primary-hover md:inline-flex"
+            className="hidden rounded-full bg-primary px-4 py-2 text-sm font-extrabold text-on-primary shadow-[0_10px_22px_-14px_rgba(255,56,92,.45)] transition-colors hover:bg-primary-hover md:inline-flex"
           >
             Anunciar imóvel
           </Link>

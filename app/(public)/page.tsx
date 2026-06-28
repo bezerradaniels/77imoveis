@@ -1,13 +1,14 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import {
-  MapPin, ArrowRight, Building2, Home, Trees, Store, Sparkles,
-  HardHat, Compass, Handshake, Megaphone, PlusCircle, Users, ChevronRight,
+  ArrowRight, Building2, Home, Trees, Store, Sparkles,
+  HardHat, Compass, Handshake, Megaphone, PlusCircle, ChevronRight,
 } from 'lucide-react';
 import type { Metadata } from 'next';
 import { getFeaturedCities, getPropertyTypes, getFeaturedProperties, getCityCounts } from '@/lib/data';
 import { PropertyCard } from '@/components/property/PropertyCard';
 import { HeroSearch } from '@/components/home/HeroSearch';
+import { ScrollRail } from '@/components/home/ScrollRail';
 import { cityImageFor } from '@/lib/constants';
 
 export const revalidate = 300;
@@ -17,7 +18,7 @@ export const metadata: Metadata = { alternates: { canonical: '/' } };
 
 // Padrão de pontos sutil para fundos de seção (GEO/mapa discreto).
 const dotPattern = {
-  backgroundImage: 'radial-gradient(circle, rgba(105,241,207,.10) 1px, transparent 1px)',
+  backgroundImage: 'radial-gradient(circle, rgba(255,56,92,.10) 1px, transparent 1px)',
   backgroundSize: '22px 22px',
 };
 
@@ -50,9 +51,6 @@ function SectionTitle({ title, sub }: { title: string; sub: string }) {
     </div>
   );
 }
-
-// Trilho: carrossel horizontal no mobile, vira grade no desktop (CSS scroll-snap, sem JS).
-const rail = 'no-scrollbar flex snap-x snap-mandatory gap-4 overflow-x-auto pb-3 [scroll-padding-left:1.5rem]';
 
 const citySequence = [
   { slug: 'bom-jesus-da-lapa', name: 'Bom Jesus da Lapa' },
@@ -89,37 +87,17 @@ export default async function HomePage() {
         />
         <div aria-hidden className="absolute inset-0" style={{ background: 'linear-gradient(90deg,rgba(6,11,9,.88) 0%,rgba(6,11,9,.62) 42%,rgba(6,11,9,.2) 100%),linear-gradient(180deg,rgba(6,11,9,.12) 0%,rgba(6,11,9,.6) 100%)' }} />
         <div className="relative z-[2] mx-auto w-full max-w-[1200px] px-6">
-          <div className="mx-auto flex max-w-[440px] flex-col items-center text-center text-white md:mx-0 md:block md:rounded-[26px] md:border md:border-white/70 md:bg-white/95 md:p-6 md:text-left md:text-slate-900 md:shadow-[0_24px_55px_-26px_rgba(15,23,42,.55)] md:backdrop-blur-sm">
+          <div className="flex max-w-[440px] flex-col items-start text-left text-white md:block md:rounded-[26px] md:border md:border-white/70 md:bg-white/95 md:p-6 md:text-slate-900 md:shadow-[0_24px_55px_-26px_rgba(15,23,42,.55)] md:backdrop-blur-sm">
             <span className="mb-3 inline-flex items-center gap-1.5 rounded-full border border-white/25 bg-white/10 px-3 py-1 text-[11px] font-bold uppercase tracking-[.12em] text-white backdrop-blur-sm md:hidden">
-              <Sparkles size={12} /> Portal imobiliário regional
+              <Sparkles size={12} className="text-primary" /> Portal imobiliário regional
             </span>
-            <h1 className="mb-1.5 text-[22px] font-extrabold leading-[1.12] tracking-tight sm:text-[24px] md:text-[26px] md:text-slate-900">
+            <h1 className="mb-1.5 max-w-[240px] text-[22px] font-extrabold leading-[1.12] tracking-tight sm:text-[24px] md:max-w-none md:text-[26px] md:text-slate-900">
               Encontre o imóvel ideal no Oeste da Bahia
             </h1>
-            <p className="mb-4 max-w-[340px] text-[13.5px] leading-snug text-white/85 md:max-w-none md:text-slate-500">
+            <p className="mb-4 max-w-[240px] text-[15px] font-semibold leading-snug text-white/85 md:max-w-none md:text-slate-500">
               Casas, apartamentos, terrenos e imóveis comerciais nas principais cidades da região.
             </p>
             <HeroSearch cities={cityOpts} types={typeOpts} />
-          </div>
-        </div>
-      </section>
-
-      {/* TRUST BAR */}
-      <section id="busca" className="border-b border-border/70 bg-surface">
-        <div className="mx-auto max-w-[1100px] px-6 py-6">
-          <div className="flex flex-wrap justify-center gap-x-[clamp(20px,5vw,56px)] gap-y-3">
-            {[
-              { Icon: Building2, strong: '+3.000', rest: 'imóveis anunciados' },
-              { Icon: MapPin, strong: '10 cidades', rest: 'do Oeste da Bahia' },
-              { Icon: Users, strong: '+200', rest: 'profissionais e empresas' },
-            ].map((t, i) => (
-              <div key={i} className="flex items-center gap-2.5 text-[#3a463f] dark:text-muted">
-                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#e6f4ef] dark:bg-primary/15">
-                  <t.Icon size={18} className="text-link" />
-                </span>
-                <span className="text-[13.5px]"><strong className="font-extrabold text-text">{t.strong}</strong> {t.rest}</span>
-              </div>
-            ))}
           </div>
         </div>
       </section>
@@ -131,7 +109,7 @@ export default async function HomePage() {
           <div className="mb-5">
             <SectionTitle title="Encontre imóveis por cidade" sub="Cobertura nas principais cidades do sudoeste e oeste da Bahia." />
           </div>
-          <div className={`${rail} md:grid md:grid-cols-4 md:gap-4 md:overflow-visible lg:grid-cols-7`}>
+          <ScrollRail count={cityCards.length} className="md:grid md:grid-cols-4 md:gap-4 md:overflow-visible lg:grid-cols-7">
             {cityCards.map((c) => (
               <Link
                 key={c.slug}
@@ -153,7 +131,7 @@ export default async function HomePage() {
                 </span>
               </Link>
             ))}
-          </div>
+          </ScrollRail>
         </div>
       </section>
 
@@ -167,13 +145,13 @@ export default async function HomePage() {
             </Link>
           </div>
           {venda.length ? (
-            <div className={`${rail} md:grid md:gap-5 md:overflow-visible md:[grid-template-columns:repeat(auto-fill,200px)]`}>
+            <ScrollRail count={venda.length} className="md:grid md:gap-5 md:overflow-visible md:[grid-template-columns:repeat(auto-fill,200px)]">
               {venda.map((p) => (
                 <div key={p.slug} className="shrink-0 snap-start">
                   <PropertyCard {...p} />
                 </div>
               ))}
-            </div>
+            </ScrollRail>
           ) : (
             <p className="rounded-2xl border border-dashed border-border bg-[#f7f9f8] p-12 text-center text-[14px] text-muted dark:bg-bg">
               Em breve, imóveis em destaque aqui.
@@ -189,14 +167,14 @@ export default async function HomePage() {
           <div className="mb-5">
             <SectionTitle title="Explore por tipo de imóvel" sub="Encontre o imóvel certo para comprar ou alugar na sua cidade." />
           </div>
-          <div className={`${rail} md:grid md:overflow-visible md:[grid-template-columns:repeat(auto-fit,minmax(180px,1fr))]`}>
+          <ScrollRail count={categorias.length} className="md:grid md:overflow-visible md:[grid-template-columns:repeat(auto-fit,minmax(180px,1fr))]">
             {categorias.map((c) => (
               <Link
                 key={c.label}
                 href={c.href}
                 className="flex w-[210px] shrink-0 snap-start flex-col gap-3 rounded-2xl border border-border bg-surface p-5 outline-none transition-all hover:-translate-y-1 hover:border-primary/40 hover:shadow-[0_18px_34px_-22px_rgba(8,30,22,.45)] focus-visible:ring-2 focus-visible:ring-primary md:w-auto"
               >
-                <span className="flex h-11 w-11 items-center justify-center rounded-[13px] bg-[#e6f4ef] dark:bg-primary/15">
+                <span className="flex h-11 w-11 items-center justify-center rounded-[13px] bg-[#ffe4ea] dark:bg-primary/15">
                   <c.Icon size={22} className="text-link" />
                 </span>
                 <span>
@@ -205,7 +183,7 @@ export default async function HomePage() {
                 </span>
               </Link>
             ))}
-          </div>
+          </ScrollRail>
         </div>
       </section>
 
@@ -215,14 +193,14 @@ export default async function HomePage() {
           <div className="mb-5">
             <SectionTitle title="Profissionais e empresas da região" sub="Conecte-se com imobiliárias, construtoras, engenheiros e corretores do Oeste da Bahia." />
           </div>
-          <div className={`${rail} md:grid md:overflow-visible md:[grid-template-columns:repeat(auto-fit,minmax(230px,1fr))]`}>
+          <ScrollRail count={profissionais.length} className="md:grid md:overflow-visible md:[grid-template-columns:repeat(auto-fit,minmax(230px,1fr))]">
             {profissionais.map((p) => (
               <Link
                 key={p.label}
                 href={p.href}
                 className="flex w-[250px] shrink-0 snap-start flex-col gap-3 rounded-2xl border border-border bg-surface p-5 outline-none transition-all hover:-translate-y-1 hover:border-primary/40 hover:shadow-[0_18px_34px_-22px_rgba(8,30,22,.45)] focus-visible:ring-2 focus-visible:ring-primary md:w-auto"
               >
-                <span className="flex h-12 w-12 items-center justify-center rounded-[14px] bg-[#e6f4ef] dark:bg-primary/15">
+                <span className="flex h-12 w-12 items-center justify-center rounded-[14px] bg-[#ffe4ea] dark:bg-primary/15">
                   <p.Icon size={24} className="text-link" />
                 </span>
                 <span className="text-[15px] font-bold text-text">{p.label}</span>
@@ -232,22 +210,22 @@ export default async function HomePage() {
                 </span>
               </Link>
             ))}
-          </div>
+          </ScrollRail>
         </div>
       </section>
 
       {/* CTA ANUNCIANTE */}
       <section id="anunciar" className="relative overflow-hidden bg-primary">
-        <div aria-hidden className="pointer-events-none absolute inset-0 opacity-25" style={{ backgroundImage: 'radial-gradient(circle, rgba(16,35,29,.16) 1px, transparent 1px)', backgroundSize: '26px 26px' }} />
+        <div aria-hidden className="pointer-events-none absolute inset-0 opacity-25" style={{ backgroundImage: 'radial-gradient(circle, rgba(255,255,255,.18) 1px, transparent 1px)', backgroundSize: '26px 26px' }} />
         <div className="relative mx-auto flex max-w-[1200px] flex-col items-start justify-between gap-7 px-6 py-[clamp(40px,5.5vw,64px)] md:flex-row md:items-center">
           <div className="max-w-[620px]">
-            <div className="mb-3 inline-flex items-center gap-2 text-[12px] font-bold uppercase tracking-[.08em] text-[#10231d]/75">
+            <div className="mb-3 inline-flex items-center gap-2 text-[12px] font-bold uppercase tracking-[.08em] text-white/75">
               <Megaphone size={16} /> Para anunciantes
             </div>
             <h2 className="m-0 mb-3 text-[clamp(20px,2.6vw,28px)] font-extrabold leading-[1.12] tracking-tight text-on-primary">
               Anuncie seu imóvel ou sua empresa
             </h2>
-            <p className="m-0 text-[14px] leading-relaxed text-[#10231d]/80 md:text-[15px]">
+            <p className="m-0 text-[14px] leading-relaxed text-white/85 md:text-[15px]">
               Proprietários particulares anunciam <strong className="text-on-primary">grátis</strong>. Imobiliárias, construtoras e profissionais contam com planos para destacar seus imóveis e captar mais clientes no Oeste da Bahia.
             </p>
           </div>
@@ -255,7 +233,7 @@ export default async function HomePage() {
             <Link href="/anunciar" className="flex items-center justify-center gap-2 rounded-xl bg-white px-7 py-3.5 text-[15px] font-extrabold text-link shadow-[0_14px_30px_-12px_rgba(0,0,0,.22)] transition-transform hover:-translate-y-0.5 hover:text-link-hover">
               <PlusCircle size={18} /> Anunciar grátis
             </Link>
-            <Link href="/anunciar" className="flex items-center justify-center gap-2 rounded-xl border border-[#10231d]/25 bg-[#10231d]/10 px-7 py-3.5 text-[15px] font-bold text-on-primary transition-colors hover:bg-[#10231d]/15">
+            <Link href="/anunciar" className="flex items-center justify-center gap-2 rounded-xl border border-white/45 bg-white/10 px-7 py-3.5 text-[15px] font-bold text-on-primary transition-colors hover:bg-white/20">
               Ver planos para empresas
             </Link>
           </div>
@@ -264,19 +242,19 @@ export default async function HomePage() {
 
       {/* SEO */}
       <section id="sobre" className="scroll-mt-24 bg-[#f7f9f8] dark:bg-bg">
-        <div className="mx-auto max-w-[920px] px-6 py-[clamp(40px,5.5vw,64px)]">
+        <div className="mx-auto max-w-[1200px] px-6 py-[clamp(40px,5.5vw,64px)]">
           <h2 className="mb-3 text-[clamp(19px,2.1vw,23px)] font-extrabold tracking-tight text-text">Imóveis no Oeste da Bahia</h2>
-          <p className="mb-4 text-[14px] leading-relaxed text-[#46514a] dark:text-muted">
+          <p className="mb-4 max-w-[920px] text-[14px] leading-relaxed text-[#46514a] dark:text-muted">
             O <strong>77imóveis</strong> é o portal imobiliário regional que reúne casas, apartamentos, terrenos e imóveis comerciais nas principais cidades do sudoeste e oeste da Bahia. Pesquise para comprar ou alugar com filtros de cidade, tipo e número de quartos, e fale diretamente com imobiliárias, construtoras, engenheiros civis e corretores da sua região.
           </p>
           <div className="flex flex-wrap gap-2">
             {cities.map((c) => (
-              <Link key={c.slug} href={`/${c.slug}`} className="rounded-full bg-[#e6f4ef] px-3.5 py-1.5 text-[12.5px] font-semibold text-link transition-colors hover:bg-[#d3ecdf] hover:text-link-hover dark:bg-primary/15">
+              <Link key={c.slug} href={`/${c.slug}`} className="rounded-full bg-[#ffe4ea] px-3.5 py-1.5 text-[12.5px] font-semibold text-link transition-colors hover:bg-[#ffd6de] hover:text-link-hover dark:bg-primary/15">
                 Imóveis em {c.name}
               </Link>
             ))}
             {seoChips.map((chip) => (
-              <Link key={chip.label} href={chip.href} className="rounded-full bg-[#e6f4ef] px-3.5 py-1.5 text-[12.5px] font-semibold text-link transition-colors hover:bg-[#d3ecdf] hover:text-link-hover dark:bg-primary/15">
+              <Link key={chip.label} href={chip.href} className="rounded-full bg-[#ffe4ea] px-3.5 py-1.5 text-[12.5px] font-semibold text-link transition-colors hover:bg-[#ffd6de] hover:text-link-hover dark:bg-primary/15">
                 {chip.label}
               </Link>
             ))}

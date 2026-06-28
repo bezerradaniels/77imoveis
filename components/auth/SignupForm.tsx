@@ -1,7 +1,6 @@
 'use client';
 import { useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { Eye, EyeOff, MailCheck } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { Input, Field } from '@/components/ui/Input';
@@ -18,7 +17,6 @@ function formatPhone(value: string) {
 }
 
 export function SignupForm() {
-  const router = useRouter();
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
@@ -55,8 +53,7 @@ export function SignupForm() {
       if (data.session && data.user) {
         // Conta já ativa: completa o telefone no profile (criado pelo trigger).
         await sb.from('profiles').update({ phone, whatsapp: phone }).eq('id', data.user.id);
-        router.push('/painel');
-        router.refresh();
+        window.location.assign('/painel/escolha-perfil');
       } else {
         // Confirmação de e-mail necessária.
         setSent(true);

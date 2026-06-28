@@ -1,28 +1,28 @@
 # 77Imóveis — Design System e UX
 
-Estilo: **moderno, confiável, regional** — identidade verde sobre base neutra clara,
+Estilo: **moderno, confiável, regional** — identidade rosa/vermelha sobre base neutra clara,
 muito espaço em branco e degradê sutil no header. Mobile-first. (Implementação do
 handoff de design `Home 77imoveis.dc.html`.)
 
 ## 1. Cores (tokens)
 
-Acento único **verde água** (`#69F1CF`) sobre base neutra. Definidas como variáveis CSS
+Acento oficial **rosa/vermelho** (`#FF385C`) sobre base neutra. Definidas como variáveis CSS
 em `app/globals.css` (claro/escuro) e mapeadas no `tailwind.config.ts`.
 
 ```css
 :root {
   --bg: #ffffff;
   --surface: #ffffff;
-  --subtle: #f6f8f7;        /* faixas/realces (cinza esverdeado) */
+  --subtle: #f6f8f7;        /* faixas/realces neutros */
   --border: #e7eae7;
   --text: #1d2722;
   --text-muted: #6b756f;
-  --primary: #69f1cf;       /* verde água 77imóveis */
-  --primary-hover: #49d9b8;
-  --on-primary: #10231d;    /* texto sobre fundo verde água */
-  --link: #0ea5e9;          /* links sobre fundo claro */
-  --link-hover: #0284c7;
-  --accent: #69f1cf;
+  --primary: #ff385c;       /* cor oficial 77imóveis */
+  --primary-hover: #ff6b85;
+  --on-primary: #ffffff;    /* texto sobre fundo #ff385c */
+  --link: #ff385c;
+  --link-hover: #e31b4f;
+  --accent: #ff385c;
   --success: #15803d;
   --warning: #b45309;
   --danger: #c0392b;
@@ -36,17 +36,17 @@ em `app/globals.css` (claro/escuro) e mapeadas no `tailwind.config.ts`.
   --border: #2a352f;
   --text: #f1f5f3;
   --text-muted: #9aa6a0;
-  --primary: #69f1cf;
-  --primary-hover: #49d9b8;
-  --on-primary: #10231d;
-  --link: #38bdf8;
-  --link-hover: #7dd3fc;
-  --accent: #69f1cf;
+  --primary: #ff385c;
+  --primary-hover: #ff6b85;
+  --on-primary: #ffffff;
+  --link: #ff6b85;
+  --link-hover: #ff9bad;
+  --accent: #ff385c;
   --header-grad: linear-gradient(90deg, #112019 0%, #0f1714 46%, #1a1614 100%);
 }
 ```
 
-Seleção de texto: `::selection { background:#bdeede }`.
+Seleção de texto: `::selection { background:#ffd6de }`.
 
 ## 2. Tipografia
 
@@ -85,7 +85,7 @@ Seleção de texto: `::selection { background:#bdeede }`.
 
 ## 5. Navegação
 
-- **Header (global):** simples, com degradê verde (`--header-grad`) — logo `77imóveis`,
+- **Header (global):** simples, com degradê sutil (`--header-grad`) — logo `77imóveis`,
   "Anuncie seu imóvel", alternar tema e Entrar/Painel. A busca **não** fica no header;
   vive no card da home.
 - **Mobile:** **barra inferior fixa** (Início, Buscar, Anunciar, Conta).
@@ -97,7 +97,7 @@ Seleção de texto: `::selection { background:#bdeede }`.
 
 1. **Hero** com foto de fundo (placeholder gradiente) + scrim, eyebrow "Portal imobiliário · DDD 77", H1 e dois CTAs.
 2. **Card de busca** sobrepondo o hero (`HomeSearch`): abas Comprar/Alugar + Cidade/Tipo/Faixa de preço/Quartos → navega para `/[cidade]/[tipo]` com filtros na URL. Barra de confiança abaixo.
-3. **Categorias** por tipo · **Cidades** (cards com gradiente + contagem real) · **Imóveis em destaque** (banco) · **Profissionais** (4) · **CTA anunciante** (faixa verde) · **Conteúdo SEO** + footer.
+3. **Categorias** por tipo · **Cidades** (cards com gradiente + contagem real) · **Imóveis em destaque** (banco) · **Profissionais** (4) · **CTA anunciante** (faixa primária) · **Conteúdo SEO** + footer.
 
 ## 7. Estados (obrigatórios)
 
