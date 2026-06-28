@@ -87,5 +87,7 @@ export async function adminAddNeighborhood(cityId: string, name: string): Promis
     slug: slugify(name),
   });
   revalidatePath('/admin/cidades');
-  return error ? { error: 'Falha ao criar bairro.' } : { ok: true };
+  if (!error) return { ok: true };
+  if (error.message.includes('duplicate key')) return { error: 'Esse bairro já existe nessa cidade.' };
+  return { error: 'Falha ao criar bairro.' };
 }

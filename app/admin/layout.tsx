@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation';
 import { getProfile } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Admin', robots: { index: false } };
+export const metadata = { title: 'Admin', robots: { index: false, follow: false, nocache: true } };
 
 const nav = [
   { href: '/admin', label: 'Visão geral' },

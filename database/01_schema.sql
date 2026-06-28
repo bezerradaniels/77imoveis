@@ -13,6 +13,62 @@ create extension if not exists "pg_trgm";      -- autocomplete (cidade/bairro)
 create extension if not exists "postgis";      -- busca por raio no mapa
 create extension if not exists "unaccent";     -- busca ignorando acentos
 
+create or replace function normalize_location_name(value text)
+returns text
+language sql
+immutable
+as $$
+  select trim(regexp_replace(lower(unaccent(coalesce(value, ''))), '[^a-z0-9]+', ' ', 'g'));
+$$;
+
+create or replace function slugify_location_name(value text)
+returns text
+language sql
+immutable
+as $$
+  select trim(both '-' from regexp_replace(lower(unaccent(coalesce(value, ''))), '[^a-z0-9]+', '-', 'g'));
+$$;
+
+create or replace function set_location_identity()
+returns trigger
+language plpgsql
+as $$
+begin
+  new.name = trim(regexp_replace(new.name, '\s+', ' ', 'g'));
+  new.normalized_name = normalize_location_name(new.name);
+  if new.slug is null or btrim(new.slug) = '' then
+    new.slug = slugify_location_name(new.name);
+  else
+    new.slug = slugify_location_name(new.slug);
+  end if;
+  return new;
+end;
+$$;
+
+create or replace function ensure_neighborhood_matches_city()
+returns trigger
+language plpgsql
+as $$
+declare
+  hood_city_id uuid;
+begin
+  if new.neighborhood_id is null then
+    return new;
+  end if;
+
+  select city_id into hood_city_id
+  from neighborhoods
+  where id = new.neighborhood_id;
+
+  if hood_city_id is null or hood_city_id is distinct from new.city_id then
+    raise exception 'NEIGHBORHOOD_CITY_MISMATCH'
+      using errcode = '23514';
+  end if;
+
+  return new;
+end;
+$$;
+
 -- =====================================================================
 -- 1. TIPOS / ENUMS
 -- =====================================================================
@@ -43,6 +99,7 @@ create type feature_status      as enum ('ativo', 'expirado', 'pendente_pagament
 create table cities (
   id            uuid primary key default uuid_generate_v4(),
   name          text not null,                 -- "Vitória da Conquista"
+  normalized_name text not null,               -- "vitoria da conquista"
   slug          text not null unique,          -- "vitoria-da-conquista"
   state         char(2) not null default 'BA',
   ddd           smallint not null default 77,
@@ -56,16 +113,20 @@ create table cities (
   seo_title       text,
   seo_description  text,
   intro_text      text,                        -- texto de autoridade tópica (GEO)
-  created_at    timestamptz not null default now()
+  created_at    timestamptz not null default now(),
+  unique (state, normalized_name)
 );
 create index idx_cities_slug      on cities (slug);
 create index idx_cities_name_trgm on cities using gin (name gin_trgm_ops);
 create index idx_cities_geom      on cities using gist (geom);
+create trigger trg_cities_identity before insert or update of name, slug
+on cities for each row execute function set_location_identity();
 
 create table neighborhoods (
   id          uuid primary key default uuid_generate_v4(),
   city_id     uuid not null references cities(id) on delete cascade,
   name        text not null,                   -- "Centro"
+  normalized_name text not null,               -- "centro"
   slug        text not null,                   -- "centro"
   latitude    double precision,
   longitude   double precision,
@@ -73,10 +134,13 @@ create table neighborhoods (
   seo_title       text,
   seo_description  text,
   created_at  timestamptz not null default now(),
+  unique (city_id, normalized_name),
   unique (city_id, slug)
 );
 create index idx_neigh_city      on neighborhoods (city_id);
 create index idx_neigh_name_trgm on neighborhoods using gin (name gin_trgm_ops);
+create trigger trg_neighborhoods_identity before insert or update of name, slug
+on neighborhoods for each row execute function set_location_identity();
 
 -- =====================================================================
 -- 3. USUÁRIOS E EMPRESAS
@@ -136,6 +200,9 @@ create index idx_companies_owner on companies (owner_id);
 create index idx_companies_type  on companies (type);
 create index idx_companies_city  on companies (city_id);
 create index idx_companies_slug  on companies (slug);
+create trigger trg_companies_neighborhood_city
+before insert or update of city_id, neighborhood_id on companies
+for each row execute function ensure_neighborhood_matches_city();
 
 -- Cidades de atuação da empresa (N:N) ----------------------------------
 create table company_cities (
@@ -268,6 +335,9 @@ create index idx_prop_geom        on properties using gist (geom);
 create index idx_prop_search on properties using gin (
   to_tsvector('portuguese', coalesce(title,'') || ' ' || coalesce(description,''))
 );
+create trigger trg_properties_neighborhood_city
+before insert or update of city_id, neighborhood_id on properties
+for each row execute function ensure_neighborhood_matches_city();
 
 -- Fotos do imóvel (1:N, ordenadas) -------------------------------------
 create table property_images (

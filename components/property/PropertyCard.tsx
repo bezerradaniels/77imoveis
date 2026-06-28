@@ -42,8 +42,8 @@ export function PropertyCard(p: CardProperty) {
             Destaque
           </span>
         )}
-        <span className="absolute right-2.5 top-2.5 flex h-9 w-9 items-center justify-center rounded-full bg-white/90 shadow-[0_10px_24px_-16px_rgba(15,23,42,.55)] backdrop-blur" aria-hidden>
-          <Heart size={18} className="text-slate-800" />
+        <span className="absolute right-2.5 top-2.5 flex h-9 w-9 items-center justify-center rounded-full bg-white/90 shadow-[0_10px_24px_-16px_rgba(15,23,42,.55)] backdrop-blur transition-colors hover:bg-white" aria-hidden>
+          <Heart size={18} className="text-slate-800 transition-colors group-hover:text-primary" />
         </span>
         <span className="absolute left-2.5 top-2.5 rounded-lg bg-black/70 px-3 py-1.5 text-[12px] font-semibold leading-none text-white shadow-[0_10px_24px_-16px_rgba(0,0,0,.7)]">
           {negoLabel[p.negotiation] ?? p.negotiation}

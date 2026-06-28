@@ -1,11 +1,11 @@
-import type { Metadata } from 'next';
 import { Mail, MessageCircle } from 'lucide-react';
+import { pageMetadata, REGION } from '@/lib/seo/meta';
 
-export const metadata: Metadata = {
+export const metadata = pageMetadata({
   title: 'Contato',
-  description: 'Fale com a equipe do 77Imóveis.',
-  alternates: { canonical: '/contato' },
-};
+  description: `Fale com a equipe do 77Imóveis, o portal imobiliário do ${REGION}. Tire dúvidas, envie sugestões ou peça suporte por e-mail ou WhatsApp.`,
+  path: '/contato',
+});
 
 export default function ContatoPage() {
   return (

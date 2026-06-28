@@ -18,7 +18,7 @@ export function MobileBottomBar() {
   if (pathname.startsWith('/imovel/')) return null;
 
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-4 border-t border-border bg-surface/95 backdrop-blur md:hidden">
+    <nav className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-4 border-t border-border bg-surface md:hidden">
       {items.map(({ href, label, Icon, active }) => {
         const on = active(pathname);
         return (

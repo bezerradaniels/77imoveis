@@ -12,8 +12,8 @@ export default function TermosPage() {
       <h1 className="text-2xl font-bold text-text">Termos de Uso</h1>
       <p>
         Ao usar o <strong>77Imóveis</strong>, você concorda com estes termos. O portal é um classificado
-        que conecta anunciantes (imobiliárias, corretores e particulares) a interessados em imóveis na
-        região do DDD 77, na Bahia.
+        que conecta anunciantes (imobiliárias, corretores e particulares) a interessados em imóveis no
+        Oeste da Bahia.
       </p>
 
       <h2 className="pt-2 text-lg font-semibold text-text">Anúncios</h2>

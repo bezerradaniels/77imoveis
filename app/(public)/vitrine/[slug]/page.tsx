@@ -6,6 +6,7 @@ import { getStorefrontBySlug } from '@/lib/data';
 import { PropertyCard } from '@/components/property/PropertyCard';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { localBusinessLd } from '@/lib/seo/jsonld';
+import { pageMetadata, swapRegion, REGION } from '@/lib/seo/meta';
 
 export const revalidate = 300;
 const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://77imoveis.com.br';
@@ -13,15 +14,21 @@ const shouldUnoptimize = (src: string) => src.endsWith('.svg') || (/^https?:\/\/
 
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
   const res = await getStorefrontBySlug(params.slug);
-  if (!res) return {};
+  // Vitrine inexistente ou inativa: não indexar.
+  if (!res || res.storefront.status !== 'ativo') {
+    return { title: 'Vitrine não encontrada', robots: { index: false, follow: false } };
+  }
   const s: any = res.storefront;
   const name = s.companies?.trade_name ?? 'Vitrine';
-  const title = s.headline || `${name} — Imóveis`;
-  return {
+  const title = s.headline || `${name} — Imóveis no ${REGION}`;
+  const description = s.about || `Imóveis anunciados por ${name} no ${REGION}, na Bahia. Veja o catálogo completo e fale direto pelo WhatsApp.`;
+  return pageMetadata({
     title,
-    description: (s.about ?? '').slice(0, 155) || `Imóveis de ${name} no DDD 77.`,
-    alternates: { canonical: `${SITE}/vitrine/${s.slug}` },
-  };
+    description,
+    path: `/vitrine/${s.slug}`,
+    images: [s.cover_url || s.logo_url],
+    type: 'profile',
+  });
 }
 
 export default async function VitrinePublicaPage({ params }: { params: { slug: string } }) {
@@ -81,7 +88,7 @@ export default async function VitrinePublicaPage({ params }: { params: { slug: s
       </header>
 
       <div className="mx-auto max-w-6xl px-4 py-8">
-        {s.about && <p className="mb-6 max-w-3xl whitespace-pre-line text-sm leading-relaxed text-muted">{s.about}</p>}
+        {s.about && <p className="mb-6 max-w-3xl whitespace-pre-line text-sm leading-relaxed text-muted">{swapRegion(s.about)}</p>}
 
         <h2 className="mb-3 text-xl font-semibold">Imóveis ({res.properties.length})</h2>
         {res.properties.length ? (

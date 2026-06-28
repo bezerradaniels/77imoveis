@@ -44,7 +44,7 @@ export const cityTagline: Record<string, string> = {
   'bom-jesus-da-lapa': 'A capital baiana da fé',
   'santa-maria-da-vitoria': 'Portal do vale do Corrente',
 };
-export const cityTaglineFor = (slug: string) => cityTagline[slug] ?? 'Cidade do DDD 77';
+export const cityTaglineFor = (slug: string) => cityTagline[slug] ?? 'Oeste da Bahia';
 
 export const cityImages: Record<string, string> = {
   'bom-jesus-da-lapa': '/bom jesus da lapa.jpg',

@@ -14,6 +14,7 @@ import { NegotiationCard } from '@/components/property/NegotiationCard';
 import { RelatedProperties } from '@/components/property/RelatedProperties';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { realEstateListingLd, breadcrumbLd } from '@/lib/seo/jsonld';
+import { pageMetadata, regionalize, swapRegion, REGION } from '@/lib/seo/meta';
 
 // ISR: a página é renderizada e cacheada por 5 min (TTFB/LCP rápidos e menos
 // carga no banco). Imóveis novos aparecem na 1ª visita (cache miss); edições
@@ -21,20 +22,57 @@ import { realEstateListingLd, breadcrumbLd } from '@/lib/seo/jsonld';
 export const revalidate = 300;
 const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://77imoveis.com.br';
 
+// Transação em linguagem natural (para título/descrição e GEO/LLM).
+const NEG_TEXT: Record<string, string> = {
+  venda: 'à venda',
+  aluguel: 'para alugar',
+  temporada: 'para temporada',
+  romaria: 'para romaria',
+  lancamento: 'em lançamento',
+};
+
+// Especificações principais em texto curto e factual ("3 quartos · 2 banheiros").
+function specBits(p: any): string[] {
+  const b: string[] = [];
+  if (p.bedrooms) b.push(`${p.bedrooms} ${p.bedrooms > 1 ? 'quartos' : 'quarto'}`);
+  if (p.bathrooms) b.push(`${p.bathrooms} ${p.bathrooms > 1 ? 'banheiros' : 'banheiro'}`);
+  if (p.garages) b.push(`${p.garages} ${p.garages > 1 ? 'vagas' : 'vaga'}`);
+  if (p.built_area) b.push(`${Number(p.built_area)} m²`);
+  return b;
+}
+
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
   const p = await getProperty(params.slug);
-  if (!p) return {};
-  const title = `${p.title} | 77Imóveis`;
-  const description = (p.description ?? '').slice(0, 155);
-  const url = `${SITE}/imovel/${p.slug}`;
+  if (!p) return { title: 'Imóvel não encontrado', robots: { index: false, follow: false } };
+
+  const typeName = p.property_types?.name ?? 'Imóvel';
+  const cityName = p.cities?.name as string | undefined;
+  const neighborhood = p.neighborhoods?.name as string | undefined;
+  const neg = NEG_TEXT[p.negotiation] ?? '';
+  const locale = [neighborhood, cityName].filter(Boolean).join(', ') || REGION;
+
+  // Título: lidera com o título do anúncio (único) e garante a cidade.
+  const base = (p.title ?? '').trim();
+  const cityInTitle = !!cityName && base.toLowerCase().includes(cityName.toLowerCase());
+  const core = cityName && !cityInTitle ? `${base} em ${cityName}` : base;
+
+  // Descrição: factual e única, montada a partir de dados estruturados.
+  const priceTxt =
+    p.price != null && p.price_visibility !== 'sob_consulta'
+      ? brl(Number(p.price)) + (p.negotiation === 'aluguel' ? '/mês' : '')
+      : 'valor sob consulta';
+  const lead = `${typeName} ${neg} em ${locale}`.replace(/\s+/g, ' ').trim();
+  const built = [lead, specBits(p).join(' · '), priceTxt].filter(Boolean).join('. ') + '.';
+  const description = p.description ? `${built} ${regionalize(p.description)}` : built;
+
   const cover = sortedImages(p)[0]?.url;
-  return {
-    title,
+  return pageMetadata({
+    title: core,
     description,
-    alternates: { canonical: url },
-    openGraph: { title, description, url, images: cover ? [cover] : [], type: 'website' },
-    twitter: { card: 'summary_large_image', title, description, images: cover ? [cover] : [] },
-  };
+    path: `/imovel/${p.slug}`,
+    images: [cover],
+    type: 'article',
+  });
 }
 
 // Memoização por requisição: evita consultar o banco 2x (metadata + página).
@@ -121,10 +159,26 @@ export default async function ImovelPage({ params }: { params: { slug: string } 
           url,
           images: images.map((i: any) => i.url),
           price: p.price,
+          priceVisibility: p.price_visibility,
           city: p.cities?.name,
-          lat: p.latitude,
-          lng: p.longitude,
+          state: p.cities?.state,
+          neighborhood: p.neighborhoods?.name,
+          street: p.street,
+          number: p.number,
+          postalCode: p.zipcode,
+          propertyType: p.property_types?.name,
+          negotiation: p.negotiation,
+          bedrooms: p.bedrooms,
+          bathrooms: p.bathrooms,
+          builtArea: p.built_area ? Number(p.built_area) : null,
+          landArea: p.land_area ? Number(p.land_area) : null,
+          datePosted: p.published_at,
+          lat: showMap ? p.latitude : null,
+          lng: showMap ? p.longitude : null,
           description: p.description,
+          provider: anunciante
+            ? { name: anunciante, url: p.companies?.slug ? `${SITE}/empresa/${p.companies.slug}` : undefined }
+            : null,
         })}
       />
       <JsonLd
@@ -199,7 +253,7 @@ export default async function ImovelPage({ params }: { params: { slug: string } 
               {p.description && (
                 <section className="rounded-2xl border border-border p-6">
                   <h2 className="mb-3 text-lg font-bold">Descrição</h2>
-                  <p className="whitespace-pre-line text-[15px] leading-7 text-muted">{p.description}</p>
+                  <p className="whitespace-pre-line text-[15px] leading-7 text-muted">{swapRegion(p.description)}</p>
                 </section>
               )}
 

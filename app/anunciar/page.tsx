@@ -1,8 +1,12 @@
+import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { getUser } from '@/lib/auth';
 import { createClient } from '@/lib/supabase/server';
 
 export const dynamic = 'force-dynamic';
+
+// Rota de redirecionamento (login/cadastro/novo anúncio) — não indexar.
+export const metadata: Metadata = { robots: { index: false, follow: false } };
 
 // "Anunciar" leva ao cadastro (visitante) ou direto ao novo anúncio (logado).
 export default async function AnunciarPage() {

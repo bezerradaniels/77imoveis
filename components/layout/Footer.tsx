@@ -54,7 +54,7 @@ export function Footer() {
             <span className="text-[#16b387]">77</span><span className="text-white">imóveis</span>
           </div>
           <p className="mt-3.5 max-w-[300px] text-sm leading-relaxed text-[#94a09a]">
-            O portal imobiliário da região do DDD 77, na Bahia. Imóveis, profissionais e empresas perto de você.
+            O portal imobiliário do Oeste da Bahia. Imóveis, profissionais e empresas perto de você.
           </p>
         </div>
         <Col title="Cidades" links={[...cidades.map(([n, s]) => [n, `/${s}`]), ['Ver todas →', '/']]} />
@@ -64,7 +64,7 @@ export function Footer() {
       </div>
       <div className="border-t border-white/10">
         <div className="mx-auto max-w-[1200px] px-6 py-4 text-center text-[13px] text-[#7e8a84]">
-          © {new Date().getFullYear()} 77imóveis · DDD 77 — Bahia
+          © {new Date().getFullYear()} 77imóveis · Oeste da Bahia
         </div>
       </div>
     </footer>

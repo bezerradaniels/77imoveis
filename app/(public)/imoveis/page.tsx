@@ -15,6 +15,7 @@ import { FilterBar } from '@/components/property/FilterBar';
 import { SortDropdown } from '@/components/property/SortDropdown';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { breadcrumbLd, itemListLd } from '@/lib/seo/jsonld';
+import { pageMetadata, REGION } from '@/lib/seo/meta';
 
 export const revalidate = 300;
 const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://77imoveis.com.br';
@@ -46,19 +47,29 @@ function exchangeText(value: string | string[] | undefined) {
 function heading(typeName: string | undefined, negs: Negotiation[] = []) {
   const what = typeName ? plural(typeName) : 'Imóveis';
   const negSuffix = negs.length ? ` ${negs.map((n) => negoText[n]).join(' ou ')}` : '';
-  return `${what}${negSuffix} no DDD 77`;
+  return `${what}${negSuffix} no ${REGION}`;
+}
+
+// Chaves de filtro/busca: quando presentes, a página vira uma variante dinâmica
+// e é marcada como noindex (o canonical aponta para /imoveis).
+const FILTER_KEYS = ['cidade', 'tipo', 'bairro', 'modalidade', 'quartos', 'banheiros', 'vagas', 'min', 'max', 'busca', 'troca', 'permuta'];
+function hasActiveFilters(sp: Search) {
+  if (FILTER_KEYS.some((k) => str(sp[k]))) return true;
+  return (num(sp.pagina) ?? 1) > 1;
 }
 
 export async function generateMetadata({ searchParams }: { searchParams: Search }): Promise<Metadata> {
   const types = await getPropertyTypes();
   const type = (types as any[]).find((t) => t.slug === str(searchParams.tipo));
   const negotiations = list(searchParams.modalidade).filter((m): m is Negotiation => NEGOS.includes(m as Negotiation));
-  const h = heading(type?.name, negotiations);
-  return {
-    title: `${h} | 77Imóveis`,
-    description: `Veja ${h.toLowerCase()} em todas as cidades da região do DDD 77. Anúncios de imobiliárias, corretores e particulares.`,
-    alternates: { canonical: `${SITE}/imoveis` },
-  };
+  const busca = str(searchParams.busca)?.trim();
+  const what = type?.name ? plural(type.name) : 'Imóveis';
+  const negTxt = negotiations.length ? ` ${negotiations.map((n) => negoText[n]).join(' ou ')}` : '';
+  const title = busca ? `Busca por “${busca}”` : heading(type?.name, negotiations);
+  const description = busca
+    ? `Resultados de imóveis para “${busca}” no ${REGION}. Compare preços, veja fotos e fale direto com os anunciantes.`
+    : `Encontre ${what.toLowerCase()}${negTxt} em todas as cidades do ${REGION}. Anúncios de imobiliárias, corretores e particulares com fotos, preços e contato.`;
+  return pageMetadata({ title, description, path: '/imoveis', noindex: hasActiveFilters(searchParams) });
 }
 
 function Results({
@@ -116,6 +127,7 @@ function Results({
 export default async function ImoveisPage({ searchParams }: { searchParams: Search }) {
   const negotiations = list(searchParams.modalidade).filter((m): m is Negotiation => NEGOS.includes(m as Negotiation));
   const acceptsExchange = exchangeText(searchParams.troca) || exchangeText(searchParams.permuta);
+  const busca = str(searchParams.busca)?.trim();
   const page = num(searchParams.pagina) ?? 1;
   const sort = (str(searchParams.ordem) as any) || 'recentes';
 
@@ -132,6 +144,7 @@ export default async function ImoveisPage({ searchParams }: { searchParams: Sear
     neighborhoodId,
     negotiations,
     acceptsExchange,
+    text: busca,
     bedrooms: list(searchParams.quartos),
     bathrooms: list(searchParams.banheiros),
     garages: list(searchParams.vagas),
@@ -143,7 +156,9 @@ export default async function ImoveisPage({ searchParams }: { searchParams: Sear
   });
 
   const pages = Math.ceil(total / PER_PAGE);
-  const h1 = `${heading(type?.name, negotiations)}${acceptsExchange ? ' que aceitam troca' : ''}`;
+  const h1 = busca
+    ? `Resultados para “${busca}”`
+    : `${heading(type?.name, negotiations)}${acceptsExchange ? ' que aceitam troca' : ''}`;
 
   const pageHref = (n: number) => {
     const sp = new URLSearchParams();
@@ -171,7 +186,7 @@ export default async function ImoveisPage({ searchParams }: { searchParams: Sear
         <h1 className="text-xl font-bold leading-tight text-text sm:text-2xl">{h1}</h1>
         <p className="mt-1 text-sm text-muted">
           {total
-            ? `${total} imóve${total > 1 ? 'is' : 'l'} encontrado${total > 1 ? 's' : ''} em toda a região do DDD 77`
+            ? `${total} imóve${total > 1 ? 'is' : 'l'} encontrado${total > 1 ? 's' : ''} em todo o ${REGION}`
             : 'Nenhum imóvel encontrado com esses filtros ainda'}
         </p>
       </section>

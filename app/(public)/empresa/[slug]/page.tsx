@@ -7,7 +7,8 @@ import { getCompanyBySlug } from '@/lib/data';
 import { companyTypeLabel } from '@/lib/constants';
 import { PropertyCard } from '@/components/property/PropertyCard';
 import { JsonLd } from '@/components/seo/JsonLd';
-import { localBusinessLd, breadcrumbLd } from '@/lib/seo/jsonld';
+import { realEstateAgentLd, breadcrumbLd } from '@/lib/seo/jsonld';
+import { pageMetadata, swapRegion, REGION } from '@/lib/seo/meta';
 
 export const revalidate = 300;
 const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://77imoveis.com.br';
@@ -15,11 +16,22 @@ const shouldUnoptimize = (src: string) => src.endsWith('.svg') || (/^https?:\/\/
 
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
   const res = await getCompanyBySlug(params.slug);
-  if (!res) return {};
+  if (!res) return { title: 'Empresa não encontrada', robots: { index: false, follow: false } };
   const c: any = res.company;
-  const title = c.seo_title || `${c.trade_name} — ${companyTypeLabel(c.type)}`;
-  const description = c.seo_description || (c.description ?? '').slice(0, 155);
-  return { title, description, alternates: { canonical: `${SITE}/empresa/${c.slug}` } };
+  const typeLabel = companyTypeLabel(c.type);
+  const cityName = c.cities?.name as string | undefined;
+  const title = c.seo_title || `${c.trade_name} — ${typeLabel}${cityName ? ` em ${cityName}` : ''}`;
+  const description =
+    c.seo_description ||
+    c.description ||
+    `${typeLabel} ${c.trade_name}${cityName ? `, em ${cityName}` : ''}, no ${REGION}. Veja contatos, especialidades e imóveis anunciados.`;
+  return pageMetadata({
+    title,
+    description,
+    path: `/empresa/${c.slug}`,
+    images: [c.cover_url || c.logo_url],
+    type: 'profile',
+  });
 }
 
 const wa = (n?: string) => (n ? `https://wa.me/55${n.replace(/\D/g, '')}` : null);
@@ -34,12 +46,19 @@ export default async function EmpresaPublicaPage({ params }: { params: { slug: s
   return (
     <main className="mx-auto max-w-5xl px-4 py-6">
       <JsonLd
-        data={localBusinessLd({
+        data={realEstateAgentLd({
           name: c.trade_name,
           url,
           logo: c.logo_url,
+          image: c.cover_url || c.logo_url,
           phone: c.whatsapp || c.phone,
           city: c.cities?.name,
+          description: c.description,
+          specialties: specialties.map((s: any) => s.name),
+          sameAs: [
+            c.website,
+            c.instagram ? `https://instagram.com/${c.instagram.replace('@', '')}` : null,
+          ],
         })}
       />
       <JsonLd
@@ -108,7 +127,7 @@ export default async function EmpresaPublicaPage({ params }: { params: { slug: s
         </div>
       </header>
 
-      {c.description && <p className="mt-4 whitespace-pre-line text-sm leading-relaxed text-muted">{c.description}</p>}
+      {c.description && <p className="mt-4 whitespace-pre-line text-sm leading-relaxed text-muted">{swapRegion(c.description)}</p>}
 
       {!!specialties.length && (
         <div className="mt-4 flex flex-wrap gap-2">

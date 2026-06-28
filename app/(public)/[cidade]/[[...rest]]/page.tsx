@@ -12,7 +12,7 @@ import {
   type CardProperty,
   type Negotiation,
 } from '@/lib/data';
-import { cityEmojiFor, cityTaglineFor } from '@/lib/constants';
+import { cityEmojiFor, cityTaglineFor, cityImageFor } from '@/lib/constants';
 import { plural } from '@/lib/format';
 import { PropertyRow } from '@/components/property/PropertyRow';
 import { FilterBar } from '@/components/property/FilterBar';
@@ -20,6 +20,7 @@ import { SortDropdown } from '@/components/property/SortDropdown';
 import { CityHeroSearchPanel } from '@/components/search/CityHeroSearchPanel';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { breadcrumbLd, faqLd, itemListLd } from '@/lib/seo/jsonld';
+import { pageMetadata, swapRegion, REGION } from '@/lib/seo/meta';
 
 export const revalidate = 300;
 const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://77imoveis.com.br';
@@ -71,12 +72,14 @@ function exchangeText(value: string | string[] | undefined) {
 
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
   const { city, type } = await resolve(params);
-  const title = `${heading(city, type)} (BA) | 77Imóveis`;
-  const description =
-    (type ? '' : city.seo_description) ||
-    `Veja ${heading(city, type).toLowerCase()} e em toda a região do DDD 77. Anúncios de imobiliárias e corretores.`;
+  const what = type ? plural(type.name) : 'Imóveis';
+  const title = `${what} em ${city.name} (BA)`;
+  const description = type
+    ? `${what} à venda e para alugar em ${city.name}, no ${REGION}. Veja preços, fotos e fale direto com imobiliárias, corretores e particulares da região.`
+    : city.seo_description ||
+      `Imóveis à venda e para alugar em ${city.name}, no ${REGION}: casas, apartamentos, terrenos e imóveis comerciais de imobiliárias, corretores e particulares.`;
   const path = type ? `/${city.slug}/${params.rest![0]}` : `/${city.slug}`;
-  return { title, description, alternates: { canonical: `${SITE}${path}` } };
+  return pageMetadata({ title, description, path, images: [cityImageFor(city.slug)] });
 }
 
 function Results({
@@ -261,8 +264,8 @@ export default async function ListagemPage({
       {!type && city.intro_text && (
         <section className="mx-auto max-w-[1200px] px-6 pb-12">
           <div className="rounded-lg border border-border bg-surface p-5 text-sm text-muted">
-            <h2 className="mb-2 text-base font-semibold text-text">Sobre o mercado em {city.name}</h2>
-            <p>{city.intro_text}</p>
+            <h2 className="mb-2 text-base font-semibold text-text">Sobre o mercado imobiliário em {city.name}</h2>
+            <p>{swapRegion(city.intro_text)}</p>
           </div>
         </section>
       )}
@@ -273,7 +276,7 @@ export default async function ListagemPage({
         <section className="mx-auto max-w-[1200px] px-6 pt-12">
           <JsonLd
             data={faqLd([
-              { q: `Como encontrar imóveis à venda em ${city.name}?`, a: `Use os filtros de tipo, preço e número de quartos nesta página de ${city.name}. Os anúncios são atualizados por imobiliárias, corretores e particulares da região do DDD 77.` },
+              { q: `Como encontrar imóveis à venda em ${city.name}?`, a: `Use os filtros de tipo, preço e número de quartos nesta página de ${city.name}. Os anúncios são atualizados por imobiliárias, corretores e particulares do ${REGION}.` },
               { q: `Dá para alugar imóveis em ${city.name}?`, a: `Sim. Selecione a modalidade "Alugar" nos filtros para ver casas e apartamentos para locação em ${city.name}.` },
               { q: `Como anunciar meu imóvel em ${city.name}?`, a: `Crie uma conta gratuita no 77Imóveis e publique seu imóvel. Particulares têm 1 anúncio grátis; profissionais têm planos com mais anúncios.` },
             ])}

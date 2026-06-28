@@ -1,17 +1,17 @@
-import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Store, MessageCircle } from 'lucide-react';
 import { getActiveStorefronts } from '@/lib/data';
+import { pageMetadata, REGION } from '@/lib/seo/meta';
 
 export const revalidate = 300;
 const shouldUnoptimize = (src: string) => src.endsWith('.svg') || (/^https?:\/\//.test(src) && !src.includes('.supabase.co'));
 
-export const metadata: Metadata = {
-  title: 'Vitrines de imobiliárias e profissionais',
-  description: 'Catálogos próprios de imobiliárias, corretores e empresas do DDD 77.',
-  alternates: { canonical: '/vitrine' },
-};
+export const metadata = pageMetadata({
+  title: `Vitrines de imobiliárias e empresas no ${REGION}`,
+  description: `Catálogos e vitrines próprias de imobiliárias, corretores e empresas no ${REGION}, na Bahia. Veja os imóveis e fale direto pelo WhatsApp.`,
+  path: '/vitrine',
+});
 
 export default async function VitrinesPage() {
   const storefronts = await getActiveStorefronts();

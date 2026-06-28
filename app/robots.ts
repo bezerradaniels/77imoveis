@@ -1,6 +1,17 @@
 import type { MetadataRoute } from 'next';
+import { SITE_URL } from '@/lib/seo/meta';
 
-const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://77imoveis.com.br';
+// Áreas privadas/internas que NÃO devem ser rastreadas. As páginas públicas
+// (cidades, imóveis, perfis, vitrines) ficam liberadas. Buscadores de IA
+// (GPTBot, PerplexityBot, Google-Extended etc.) seguem a regra "*" liberada,
+// pois queremos que o portal seja citável por mecanismos generativos (GEO).
+const DISALLOW = [
+  '/painel',
+  '/admin',
+  '/entrar',
+  '/cadastro',
+  '/anunciar',
+];
 
 export default function robots(): MetadataRoute.Robots {
   return {
@@ -8,10 +19,10 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: '*',
         allow: '/',
-        disallow: ['/painel', '/admin', '/entrar', '/cadastro', '/anunciar'],
+        disallow: DISALLOW,
       },
     ],
-    sitemap: `${SITE}/sitemap.xml`,
-    host: SITE,
+    sitemap: `${SITE_URL}/sitemap.xml`,
+    host: SITE_URL,
   };
 }

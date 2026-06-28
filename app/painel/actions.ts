@@ -62,6 +62,16 @@ export async function saveProperty(input: PropertyInput): Promise<{ id?: string;
   if (!auth.user) return { error: 'Sessão expirada. Entre novamente.' };
   if (!input.negotiations.length) return { error: 'Escolha ao menos uma modalidade (venda, aluguel…).' };
 
+  if (input.neighborhoodId) {
+    const { data: neighborhood } = await sb
+      .from('neighborhoods')
+      .select('id')
+      .eq('id', input.neighborhoodId)
+      .eq('city_id', input.cityId)
+      .maybeSingle();
+    if (!neighborhood) return { error: 'Selecione novamente o bairro do imóvel.' };
+  }
+
   const { data: company } = await sb
     .from('companies')
     .select('id')
@@ -174,6 +184,10 @@ function friendly(msg: string) {
     return 'Selecione novamente o tipo do imóvel.';
   if (msg.includes('violates foreign key constraint') && msg.includes('city_id'))
     return 'Selecione novamente a cidade do imóvel.';
+  if (msg.includes('violates foreign key constraint') && msg.includes('neighborhood_id'))
+    return 'Selecione novamente o bairro do imóvel.';
+  if (msg.includes('NEIGHBORHOOD_CITY_MISMATCH'))
+    return 'O bairro selecionado não pertence à cidade do imóvel.';
   if (msg.includes('duplicate key') && msg.includes('properties_slug_key'))
     return 'Já existe um anúncio com esse título nessa cidade. Ajuste o título e tente novamente.';
   return process.env.NODE_ENV === 'development'

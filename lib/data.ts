@@ -163,6 +163,7 @@ export type SearchFilters = {
   neighborhoodId?: string;
   negotiations?: Negotiation[];
   acceptsExchange?: boolean;
+  text?: string; // busca livre por título (usada pelo SearchAction do schema)
   bedrooms?: string[]; // '1' | '2' | '3' | '4+' (múltipla escolha)
   bathrooms?: string[];
   garages?: string[];
@@ -205,6 +206,9 @@ export async function searchProperties(
   if (f.cityId) q = q.eq('city_id', f.cityId);
   if (f.typeId) q = q.eq('property_type_id', f.typeId);
   if (f.neighborhoodId) q = q.eq('neighborhood_id', f.neighborhoodId);
+  // Busca livre por título (saneada para não quebrar o filtro ilike).
+  const text = f.text?.replace(/[%,]/g, ' ').trim();
+  if (text) q = q.ilike('title', `%${text}%`);
   if (single) q = q.eq('property_negotiations.negotiation', single);
   if (matchedIds) q = q.in('id', matchedIds);
   if (f.acceptsExchange) q = q.eq('accepts_exchange', true);

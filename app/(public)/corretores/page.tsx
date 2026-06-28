@@ -1,21 +1,21 @@
-import type { Metadata } from 'next';
 import { getCompanies } from '@/lib/data';
 import { CompanyCard } from '@/components/company/CompanyCard';
+import { pageMetadata, REGION } from '@/lib/seo/meta';
 
 export const revalidate = 300;
 
-export const metadata: Metadata = {
-  title: 'Corretores no DDD 77 | 77Imóveis',
-  description: 'Corretores autônomos da região do DDD 77, na Bahia. Veja contatos e imóveis anunciados.',
-  alternates: { canonical: '/corretores' },
-};
+export const metadata = pageMetadata({
+  title: `Corretores de imóveis no ${REGION}`,
+  description: `Corretores de imóveis autônomos no ${REGION}, na Bahia. Veja contatos, cidades de atuação e imóveis à venda e para alugar anunciados por cada corretor.`,
+  path: '/corretores',
+});
 
 export default async function CorretoresPage() {
   const companies = await getCompanies('corretor_autonomo');
   return (
     <main className="mx-auto max-w-6xl px-4 py-8">
-      <h1 className="mb-1 text-2xl font-bold">Corretores</h1>
-      <p className="mb-5 text-muted">Corretores autônomos cadastrados na região do DDD 77.</p>
+      <h1 className="mb-1 text-2xl font-bold">Corretores de imóveis no {REGION}</h1>
+      <p className="mb-5 text-muted">Corretores autônomos que atuam no {REGION}, na Bahia.</p>
       {companies.length ? (
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {companies.map((c) => (
