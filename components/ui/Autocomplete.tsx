@@ -53,7 +53,7 @@ export function Autocomplete({
         className="h-10 w-full rounded-xl border border-border bg-surface px-3 text-sm font-medium text-slate-900 disabled:cursor-not-allowed disabled:bg-bg disabled:text-muted disabled:font-normal dark:text-white"
       />
       {open && !disabled && !!filtered.length && (
-        <div className="absolute left-0 right-0 top-full z-30 mt-1 max-h-56 overflow-auto rounded-lg border border-border bg-surface py-1 shadow-xl shadow-black/10">
+        <div className="absolute left-0 right-0 top-full z-50 mt-1 max-h-56 overflow-auto rounded-lg border border-border bg-surface py-1 shadow-xl shadow-black/10">
           {filtered.map((o) => (
             <button
               key={o.value}

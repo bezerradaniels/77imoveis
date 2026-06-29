@@ -17,16 +17,46 @@ export type PropertyInput = {
   id?: string;
   title: string;
   description?: string;
+  shortDescription?: string;
   typeId: string;
   citySlug: string;
   cityId: string;
   neighborhoodId?: string;
+  // Endereço
+  street?: string;
+  number?: string;
+  complement?: string;
+  zipcode?: string;
+  hideExactLocation?: boolean;
+  // Detalhes
   bedrooms?: number;
   suites?: number;
   bathrooms?: number;
   garages?: number;
   builtArea?: number | null;
   landArea?: number | null;
+  floor?: number | null;
+  condoName?: string;
+  furnished?: string | null;
+  condition?: string | null;
+  availability?: string;
+  // Preço e condições
+  condoFee?: number | null;
+  iptu?: number | null;
+  acceptsFinancing?: boolean;
+  acceptsExchange?: boolean;
+  negotiable?: boolean;
+  // Mídia
+  videoUrl?: string;
+  tourUrl?: string;
+  // Contato do anúncio
+  contactName?: string;
+  contactCompany?: string;
+  contactWhatsapp?: string;
+  contactEmail?: string;
+  contactPref?: string;
+  showPhone?: boolean;
+  leadEmail?: string;
   negotiations: NegotiationInput[];
   featureIds: string[];
   images: string[];
@@ -62,7 +92,7 @@ async function uniqueReferenceCode(sb: any) {
 }
 
 // Cria ou edita um imóvel + modalidades + características + fotos.
-export async function saveProperty(input: PropertyInput): Promise<{ id?: string; error?: string }> {
+export async function saveProperty(input: PropertyInput): Promise<{ id?: string; slug?: string; status?: string; error?: string }> {
   const sb = createClient();
   const { data: auth } = await sb.auth.getUser();
   if (!auth.user) return { error: 'Sessão expirada. Entre novamente.' };
@@ -97,15 +127,40 @@ export async function saveProperty(input: PropertyInput): Promise<{ id?: string;
     owner_id: auth.user.id,
     title: input.title,
     description: input.description || null,
+    short_description: input.shortDescription || null,
     property_type_id: input.typeId,
     city_id: input.cityId,
     neighborhood_id: input.neighborhoodId || null,
+    street: input.street || null,
+    number: input.number || null,
+    complement: input.complement || null,
+    zipcode: input.zipcode || null,
+    hide_exact_location: input.hideExactLocation ?? false,
     bedrooms: input.bedrooms ?? 0,
     suites: input.suites ?? 0,
     bathrooms: input.bathrooms ?? 0,
     garages: input.garages ?? 0,
     built_area: input.builtArea ?? null,
     land_area: input.landArea ?? null,
+    floor: input.floor ?? null,
+    condo_name: input.condoName || null,
+    furnished: input.furnished || null,
+    condition: input.condition || null,
+    availability: input.availability || 'disponivel',
+    condo_fee: input.condoFee ?? null,
+    iptu: input.iptu ?? null,
+    accepts_financing: input.acceptsFinancing ?? false,
+    accepts_exchange: input.acceptsExchange ?? false,
+    negotiable: input.negotiable ?? true,
+    video_url: input.videoUrl || null,
+    tour_url: input.tourUrl || null,
+    contact_name: input.contactName || null,
+    contact_company: input.contactCompany || null,
+    contact_whatsapp: input.contactWhatsapp || null,
+    contact_email: input.contactEmail || null,
+    contact_pref: input.contactPref || 'whatsapp',
+    show_phone: input.showPhone ?? true,
+    lead_email: input.leadEmail || null,
     negotiation: primary.negotiation,
     price: primary.price,
     price_visibility: primary.priceVisibility,
@@ -175,7 +230,8 @@ export async function saveProperty(input: PropertyInput): Promise<{ id?: string;
   }
 
   revalidatePath('/painel/imoveis');
-  return { id };
+  const { data: saved } = await sb.from('properties').select('slug,status').eq('id', id).maybeSingle();
+  return { id, slug: saved?.slug, status: saved?.status };
 }
 
 function friendly(msg: string) {

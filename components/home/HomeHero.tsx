@@ -37,7 +37,7 @@ export function HomeHero({
   }, [open]);
 
   return (
-    <section aria-label="Buscar imóveis no Oeste da Bahia" className="relative overflow-hidden bg-bg pt-6 pb-8 md:py-10">
+    <section aria-label="Buscar imóveis no Oeste da Bahia" className="relative z-10 overflow-hidden bg-bg pt-6 pb-8 md:overflow-visible md:py-10">
       {/* Fundo claro com leve degradê (oculto no escuro) + pontos sutis */}
       <div
         aria-hidden
@@ -59,7 +59,7 @@ export function HomeHero({
         <button
           type="button"
           onClick={() => setOpen(true)}
-          className="mt-[18px] flex h-[50px] w-full items-center justify-center gap-2.5 rounded-[13px] bg-primary text-[15.5px] font-bold text-on-primary transition-colors hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primary/25 md:hidden"
+          className="mt-[18px] flex h-[50px] w-full items-center justify-center gap-2.5 rounded-[13px] bg-[#69f1cf] text-[15.5px] font-bold text-[#04231b] transition-colors hover:bg-[#54ecc4] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#69f1cf]/40 md:hidden"
         >
           <Search size={19} /> Buscar imóveis
         </button>

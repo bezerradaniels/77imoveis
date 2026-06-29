@@ -49,7 +49,7 @@ export function MultiSelect({
         <ChevronDown size={16} className={cn('shrink-0 text-muted transition-transform', open && 'rotate-180')} />
       </button>
       {open && (
-        <div className="absolute left-0 right-0 top-[calc(100%+6px)] z-30 overflow-hidden rounded-xl border border-border bg-surface shadow-[0_18px_42px_-18px_rgba(8,30,22,.38)]">
+        <div className="absolute left-0 right-0 top-[calc(100%+6px)] z-50 overflow-hidden rounded-xl border border-border bg-surface shadow-[0_18px_42px_-18px_rgba(8,30,22,.38)]">
           <div className="max-h-60 overflow-auto p-1.5">
             {options.map((o) => {
               const on = selected.includes(o.value);
