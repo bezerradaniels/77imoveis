@@ -6,12 +6,8 @@ type Item = { Icon: typeof Banknote; title: string; sub: string };
 // compra rapidamente. Dirigido por campos REAIS do banco:
 //   • À vista      → implícito em venda/lançamento
 //   • Financiamento → properties.accepts_financing
+//   • Minha Casa Minha Vida → properties.accepts_mcmv
 //   • Permuta      → properties.accepts_exchange
-//
-// MCMV (Minha Casa Minha Vida) NÃO existe no schema atual. Para habilitá-lo:
-//   1) adicione a coluna:  alter table properties add column accepts_mcmv boolean default false;
-//   2) selecione-a em getPropertyBySlug (já vem via `*`)
-//   3) passe acceptsMcmv={p.accepts_mcmv} e descomente o item abaixo.
 export function NegotiationCard({
   negotiation,
   acceptsFinancing,

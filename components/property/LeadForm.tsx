@@ -67,7 +67,7 @@ export function LeadForm({ slug, title }: { slug: string; title: string }) {
       />
       {SITE_KEY && <div className="cf-turnstile" data-sitekey={SITE_KEY} />}
       {error && <p className="text-sm text-danger">{error}</p>}
-      <Button type="submit" disabled={loading} className="h-11 w-full">
+      <Button type="submit" disabled={loading} rounded="lg" className="h-11 w-full">
         {loading ? 'Enviando…' : 'Enviar mensagem'}
       </Button>
     </form>

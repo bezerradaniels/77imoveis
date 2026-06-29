@@ -152,6 +152,7 @@ create table profiles (
   id          uuid primary key references auth.users(id) on delete cascade,
   role        user_role not null default 'particular',
   role_intent text check (role_intent in ('particular','profissional')),
+  role_choice_made_at timestamptz,
   full_name   text,
   email       text,
   phone       text,
@@ -309,6 +310,7 @@ create table properties (
   condo_fee       numeric(12,2),                -- condomínio
   iptu            numeric(12,2),                -- IPTU (anual)
   accepts_financing boolean default true,
+  accepts_mcmv      boolean not null default false, -- Minha Casa Minha Vida
   accepts_exchange  boolean default false,      -- aceita permuta
 
   -- Estado do anúncio

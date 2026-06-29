@@ -44,6 +44,7 @@ export type PropertyInput = {
   condoFee?: number | null;
   iptu?: number | null;
   acceptsFinancing?: boolean;
+  acceptsMcmv?: boolean;
   acceptsExchange?: boolean;
   negotiable?: boolean;
   // Mídia
@@ -53,7 +54,9 @@ export type PropertyInput = {
   contactName?: string;
   contactCompany?: string;
   contactWhatsapp?: string;
+  contactPhone?: string;
   contactEmail?: string;
+  contactMethods?: string[];
   contactPref?: string;
   showPhone?: boolean;
   leadEmail?: string;
@@ -150,6 +153,7 @@ export async function saveProperty(input: PropertyInput): Promise<{ id?: string;
     condo_fee: input.condoFee ?? null,
     iptu: input.iptu ?? null,
     accepts_financing: input.acceptsFinancing ?? false,
+    accepts_mcmv: input.acceptsMcmv ?? false,
     accepts_exchange: input.acceptsExchange ?? false,
     negotiable: input.negotiable ?? true,
     video_url: input.videoUrl || null,
@@ -157,7 +161,9 @@ export async function saveProperty(input: PropertyInput): Promise<{ id?: string;
     contact_name: input.contactName || null,
     contact_company: input.contactCompany || null,
     contact_whatsapp: input.contactWhatsapp || null,
+    contact_phone: input.contactPhone || null,
     contact_email: input.contactEmail || null,
+    contact_methods: input.contactMethods?.length ? input.contactMethods : [input.contactPref || 'whatsapp'],
     contact_pref: input.contactPref || 'whatsapp',
     show_phone: input.showPhone ?? true,
     lead_email: input.leadEmail || null,
@@ -231,11 +237,17 @@ export async function saveProperty(input: PropertyInput): Promise<{ id?: string;
 
   revalidatePath('/painel/imoveis');
   const { data: saved } = await sb.from('properties').select('slug,status').eq('id', id).maybeSingle();
+  if (saved?.slug) revalidatePath(`/imovel/${saved.slug}`);
+  if (input.citySlug) revalidatePath(`/${input.citySlug}`);
+  revalidatePath('/imoveis');
+  revalidatePath('/');
   return { id, slug: saved?.slug, status: saved?.status };
 }
 
 function friendly(msg: string) {
   if (process.env.NODE_ENV === 'development') console.error('[saveProperty]', msg);
+  if (msg.includes('schema cache'))
+    return 'O banco ainda não está com as migrations mais recentes. Rode as migrations 13 e 14 no Supabase e tente salvar novamente.';
   if (msg.includes('LIMITE_PARTICULAR'))
     return 'Você já tem 1 anúncio ativo no plano Particular. Crie um perfil profissional para publicar mais imóveis.';
   if (msg.includes('row-level security'))

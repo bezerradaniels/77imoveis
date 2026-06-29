@@ -118,22 +118,28 @@ export default async function ImovelPage({ params }: { params: { slug: string } 
 
   const features = (p.property_features ?? []).map((f: any) => f.features).filter(Boolean);
 
-  const contact = p.companies?.whatsapp || p.companies?.phone || p.profiles?.whatsapp || p.profiles?.phone;
-  const phone = p.companies?.phone || p.companies?.whatsapp || p.profiles?.phone || p.profiles?.whatsapp;
-  const wa = whatsappLink(contact, `Olá! Tenho interesse no imóvel "${p.title}" anunciado no 77Imóveis.`);
-  const waVisit = whatsappLink(contact, `Olá! Gostaria de agendar uma visita ao imóvel "${p.title}".`);
-  const anunciante = p.companies?.trade_name || p.profiles?.full_name || undefined;
+  const contactMethods = Array.isArray(p.contact_methods) && p.contact_methods.length
+    ? p.contact_methods
+    : [p.contact_pref ?? 'whatsapp'];
+  const directContact = p.show_phone !== false;
+  const whatsappNumber = p.contact_whatsapp || p.companies?.whatsapp || p.profiles?.whatsapp || p.companies?.phone || p.profiles?.phone;
+  const phoneNumber = p.contact_phone || p.companies?.phone || p.profiles?.phone || p.contact_whatsapp || p.companies?.whatsapp || p.profiles?.whatsapp;
+  const wa = directContact && contactMethods.includes('whatsapp')
+    ? whatsappLink(whatsappNumber, `Olá! Tenho interesse no imóvel "${p.title}" anunciado no 77Imóveis.`)
+    : null;
+  const phone = directContact && contactMethods.includes('telefone') ? phoneNumber : null;
+  const showLeadForm = contactMethods.includes('formulario') || (!wa && !phone);
+  const anunciante = p.contact_company || p.contact_name || p.companies?.trade_name || p.profiles?.full_name || undefined;
   const advertiserLogo = p.companies?.logo_url || undefined;
   const showMap = p.latitude && p.longitude && !p.hide_exact_location;
   const posted = postedAgo(p.published_at);
 
-  const address = [
-    p.street ? `${p.street}${p.number ? `, ${p.number}` : ''}` : null,
+  const locationLines = [
+    !p.hide_exact_location && p.street ? `${p.street}${p.number ? `, ${p.number}` : ''}` : null,
     p.neighborhoods?.name,
+    p.cities?.name ? `${p.cities.name} - ${p.cities?.state ?? 'BA'}` : null,
   ]
-    .filter(Boolean)
-    .join(' — ');
-  const cityLine = p.cities?.name ? `${p.cities.name} - ${p.cities?.state ?? 'BA'}` : '';
+    .filter(Boolean);
 
   const related = await getRelatedProperties(p.city_id, p.property_type_id, p.slug, 8);
 
@@ -143,10 +149,11 @@ export default async function ImovelPage({ params }: { params: { slug: string } 
     anunciante,
     advertiserLogo,
     acceptsFinancing: p.accepts_financing,
+    acceptsMcmv: p.accepts_mcmv,
     acceptsExchange: p.accepts_exchange,
     wa,
-    waVisit,
     phone,
+    showLeadForm,
     slug: p.slug,
     title: p.title,
   };
@@ -233,7 +240,14 @@ export default async function ImovelPage({ params }: { params: { slug: string } 
                 <h1 className="text-2xl font-extrabold leading-tight tracking-tight md:text-[28px]">{p.title}</h1>
                 <p className="mt-2 flex items-start gap-1.5 text-sm text-muted md:text-[15px]">
                   <MapPin size={16} className="mt-0.5 shrink-0 text-link" />
-                  <span>{[address, cityLine].filter(Boolean).join(' · ')}</span>
+                  <span className="flex flex-col gap-0.5 md:block">
+                    {locationLines.map((line, i) => (
+                      <span key={`${line}-${i}`} className="block md:inline">
+                        {line}
+                        {i < locationLines.length - 1 && <span className="hidden md:inline"> · </span>}
+                      </span>
+                    ))}
+                  </span>
                 </p>
               </section>
 
@@ -264,6 +278,7 @@ export default async function ImovelPage({ params }: { params: { slug: string } 
               <NegotiationCard
                 negotiation={p.negotiation}
                 acceptsFinancing={p.accepts_financing}
+                acceptsMcmv={p.accepts_mcmv}
                 acceptsExchange={p.accepts_exchange}
               />
 

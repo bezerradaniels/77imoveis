@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import {
   AlertTriangle, ArrowLeft, ArrowRight, Bath, BedDouble, Briefcase, Building, Building2, Car,
   Check, ChevronLeft, ChevronRight, DoorOpen, Eye, EyeOff, Home, Info, KeyRound, Layers, Loader2,
-  MapPin, MessageCircle, Minus, Pencil, Plus, Ruler, Sparkles, Square, Store, Tag, Tractor, Trees,
+  Mail, MapPin, MessageCircle, Minus, Pencil, Phone, Plus, Ruler, Sparkles, Square, Store, Tag, Tractor, Trees,
   Upload, Warehouse, X,
 } from 'lucide-react';
 import { cn } from '@/lib/cn';
@@ -17,6 +17,7 @@ type Opt = { id: string; name: string; slug?: string };
 type TypeOpt = { id: string; name: string; slug: string };
 type Feature = { id: string; name: string; slug?: string; category: string | null };
 type Defaults = { name?: string; whatsapp?: string; email?: string };
+type ContactMethod = 'whatsapp' | 'telefone' | 'formulario';
 
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
 const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/avif'];
@@ -57,11 +58,11 @@ type FormData = {
   furnished: string | null; condition: string | null; availability: string;
   priceVisibility: 'publico' | 'sob_consulta';
   salePrice: Money; rentPrice: Money; condoFee: Money; iptu: Money;
-  acceptsFinancing: boolean; acceptsExchange: boolean; negotiable: boolean;
+  acceptsFinancing: boolean; acceptsMcmv: boolean; acceptsExchange: boolean; negotiable: boolean;
   videoUrl: string; tourUrl: string;
   shortDesc: string; fullDesc: string; amenities: string[]; nearby: string[];
-  advName: string; companyName: string; whatsapp: string; email: string;
-  contactPref: string; showPhone: boolean; leadEmail: string;
+  advName: string; companyName: string; whatsapp: string; phone: string; email: string;
+  contactMethods: ContactMethod[]; contactPref: string; showPhone: boolean; leadEmail: string;
 };
 type Photo = { id: string; url?: string; file?: File; preview?: string; low?: boolean };
 
@@ -73,10 +74,10 @@ function blank(defaults?: Defaults): FormData {
     builtArea: '', landArea: '', floor: '', condoName: '',
     furnished: null, condition: null, availability: 'disponivel',
     priceVisibility: 'publico', salePrice: '', rentPrice: '', condoFee: '', iptu: '',
-    acceptsFinancing: false, acceptsExchange: false, negotiable: true,
+    acceptsFinancing: false, acceptsMcmv: false, acceptsExchange: false, negotiable: true,
     videoUrl: '', tourUrl: '', shortDesc: '', fullDesc: '', amenities: [], nearby: [],
-    advName: defaults?.name ?? '', companyName: '', whatsapp: defaults?.whatsapp ?? '',
-    email: defaults?.email ?? '', contactPref: 'whatsapp', showPhone: true, leadEmail: '',
+    advName: titleCaseWords(defaults?.name ?? ''), companyName: '', whatsapp: defaults?.whatsapp ?? '', phone: '',
+    email: defaults?.email ?? '', contactMethods: ['whatsapp'], contactPref: 'whatsapp', showPhone: true, leadEmail: '',
   };
 }
 
@@ -86,6 +87,9 @@ function fromInitial(initial: any, defaults?: Defaults): FormData {
   const negotiation: FormData['negotiation'] = has('venda') && has('aluguel') ? 'ambos' : has('aluguel') ? 'aluguel' : 'venda';
   const priceOf = (k: string) => { const n = negs.find((x) => x.negotiation === k); return n && n.price != null ? Number(n.price) : ''; };
   const primary = negs.find((n) => n.is_primary) ?? negs[0];
+  const contactMethods: ContactMethod[] = Array.isArray(initial.contact_methods) && initial.contact_methods.length
+    ? initial.contact_methods
+    : [initial.contact_pref ?? 'whatsapp'];
   return {
     ...blank(defaults),
     negotiation,
@@ -102,13 +106,14 @@ function fromInitial(initial: any, defaults?: Defaults): FormData {
     priceVisibility: primary?.price_visibility === 'sob_consulta' ? 'sob_consulta' : 'publico',
     salePrice: priceOf('venda'), rentPrice: priceOf('aluguel'),
     condoFee: initial.condo_fee != null ? Number(initial.condo_fee) : '', iptu: initial.iptu != null ? Number(initial.iptu) : '',
-    acceptsFinancing: !!initial.accepts_financing, acceptsExchange: !!initial.accepts_exchange, negotiable: initial.negotiable !== false,
+    acceptsFinancing: !!initial.accepts_financing, acceptsMcmv: !!initial.accepts_mcmv, acceptsExchange: !!initial.accepts_exchange, negotiable: initial.negotiable !== false,
     videoUrl: initial.video_url ?? '', tourUrl: initial.tour_url ?? '',
     shortDesc: initial.short_description ?? '', fullDesc: initial.description ?? '',
     amenities: [], nearby: [], // preenchido depois pela divisão de features
-    advName: initial.contact_name ?? defaults?.name ?? '', companyName: initial.contact_company ?? '',
-    whatsapp: initial.contact_whatsapp ?? defaults?.whatsapp ?? '', email: initial.contact_email ?? defaults?.email ?? '',
-    contactPref: initial.contact_pref ?? 'whatsapp', showPhone: initial.show_phone !== false, leadEmail: initial.lead_email ?? '',
+    advName: titleCaseWords(initial.contact_name ?? defaults?.name ?? ''), companyName: titleCaseWords(initial.contact_company ?? ''),
+    whatsapp: initial.contact_whatsapp ?? defaults?.whatsapp ?? '', phone: initial.contact_phone ?? '',
+    email: initial.contact_email ?? defaults?.email ?? '',
+    contactMethods, contactPref: contactMethods[0] ?? 'whatsapp', showPhone: contactMethods.some((m) => m !== 'formulario'), leadEmail: initial.lead_email ?? '',
   };
 }
 
@@ -119,11 +124,20 @@ function fmtPhone(v: string) {
   if (x.length > 2) return `(${x.slice(0, 2)}) ${x.slice(2)}`;
   return x;
 }
+function fmtLandline(v: string) {
+  const x = onlyDigits(v).slice(0, 10);
+  if (x.length > 6) return `(${x.slice(0, 2)}) ${x.slice(2, 6)}-${x.slice(6)}`;
+  if (x.length > 2) return `(${x.slice(0, 2)}) ${x.slice(2)}`;
+  return x;
+}
 function fmtCep(v: string) {
   const x = onlyDigits(v).slice(0, 8);
   return x.length > 5 ? `${x.slice(0, 5)}-${x.slice(5)}` : x;
 }
 const moneyText = (n: Money) => (n === '' ? '' : brl(n));
+function titleCaseWords(v: string) {
+  return v.toLocaleLowerCase('pt-BR').replace(/(^|[\s([{'"-])(\p{L})/gu, (_, p: string, ch: string) => p + ch.toLocaleUpperCase('pt-BR'));
+}
 
 export function PropertyForm({
   types, cities, features, initial, defaults, ownerType,
@@ -210,7 +224,10 @@ export function PropertyForm({
     setErrors((e) => {
       const ne = { ...e }; delete ne[field as string];
       if (field === 'salePrice' || field === 'rentPrice') delete ne.price;
-      if (field === 'whatsapp' || field === 'email') delete ne.contact;
+      if (['whatsapp', 'phone', 'email', 'leadEmail', 'contactMethods'].includes(field as string)) {
+        delete ne.contact;
+        delete ne.leadEmail;
+      }
       return ne;
     });
   }
@@ -219,6 +236,26 @@ export function PropertyForm({
   const money = (field: 'salePrice' | 'rentPrice' | 'condoFee' | 'iptu') => (v: string) => {
     const dg = onlyDigits(v); up(field, dg ? parseInt(dg, 10) : '');
   };
+  function toggleContactMethod(value: ContactMethod) {
+    setData((d) => {
+      const contactMethods = d.contactMethods.includes(value)
+        ? d.contactMethods.filter((m) => m !== value)
+        : [...d.contactMethods, value];
+      return {
+        ...d,
+        contactMethods,
+        contactPref: contactMethods[0] ?? 'whatsapp',
+        showPhone: contactMethods.some((m) => m !== 'formulario'),
+      };
+    });
+    setSavedAt(Date.now());
+    setErrors((e) => {
+      const ne = { ...e };
+      delete ne.contact;
+      delete ne.leadEmail;
+      return ne;
+    });
+  }
 
   // ---- lookups ----
   const typeName = (id: string | null) => (id ? typeById.get(id)?.name ?? '' : '');
@@ -268,8 +305,12 @@ export function PropertyForm({
     if (s === 6 && !photos.length) e.photos = 'Adicione pelo menos uma foto do imóvel.';
     if (s === 8) {
       if (!data.advName.trim()) e.advName = 'Informe o nome para contato.';
-      if (!data.whatsapp && !data.email) e.contact = 'Informe um WhatsApp ou e-mail para receber contatos.';
+      if (!data.contactMethods.length) e.contact = 'Escolha ao menos uma forma de contato.';
+      if (data.contactMethods.includes('whatsapp') && !data.whatsapp) e.contact = 'Informe o WhatsApp para exibir esse contato.';
+      if (data.contactMethods.includes('telefone') && !data.phone) e.contact = 'Informe o telefone para exibir esse contato.';
+      if (data.contactMethods.includes('formulario') && !data.leadEmail) e.leadEmail = 'Informe o e-mail para receber os leads do formulário.';
       if (data.email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(data.email)) e.email = 'E-mail inválido.';
+      if (data.leadEmail && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(data.leadEmail)) e.leadEmail = 'E-mail para leads inválido.';
     }
     return e;
   }
@@ -377,10 +418,11 @@ export function PropertyForm({
       floor: data.floor ? Number(data.floor) : null, condoName: data.condoName,
       furnished: data.furnished, condition: data.condition, availability: data.availability,
       condoFee: data.condoFee === '' ? null : Number(data.condoFee), iptu: data.iptu === '' ? null : Number(data.iptu),
-      acceptsFinancing: data.acceptsFinancing, acceptsExchange: data.acceptsExchange, negotiable: data.negotiable,
+      acceptsFinancing: data.acceptsFinancing, acceptsMcmv: data.acceptsMcmv, acceptsExchange: data.acceptsExchange, negotiable: data.negotiable,
       videoUrl: data.videoUrl, tourUrl: data.tourUrl,
       contactName: data.advName, contactCompany: data.companyName, contactWhatsapp: data.whatsapp,
-      contactEmail: data.email, contactPref: data.contactPref, showPhone: data.showPhone, leadEmail: data.leadEmail,
+      contactPhone: data.phone, contactEmail: data.email, contactMethods: data.contactMethods,
+      contactPref: data.contactPref, showPhone: data.showPhone, leadEmail: data.leadEmail,
       negotiations: buildNegotiations(),
       featureIds: [...data.amenities, ...data.nearby],
       images, publish,
@@ -469,6 +511,7 @@ export function PropertyForm({
   const typeCard = (sel: boolean) => cn('flex flex-col items-start gap-2.5 rounded-2xl border p-3.5 text-left transition', sel ? 'border-primary bg-primary/5' : 'border-border bg-surface hover:border-primary');
   const pillCls = (sel: boolean) => cn('rounded-full border px-3.5 py-2 text-sm font-semibold transition', sel ? 'border-primary bg-primary text-on-primary' : 'border-border bg-surface text-text hover:border-primary');
   const chipCls = (sel: boolean) => cn('inline-flex items-center gap-1.5 rounded-full border px-3 py-2 text-sm font-medium transition', sel ? 'border-primary bg-primary/5 text-primary' : 'border-border bg-surface text-text hover:border-primary');
+  const contactOptionCls = (sel: boolean) => cn('flex items-center gap-3 rounded-xl border p-3 text-left transition', sel ? 'border-primary bg-primary/5 text-primary' : 'border-border bg-surface text-text hover:border-primary');
 
   const Lbl = ({ children, hint }: { children: ReactNode; hint?: 'req' | 'opt' }) => (
     <span className="mb-1.5 block text-[13px] font-semibold">
@@ -487,13 +530,34 @@ export function PropertyForm({
     furnished: [{ k: 'sim', l: 'Sim' }, { k: 'nao', l: 'Não' }, { k: 'parcial', l: 'Parcialmente' }],
     condition: [{ k: 'novo', l: 'Novo' }, { k: 'usado', l: 'Usado' }, { k: 'em_construcao', l: 'Em construção' }, { k: 'reformado', l: 'Reformado' }],
     availability: [{ k: 'disponivel', l: 'Disponível' }, { k: 'reservado', l: 'Reservado' }, { k: 'vendido', l: 'Vendido' }, { k: 'alugado', l: 'Alugado' }],
-    contactPref: [{ k: 'whatsapp', l: 'WhatsApp' }, { k: 'formulario', l: 'Formulário' }, { k: 'telefone', l: 'Telefone' }],
   };
-  const PillGroup = ({ field }: { field: 'furnished' | 'condition' | 'availability' | 'contactPref' }) => (
+  const PillGroup = ({ field }: { field: 'furnished' | 'condition' | 'availability' }) => (
     <div className="flex flex-wrap gap-2">
       {PILLS[field].map((o) => (
         <button key={o.k} type="button" onClick={() => up(field, o.k as any)} className={pillCls(data[field] === o.k)}>{o.l}</button>
       ))}
+    </div>
+  );
+  const ContactOptionGroup = () => (
+    <div className="grid gap-2.5 sm:grid-cols-3">
+      {([
+        { k: 'whatsapp', l: 'WhatsApp', I: MessageCircle },
+        { k: 'telefone', l: 'Telefone', I: Phone },
+        { k: 'formulario', l: 'Formulário', I: Mail },
+      ] as const).map((o) => {
+        const sel = data.contactMethods.includes(o.k);
+        return (
+          <button key={o.k} type="button" onClick={() => toggleContactMethod(o.k)} aria-pressed={sel} className={contactOptionCls(sel)}>
+            <span className={cn('flex h-9 w-9 shrink-0 items-center justify-center rounded-lg', sel ? 'bg-primary text-on-primary' : 'bg-subtle text-primary')}>
+              <o.I size={18} />
+            </span>
+            <span className="flex min-w-0 flex-1 items-center justify-between gap-2 text-sm font-semibold">
+              {o.l}
+              {sel && <Check size={16} className="shrink-0" />}
+            </span>
+          </button>
+        );
+      })}
     </div>
   );
 
@@ -761,7 +825,12 @@ export function PropertyForm({
                 <label className="block"><Lbl hint="opt">IPTU anual</Lbl><input className={inputCls} value={moneyText(data.iptu)} onChange={(e) => money('iptu')(e.target.value)} placeholder="R$ 0" inputMode="numeric" /></label>
               </div>
               <div className="rounded-2xl border border-border bg-subtle px-1 py-1.5">
-                {([{ f: 'acceptsFinancing', l: 'Aceita financiamento' }, { f: 'acceptsExchange', l: 'Aceita permuta' }, { f: 'negotiable', l: 'Preço negociável' }] as const).map((o, i) => (
+                {([
+                  { f: 'acceptsFinancing', l: 'Aceita financiamento' },
+                  { f: 'acceptsMcmv', l: 'Aceita Minha Casa Minha Vida' },
+                  { f: 'acceptsExchange', l: 'Aceita permuta' },
+                  { f: 'negotiable', l: 'Preço negociável' },
+                ] as const).map((o, i) => (
                   <button key={o.f} type="button" onClick={() => up(o.f, !data[o.f])} className={cn('flex w-full items-center justify-between px-3 py-2.5', i > 0 && 'border-t border-border')}>
                     <span className="text-sm font-medium">{o.l}</span><Switch on={data[o.f]} />
                   </button>
@@ -840,21 +909,23 @@ export function PropertyForm({
           {step === 8 && (
             <div className="flex flex-col gap-4">
               <div className="grid gap-3.5 sm:grid-cols-2">
-                <label className="block"><Lbl hint="req">Nome para contato</Lbl><input className={inputCls} value={data.advName} onChange={(e) => up('advName', e.target.value)} placeholder="Seu nome ou da imobiliária" /><Err msg={errors.advName} /></label>
-                <label className="block"><Lbl hint="opt">Empresa</Lbl><input className={inputCls} value={data.companyName} onChange={(e) => up('companyName', e.target.value)} placeholder="Nome da imobiliária / construtora" /></label>
+                <label className="block"><Lbl hint="req">Nome para contato</Lbl><input className={inputCls} value={data.advName} onChange={(e) => up('advName', titleCaseWords(e.target.value))} placeholder="Seu nome ou da imobiliária" /><Err msg={errors.advName} /></label>
+                <label className="block"><Lbl hint="opt">Empresa</Lbl><input className={inputCls} value={data.companyName} onChange={(e) => up('companyName', titleCaseWords(e.target.value))} placeholder="Nome da imobiliária / construtora" /></label>
+              </div>
+              <div>
+                <Lbl>Contato que aparece no anúncio</Lbl>
+                <ContactOptionGroup />
               </div>
               <div className="grid gap-3.5 sm:grid-cols-2">
-                <label className="block"><Lbl>WhatsApp</Lbl><input className={inputCls} value={data.whatsapp} onChange={(e) => up('whatsapp', fmtPhone(e.target.value))} placeholder="(77) 90000-0000" inputMode="tel" /></label>
+                <label className="block"><Lbl hint={data.contactMethods.includes('whatsapp') ? 'req' : 'opt'}>WhatsApp</Lbl><input className={inputCls} value={data.whatsapp} onChange={(e) => up('whatsapp', fmtPhone(e.target.value))} placeholder="(77) 90000-0000" inputMode="tel" /></label>
+                <label className="block"><Lbl hint={data.contactMethods.includes('telefone') ? 'req' : 'opt'}>Telefone</Lbl><input className={inputCls} value={data.phone} onChange={(e) => up('phone', fmtLandline(e.target.value))} placeholder="(77) 0000-0000" inputMode="tel" /></label>
+              </div>
+              <div className="grid gap-3.5 sm:grid-cols-2">
                 <label className="block"><Lbl>E-mail</Lbl><input className={inputCls} value={data.email} onChange={(e) => up('email', e.target.value)} placeholder="voce@email.com" inputMode="email" /><Err msg={errors.email} /></label>
+                <label className="block"><Lbl hint={data.contactMethods.includes('formulario') ? 'req' : 'opt'}>E-mail para receber leads</Lbl><input className={inputCls} value={data.leadEmail} onChange={(e) => up('leadEmail', e.target.value)} placeholder="Para onde enviamos os contatos recebidos" inputMode="email" /><Err msg={errors.leadEmail} /></label>
               </div>
               <Err msg={errors.contact} />
-              <div><Lbl>Como prefere receber contatos?</Lbl><PillGroup field="contactPref" /></div>
-              <button type="button" onClick={() => up('showPhone', !data.showPhone)} className="flex w-full items-center justify-between rounded-2xl border border-border bg-subtle p-3.5 text-left">
-                <span className="flex flex-col gap-0.5"><span className="text-[13.5px] font-semibold">Exibir telefone / WhatsApp no anúncio</span><span className="text-xs text-muted">Se desativado, os interessados falam só pelo formulário de contato.</span></span>
-                <Switch on={data.showPhone} />
-              </button>
-              <label className="block"><Lbl hint="opt">E-mail para receber leads</Lbl><input className={inputCls} value={data.leadEmail} onChange={(e) => up('leadEmail', e.target.value)} placeholder="Para onde enviamos os contatos recebidos" /></label>
-              <div className="flex gap-2.5 rounded-2xl border border-primary/20 bg-primary/5 p-3.5"><Info size={16} className="mt-0.5 shrink-0 text-primary" /><span className="text-[12.5px] leading-relaxed">Esses dados geram o botão de WhatsApp e o formulário de contato na página do imóvel.</span></div>
+              <div className="flex gap-2.5 rounded-2xl border border-primary/20 bg-primary/5 p-3.5"><Info size={16} className="mt-0.5 shrink-0 text-primary" /><span className="text-[12.5px] leading-relaxed">As opções selecionadas definem quais botões e formulário aparecem na página do imóvel.</span></div>
             </div>
           )}
 

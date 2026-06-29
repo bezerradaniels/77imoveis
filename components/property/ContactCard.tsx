@@ -22,10 +22,11 @@ export type ContactCardProps = {
   anunciante?: string;
   advertiserLogo?: string | null;
   acceptsFinancing?: boolean;
+  acceptsMcmv?: boolean;
   acceptsExchange?: boolean;
   wa?: string | null;
-  waVisit?: string | null;
   phone?: string | null;
+  showLeadForm?: boolean;
   slug: string;
   title: string;
 };
@@ -38,10 +39,11 @@ export function ContactCard({
   anunciante,
   advertiserLogo,
   acceptsFinancing,
+  acceptsMcmv,
   acceptsExchange,
   wa,
-  waVisit,
   phone,
+  showLeadForm,
   slug,
   title,
 }: ContactCardProps) {
@@ -52,9 +54,13 @@ export function ContactCard({
     .slice(0, 2)
     .join('')
     .toUpperCase();
-  const chips = [acceptsFinancing && 'Aceita financiamento', acceptsExchange && 'Aceita permuta'].filter(
-    Boolean,
-  ) as string[];
+  const chips = [
+    acceptsFinancing && 'Aceita financiamento',
+    acceptsMcmv && 'Aceita Minha Casa Minha Vida',
+    acceptsExchange && 'Aceita permuta',
+  ].filter(Boolean) as string[];
+  const hasDirectContact = !!wa || !!phone;
+  const shouldShowLeadForm = showLeadForm || !hasDirectContact;
 
   return (
     <div className="overflow-hidden rounded-2xl border border-border bg-surface shadow-[0_18px_44px_-22px_rgba(15,40,30,0.4)]">
@@ -102,11 +108,13 @@ export function ContactCard({
 
       {/* CTAs + formulário */}
       <div className="space-y-4 p-5">
-        <ContactActions wa={wa} waVisit={waVisit} phone={phone} slug={slug} />
-        <div className="border-t border-border pt-4">
-          <p className="mb-3 text-sm font-semibold">Solicitar mais informações</p>
-          <LeadForm slug={slug} title={title} />
-        </div>
+        {hasDirectContact && <ContactActions wa={wa} phone={phone} slug={slug} />}
+        {shouldShowLeadForm && (
+          <div className={hasDirectContact ? 'border-t border-border pt-4' : ''}>
+            <p className="mb-3 text-sm font-semibold">Solicitar mais informações</p>
+            <LeadForm slug={slug} title={title} />
+          </div>
+        )}
         <p className="flex items-center justify-center gap-1.5 text-[11px] text-muted">
           <Lock size={12} /> Seus dados são protegidos e não ficam públicos.
         </p>
