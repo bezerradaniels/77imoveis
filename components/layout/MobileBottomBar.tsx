@@ -15,7 +15,7 @@ const items = [
 // (lá a barra de contato assume o rodapé).
 export function MobileBottomBar() {
   const pathname = usePathname();
-  if (pathname.startsWith('/imovel/')) return null;
+  if (pathname.startsWith('/imovel/') || pathname.startsWith('/painel')) return null;
 
   return (
     <nav className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-4 border-t border-border bg-surface md:hidden">

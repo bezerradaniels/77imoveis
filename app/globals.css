@@ -48,10 +48,14 @@ body {
   letter-spacing: 0;
 }
 
-@media (min-width: 1024px) {
-  body:has([data-painel-shell]) footer {
-    margin-left: 16rem;
-  }
+body:has([data-painel-shell]) {
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+body:has([data-painel-shell]) > header,
+body:has([data-painel-shell]) > footer {
+  display: none;
 }
 
 ::selection { background: #bae6fd; color: #0f172a; }

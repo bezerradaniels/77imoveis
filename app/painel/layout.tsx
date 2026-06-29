@@ -32,7 +32,7 @@ export default async function PainelLayout({ children }: { children: React.React
 
   return (
     <>
-      <aside className="fixed bottom-0 left-0 top-[65px] z-30 hidden w-64 overflow-hidden bg-slate-200 text-slate-900 lg:flex lg:flex-col">
+      <aside className="fixed bottom-0 left-0 top-0 z-30 hidden w-64 overflow-hidden bg-slate-200 text-slate-900 lg:flex lg:flex-col">
         <div className="flex h-full flex-col gap-5 px-4 py-6">
           <div>
             <p className="text-lg font-bold leading-tight">Olá, {nome}</p>
@@ -84,7 +84,7 @@ export default async function PainelLayout({ children }: { children: React.React
         </div>
       </aside>
 
-      <div data-painel-shell className="bg-slate-100 dark:bg-bg lg:min-h-screen lg:pl-64">
+      <div data-painel-shell className="min-h-screen bg-slate-100 dark:bg-bg lg:pl-64">
         {children}
       </div>
     </>

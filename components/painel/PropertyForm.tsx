@@ -3,10 +3,8 @@ import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
-  AlertTriangle, ArrowLeft, ArrowRight, Bath, BedDouble, Briefcase, Building, Building2, Car,
-  Check, ChevronLeft, ChevronRight, DoorOpen, Eye, EyeOff, Home, Info, KeyRound, Layers, Loader2,
-  Mail, MapPin, MessageCircle, Minus, Pencil, Phone, Plus, Ruler, Sparkles, Square, Store, Tag, Tractor, Trees,
-  Upload, Warehouse, X,
+  AlertTriangle, ArrowLeft, Bath, BedDouble, Car, Check, ChevronLeft, ChevronRight, DoorOpen, Eye, EyeOff,
+  Info, Loader2, MapPin, Minus, Pencil, Plus, Ruler, Sparkles, Upload, X,
 } from 'lucide-react';
 import { cn } from '@/lib/cn';
 import { brl } from '@/lib/format';
@@ -22,12 +20,6 @@ type ContactMethod = 'whatsapp' | 'telefone' | 'formulario';
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
 const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/avif'];
 const DRAFT_KEY = 'publicar_imovel_draft';
-
-const TYPE_ICON: Record<string, typeof Home> = {
-  casa: Home, apartamento: Building, cobertura: Building2, kitnet: DoorOpen, condominio: Building2,
-  'sala-comercial': Briefcase, loja: Store, galpao: Warehouse, terreno: Square, lote: Square,
-  chacara: Trees, fazenda: Tractor,
-};
 
 const STEPS = [
   { n: 1, label: 'Objetivo' }, { n: 2, label: 'Tipo' }, { n: 3, label: 'Local' }, { n: 4, label: 'Detalhes' },
@@ -506,12 +498,20 @@ export function PropertyForm({
   // ---- shared classes ----
   const inputCls = 'h-11 w-full rounded-[11px] border border-border bg-surface px-3 text-[14.5px] outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/30';
   const taCls = 'w-full resize-y rounded-[11px] border border-border bg-surface p-3 text-[14.5px] leading-relaxed outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/30';
-  const bigCard = (sel: boolean) => cn('flex w-full items-center gap-3 rounded-2xl border p-3.5 text-left transition', sel ? 'border-primary bg-primary/5' : 'border-border bg-surface hover:border-primary');
-  const iconBox = (sel: boolean) => cn('flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border', sel ? 'border-primary/40 bg-surface text-primary' : 'border-border bg-subtle text-text');
-  const typeCard = (sel: boolean) => cn('flex flex-col items-start gap-2.5 rounded-2xl border p-3.5 text-left transition', sel ? 'border-primary bg-primary/5' : 'border-border bg-surface hover:border-primary');
-  const pillCls = (sel: boolean) => cn('rounded-full border px-3.5 py-2 text-sm font-semibold transition', sel ? 'border-primary bg-primary text-on-primary' : 'border-border bg-surface text-text hover:border-primary');
+  const bigCard = (sel: boolean) => cn('flex min-h-14 w-full items-center gap-2.5 rounded-2xl border px-4 py-3 text-left transition', sel ? 'border-primary bg-primary/5' : 'border-border bg-surface hover:border-primary');
+  const typeCard = (sel: boolean) => cn('flex min-h-14 items-center gap-2.5 rounded-2xl border px-4 py-3 text-left transition', sel ? 'border-primary bg-primary/5' : 'border-border bg-surface hover:border-primary');
   const chipCls = (sel: boolean) => cn('inline-flex items-center gap-1.5 rounded-full border px-3 py-2 text-sm font-medium transition', sel ? 'border-primary bg-primary/5 text-primary' : 'border-border bg-surface text-text hover:border-primary');
-  const contactOptionCls = (sel: boolean) => cn('flex items-center gap-3 rounded-xl border p-3 text-left transition', sel ? 'border-primary bg-primary/5 text-primary' : 'border-border bg-surface text-text hover:border-primary');
+  const contactOptionCls = (sel: boolean) => cn('flex min-h-12 items-center gap-2.5 rounded-xl border px-3 py-2.5 text-left transition', sel ? 'border-primary bg-primary/5 text-primary' : 'border-border bg-surface text-text hover:border-primary');
+  const Radial = ({ sel }: { sel: boolean }) => (
+    <span
+      className={cn(
+        'flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 transition',
+        sel ? 'border-[#4ade80] bg-[#4ade80] text-white' : 'border-border bg-surface',
+      )}
+    >
+      {sel && <Check size={13} strokeWidth={3} />}
+    </span>
+  );
 
   const Lbl = ({ children, hint }: { children: ReactNode; hint?: 'req' | 'opt' }) => (
     <span className="mb-1.5 block text-[13px] font-semibold">
@@ -531,30 +531,24 @@ export function PropertyForm({
     condition: [{ k: 'novo', l: 'Novo' }, { k: 'usado', l: 'Usado' }, { k: 'em_construcao', l: 'Em construção' }, { k: 'reformado', l: 'Reformado' }],
     availability: [{ k: 'disponivel', l: 'Disponível' }, { k: 'reservado', l: 'Reservado' }, { k: 'vendido', l: 'Vendido' }, { k: 'alugado', l: 'Alugado' }],
   };
-  const PillGroup = ({ field }: { field: 'furnished' | 'condition' | 'availability' }) => (
-    <div className="flex flex-wrap gap-2">
-      {PILLS[field].map((o) => (
-        <button key={o.k} type="button" onClick={() => up(field, o.k as any)} className={pillCls(data[field] === o.k)}>{o.l}</button>
-      ))}
-    </div>
+  const SelectGroup = ({ field, placeholder = 'Selecione' }: { field: 'furnished' | 'condition' | 'availability'; placeholder?: string }) => (
+    <select className={inputCls} value={data[field] ?? ''} onChange={(e) => up(field, (e.target.value || null) as any)}>
+      <option value="">{placeholder}</option>
+      {PILLS[field].map((o) => <option key={o.k} value={o.k}>{o.l}</option>)}
+    </select>
   );
   const ContactOptionGroup = () => (
     <div className="grid gap-2.5 sm:grid-cols-3">
       {([
-        { k: 'whatsapp', l: 'WhatsApp', I: MessageCircle },
-        { k: 'telefone', l: 'Telefone', I: Phone },
-        { k: 'formulario', l: 'Formulário', I: Mail },
+        { k: 'whatsapp', l: 'WhatsApp' },
+        { k: 'telefone', l: 'Telefone' },
+        { k: 'formulario', l: 'Formulário' },
       ] as const).map((o) => {
         const sel = data.contactMethods.includes(o.k);
         return (
           <button key={o.k} type="button" onClick={() => toggleContactMethod(o.k)} aria-pressed={sel} className={contactOptionCls(sel)}>
-            <span className={cn('flex h-9 w-9 shrink-0 items-center justify-center rounded-lg', sel ? 'bg-primary text-on-primary' : 'bg-subtle text-primary')}>
-              <o.I size={18} />
-            </span>
-            <span className="flex min-w-0 flex-1 items-center justify-between gap-2 text-sm font-semibold">
-              {o.l}
-              {sel && <Check size={16} className="shrink-0" />}
-            </span>
+            <Radial sel={sel} />
+            <span className="min-w-0 flex-1 truncate text-sm font-semibold">{o.l}</span>
           </button>
         );
       })}
@@ -622,30 +616,33 @@ export function PropertyForm({
   }
 
   return (
-    <div className="mx-auto max-w-5xl px-4 pb-32 pt-4">
+    <div className="mx-auto max-w-5xl px-4 pb-10 pt-4">
       <Link href="/painel/imoveis" className="mb-3 inline-flex items-center gap-1 text-sm text-muted hover:text-text"><ArrowLeft size={15} /> Meus imóveis</Link>
 
       {/* progresso */}
-      <div className="sticky top-[65px] z-10 -mx-4 border-b border-border bg-bg/95 px-4 pb-2 pt-3 backdrop-blur">
-        <div className="mb-2 flex items-center justify-between">
-          <span className="text-[13px] font-bold">Etapa {step} de 9</span>
-          <span className="text-xs text-muted">{savedLabel}</span>
-        </div>
-        <div className="h-[5px] overflow-hidden rounded-full bg-subtle">
-          <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${((step - 1) / 8) * 100}%` }} />
-        </div>
-        <div className="no-scrollbar flex items-start gap-1 overflow-x-auto py-2.5">
-          {STEPS.map((s) => {
-            const done = s.n < step, cur = s.n === step;
-            return (
-              <button key={s.n} type="button" onClick={() => (s.n < step ? goStep(s.n) : undefined)} className="flex min-w-[44px] flex-1 flex-col items-center gap-1.5">
-                <span className={cn('flex h-[26px] w-[26px] items-center justify-center rounded-full border text-xs font-bold', done || cur ? 'border-primary bg-primary text-on-primary' : 'border-border bg-surface text-muted')}>
-                  {done ? <Check size={14} /> : s.n}
-                </span>
-                <span className={cn('text-[11px]', cur ? 'font-bold text-text' : 'text-muted')}>{s.label}</span>
-              </button>
-            );
-          })}
+      <div className="sticky top-0 z-10 -mx-4 border-b border-border bg-bg/95 px-4 py-3 backdrop-blur">
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex flex-1 items-center justify-center gap-3 sm:gap-4">
+            {STEPS.map((s) => {
+              const done = s.n < step, cur = s.n === step;
+              return (
+                <button
+                  key={s.n}
+                  type="button"
+                  aria-label={`Ir para ${s.label}`}
+                  onClick={() => (done ? goStep(s.n) : undefined)}
+                  disabled={!done}
+                  className={cn(
+                    'h-3 w-3 rounded-full transition sm:h-3.5 sm:w-3.5',
+                    done && 'bg-[#4ade80] hover:scale-110',
+                    cur && 'bg-[#4ade80] ring-4 ring-[#4ade80]/20',
+                    !done && !cur && 'bg-border',
+                  )}
+                />
+              );
+            })}
+          </div>
+          {savedLabel && <span className="hidden text-xs text-muted sm:block">{savedLabel}</span>}
         </div>
       </div>
 
@@ -669,16 +666,13 @@ export function PropertyForm({
               <section>
                 <div className="text-[13px] font-bold">O que você deseja anunciar?</div>
                 <div className="mb-3 mt-0.5 text-[12.5px] text-muted">Venda, aluguel ou ambos.</div>
-                <div className="flex flex-col gap-2.5">
-                  {([{ k: 'venda', l: 'Vender', d: 'Anunciar o imóvel para venda', I: Tag }, { k: 'aluguel', l: 'Alugar', d: 'Anunciar para locação', I: KeyRound }, { k: 'ambos', l: 'Vender ou alugar', d: 'Aceito as duas opções', I: Layers }] as const).map((o) => {
+                <div className="grid gap-2.5 lg:grid-cols-3">
+                  {([{ k: 'venda', l: 'Vender' }, { k: 'aluguel', l: 'Alugar' }, { k: 'ambos', l: 'Vender ou alugar' }] as const).map((o) => {
                     const sel = data.negotiation === o.k;
                     return (
                       <button key={o.k} type="button" onClick={() => up('negotiation', o.k)} aria-pressed={sel} className={bigCard(sel)}>
-                        <span className={iconBox(sel)}><o.I size={22} /></span>
-                        <span className="flex flex-col gap-0.5">
-                          <span className="text-[15px] font-semibold">{o.l}</span>
-                          <span className="text-[12.5px] text-muted">{o.d}</span>
-                        </span>
+                        <Radial sel={sel} />
+                        <span className="min-w-0 truncate text-[15px] font-semibold">{o.l}</span>
                       </button>
                     );
                   })}
@@ -703,11 +697,10 @@ export function PropertyForm({
               <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3">
                 {types.map((t) => {
                   const sel = data.propertyTypeId === t.id;
-                  const I = TYPE_ICON[t.slug] ?? Home;
                   return (
                     <button key={t.id} type="button" onClick={() => up('propertyTypeId', t.id)} aria-pressed={sel} className={typeCard(sel)}>
-                      <span className={iconBox(sel)}><I size={22} /></span>
-                      <span className="text-[13.5px] font-semibold">{t.name}</span>
+                      <Radial sel={sel} />
+                      <span className="min-w-0 truncate text-[13.5px] font-semibold">{t.name}</span>
                     </button>
                   );
                 })}
@@ -779,7 +772,7 @@ export function PropertyForm({
                 </div>
               )}
 
-              <div className="grid gap-3.5 sm:grid-cols-2">
+              <div className={cn('grid gap-3.5', showBuilt && 'grid-cols-2')}>
                 {showBuilt && (
                   <label className="block"><Lbl>Área construída</Lbl>
                     <span className="relative block"><input className={cn(inputCls, 'pr-10')} value={data.builtArea} onChange={(e) => up('builtArea', e.target.value.replace(/[^0-9.,]/g, ''))} placeholder="0" inputMode="decimal" /><span className="absolute right-3 top-1/2 -translate-y-1/2 text-[13px] text-muted">m²</span></span>
@@ -797,9 +790,11 @@ export function PropertyForm({
                 </div>
               )}
 
-              <div><Lbl>Mobiliado?</Lbl><PillGroup field="furnished" /></div>
-              <div><Lbl>Estado do imóvel</Lbl><PillGroup field="condition" /></div>
-              <div><Lbl>Disponibilidade</Lbl><PillGroup field="availability" /></div>
+              <div className="grid gap-3.5 sm:grid-cols-3">
+                <label className="block"><Lbl>Mobiliado?</Lbl><SelectGroup field="furnished" /></label>
+                <label className="block"><Lbl>Estado do imóvel</Lbl><SelectGroup field="condition" /></label>
+                <label className="block"><Lbl>Disponibilidade</Lbl><SelectGroup field="availability" /></label>
+              </div>
             </div>
           )}
 
@@ -969,15 +964,29 @@ export function PropertyForm({
         {showPreview && <aside className="sticky top-44 hidden lg:block">{livePreview(true)}</aside>}
       </div>
 
-      {/* barra de ações */}
-      <div className="fixed inset-x-0 bottom-0 z-20 flex items-center gap-2.5 border-t border-border bg-bg/95 px-4 py-3 backdrop-blur lg:pl-[calc(16rem+1rem)]">
-        <div className="mx-auto flex w-full max-w-5xl items-center gap-2.5">
-          {step !== 1 && <button type="button" onClick={goBack} className="flex h-[46px] items-center gap-1 rounded-xl border border-border bg-surface px-4 text-sm font-semibold"><ChevronLeft size={16} />Voltar</button>}
-          <button type="button" onClick={saveDraft} disabled={busy} className="h-[46px] whitespace-nowrap rounded-xl border border-border bg-surface px-3.5 text-[13.5px] font-semibold text-muted disabled:opacity-50">Salvar rascunho</button>
+      {/* ações */}
+      <div className="mt-8 border-t border-border pt-4">
+        <div className="flex flex-col gap-2.5 sm:flex-row sm:items-center sm:justify-end">
           {step !== 9 ? (
-            <button type="button" onClick={goNext} className="flex h-[46px] flex-1 items-center justify-center gap-1 rounded-xl bg-primary text-[14.5px] font-semibold text-on-primary">Continuar<ChevronRight size={16} /></button>
+            <button type="button" onClick={goNext} className="order-1 flex h-[46px] items-center justify-center gap-1 rounded-xl bg-primary px-5 text-[14.5px] font-semibold text-on-primary sm:order-3 sm:min-w-44">
+              Continuar<ChevronRight size={16} />
+            </button>
           ) : (
-            <button type="button" onClick={publish} disabled={busy} className="flex h-[46px] flex-1 items-center justify-center gap-2 rounded-xl bg-primary text-[14.5px] font-bold text-on-primary disabled:opacity-60">{busy && <Loader2 size={16} className="animate-spin" />}Publicar imóvel</button>
+            <button type="button" onClick={publish} disabled={busy} className="order-1 flex h-[46px] items-center justify-center gap-2 rounded-xl bg-primary px-5 text-[14.5px] font-bold text-on-primary disabled:opacity-60 sm:order-3 sm:min-w-44">
+              {busy && <Loader2 size={16} className="animate-spin" />}Publicar imóvel
+            </button>
+          )}
+          <button type="button" onClick={saveDraft} disabled={busy} className="order-2 h-[46px] whitespace-nowrap rounded-xl border border-border bg-surface px-4 text-[13.5px] font-semibold text-muted disabled:opacity-50 sm:order-2">
+            Salvar rascunho
+          </button>
+          {step === 1 ? (
+            <Link href="/painel/imoveis" className="order-3 flex h-[46px] items-center justify-center gap-1 rounded-xl border border-border bg-surface px-4 text-sm font-semibold sm:order-1">
+              <ChevronLeft size={16} />Voltar
+            </Link>
+          ) : (
+            <button type="button" onClick={goBack} className="order-3 flex h-[46px] items-center justify-center gap-1 rounded-xl border border-border bg-surface px-4 text-sm font-semibold sm:order-1">
+              <ChevronLeft size={16} />Voltar
+            </button>
           )}
         </div>
       </div>
