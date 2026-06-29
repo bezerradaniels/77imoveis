@@ -1,4 +1,8 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
+import { Building2, CreditCard, Home, LogOut, MessageSquare, Plus, Shield, Store } from 'lucide-react';
+import { getProfile } from '@/lib/auth';
+import { logout } from './actions';
 
 // Área logada (painel do anunciante): nunca deve ser indexada por buscadores.
 // Definir aqui cobre TODAS as páginas filhas (/painel/*) de uma só vez.
@@ -6,6 +10,83 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false, nocache: true },
 };
 
-export default function PainelLayout({ children }: { children: React.ReactNode }) {
-  return <>{children}</>;
+const sidebarItems = [
+  { href: '/painel/imoveis', label: 'Meus imóveis', icon: Home },
+  { href: '/painel/contatos', label: 'Contatos recebidos', icon: MessageSquare },
+  { href: '/painel/empresa', label: 'Perfil profissional', icon: Building2 },
+  { href: '/painel/vitrine', label: 'Minha vitrine', icon: Store },
+  { href: '/painel/planos', label: 'Planos e upgrade', icon: CreditCard },
+];
+
+const roleLabel: Record<string, string> = {
+  particular: 'Particular',
+  profissional: 'Profissional',
+  admin: 'Administrador',
+  moderador: 'Moderador',
+};
+
+export default async function PainelLayout({ children }: { children: React.ReactNode }) {
+  const profile = await getProfile();
+  const showAdmin = ['admin', 'moderador'].includes(profile?.role ?? '');
+  const nome = profile?.full_name?.split(' ')[0] ?? 'bem-vindo';
+
+  return (
+    <>
+      <aside className="fixed bottom-0 left-0 top-[65px] z-30 hidden w-64 overflow-hidden bg-slate-200 text-slate-900 lg:flex lg:flex-col">
+        <div className="flex h-full flex-col gap-5 px-4 py-6">
+          <div>
+            <p className="text-lg font-bold leading-tight">Olá, {nome}</p>
+            <p className="mt-1 text-sm font-medium text-slate-600">Conta {roleLabel[profile?.role ?? 'particular']}</p>
+          </div>
+
+          <Link
+            href="/painel/imoveis/novo"
+            className="inline-flex items-center justify-center gap-2 rounded-[10px] border border-primary bg-[#e0f2fe] px-3 py-2 text-sm font-bold text-primary hover:bg-[#bae6fd]"
+          >
+            <Plus size={16} /> Novo anúncio
+          </Link>
+
+          <nav className="space-y-1" aria-label="Navegação do painel">
+            {sidebarItems.map((item) => {
+              const Icon = item.icon;
+
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className="flex items-center gap-3 rounded-[10px] px-3 py-2 text-sm font-semibold text-slate-900 transition hover:bg-white/65"
+                >
+                  <Icon size={18} className="text-primary" />
+                  {item.label}
+                </Link>
+              );
+            })}
+            {showAdmin && (
+              <Link
+                href="/admin"
+                className="flex items-center gap-3 rounded-[10px] px-3 py-2 text-sm font-semibold text-slate-900 transition hover:bg-white/65"
+              >
+                <Shield size={18} className="text-primary" />
+                Administração
+              </Link>
+            )}
+          </nav>
+
+          <form action={logout} className="mt-auto">
+            <button
+              type="submit"
+              className="flex w-full items-center gap-3 rounded-[10px] px-3 py-2 text-left text-sm font-semibold text-slate-900 transition hover:bg-white/65"
+            >
+              <LogOut size={18} className="text-primary" />
+              Sair
+            </button>
+          </form>
+        </div>
+      </aside>
+
+      <div data-painel-shell className="bg-slate-100 dark:bg-bg lg:min-h-screen lg:pl-64">
+        {children}
+      </div>
+    </>
+  );
 }

@@ -5,9 +5,35 @@ import { companyTypes } from '@/lib/constants';
 import { weekDays } from './useCompanyForm';
 
 type Opt = { id: string; name: string };
-export const selectCls = 'h-11 w-full rounded-lg border border-border bg-surface px-3 text-sm';
+export const selectCls = 'h-11 w-full rounded-lg border border-border bg-white px-3 text-sm';
 
-const quickTypes = ['imobiliaria', 'corretor_autonomo', 'construtora'];
+function phoneMask(value: string) {
+  const d = value.replace(/\D/g, '').slice(0, 11);
+  if (d.length <= 2) return d;
+  if (d.length <= 6) return `(${d.slice(0, 2)}) ${d.slice(2)}`;
+  if (d.length <= 10) return `(${d.slice(0, 2)}) ${d.slice(2, 6)}-${d.slice(6)}`;
+  return `(${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7)}`;
+}
+
+function instagramUsername(value: string) {
+  const raw = value.trim();
+  if (!raw) return '';
+  const withoutAt = raw.replace(/^@/, '');
+  try {
+    const url = new URL(withoutAt.startsWith('http') ? withoutAt : `https://${withoutAt}`);
+    if (url.hostname.includes('instagram.com')) {
+      return (url.pathname.split('/').filter(Boolean)[0] ?? '').replace(/^@/, '');
+    }
+  } catch {}
+  return withoutAt
+    .replace(/^instagram\.com\//, '')
+    .split(/[/?#]/)[0]
+    .replace(/^@/, '');
+}
+
+function cleanEmail(value: string) {
+  return value.trim().toLowerCase().replace(/\s/g, '');
+}
 
 export function TypeSection({ value, onChange }: { value: string; onChange: (v: string) => void }) {
   const quickTypes = [
@@ -25,7 +51,7 @@ export function TypeSection({ value, onChange }: { value: string; onChange: (v: 
 
   return (
     <div className="space-y-4 max-w-xl">
-      <div className="space-y-3">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         {quickTypes.map((t) => {
           const active = value === t.value;
           return (
@@ -33,10 +59,10 @@ export function TypeSection({ value, onChange }: { value: string; onChange: (v: 
               key={t.value}
               type="button"
               onClick={() => onChange(t.value)}
-              className={`w-full flex items-center justify-between p-4 rounded-xl border text-left transition-all ${
+              className={`flex w-full items-center justify-between rounded-xl border p-3 text-left transition-all ${
                 active
                   ? 'border-primary bg-primary/5 ring-1 ring-primary'
-                  : 'border-border bg-surface hover:bg-bg'
+                  : 'border-border bg-white hover:bg-bg'
               }`}
             >
               <div>
@@ -68,10 +94,10 @@ export function TypeSection({ value, onChange }: { value: string; onChange: (v: 
               onChange('outro');
             }
           }}
-          className={`w-full flex items-center justify-between p-4 rounded-xl border text-left transition-all ${
+          className={`flex w-full items-center justify-between rounded-xl border p-3 text-left transition-all ${
             isOther || value === 'outro'
               ? 'border-primary bg-primary/5 ring-1 ring-primary'
-              : 'border-border bg-surface hover:bg-bg'
+              : 'border-border bg-white hover:bg-bg'
           }`}
         >
           <div>
@@ -144,24 +170,16 @@ export function DataSection({
   if (isWizard) {
     return (
       <section className="space-y-4 max-w-xl">
-        <Field label="Nome da empresa *">
+        <Field label="Nome de exibição *">
           <Input
             value={f.tradeName}
             onChange={(e) => set('tradeName', e.target.value)}
             placeholder="Ex.: Mel Imob"
           />
-          <p className="mt-1 text-xs text-muted">Nome como sua empresa aparece nos anúncios.</p>
+          <p className="mt-1 text-xs text-muted">Será usado como nome da empresa nos anúncios e no perfil público.</p>
         </Field>
 
-        <Field label="CNPJ · opcional">
-          <Input
-            value={f.cnpj}
-            onChange={(e) => set('cnpj', e.target.value)}
-            placeholder="00.000.000/0000-00"
-          />
-        </Field>
-
-        <Field label="CRECI · opcional">
+        <Field label="CRECI">
           <Input
             value={f.creci}
             onChange={(e) => set('creci', e.target.value)}
@@ -209,6 +227,23 @@ export function DataSection({
               </div>
             )}
           </div>
+        </Field>
+
+        <Field
+          label={
+            <div className="flex w-full items-center justify-between">
+              <span>Descrição</span>
+              <span className="text-xs font-normal text-muted">{(f.description?.length || 0)}/600</span>
+            </div>
+          }
+        >
+          <textarea
+            className="min-h-32 w-full rounded-lg border border-border bg-white p-3 text-sm outline-none transition focus:ring-2 focus:ring-primary"
+            value={f.description}
+            onChange={(e) => set('description', e.target.value.slice(0, 600))}
+            placeholder="Conte sobre sua empresa, diferenciais e formas de atendimento."
+            maxLength={600}
+          />
         </Field>
       </section>
     );
@@ -295,7 +330,7 @@ export function CitiesSection({
         )}
       </div>
 
-      <div className="flex flex-wrap gap-2">
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
         {cities.map((c) => {
           const active = citySet.has(c.id);
           return (
@@ -303,10 +338,10 @@ export function CitiesSection({
               key={c.id}
               type="button"
               onClick={() => toggle(c.id)}
-              className={`flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition-all ${
+              className={`flex min-h-11 w-full items-center gap-2 rounded-lg border px-3 py-2 text-left text-sm font-medium transition-all ${
                 active
                   ? 'border-primary bg-primary/5 text-text ring-1 ring-primary'
-                  : 'border-border bg-surface text-text hover:bg-bg'
+                  : 'border-border bg-white text-text hover:bg-bg'
               }`}
             >
               <div
@@ -334,11 +369,18 @@ export function CitiesSection({
 function ImgPick({ label, st, setter, ratio }: any) {
   return (
     <Field label={label}>
-      <label className={`flex ${ratio} cursor-pointer items-center justify-center overflow-hidden rounded-lg border border-dashed border-border text-xs text-muted hover:bg-bg`}>
+      <label className={`relative flex ${ratio} cursor-pointer items-center justify-center overflow-hidden rounded-lg border border-dashed border-primary/60 bg-white text-xs text-muted transition hover:border-primary hover:bg-[#f0f9ff]`}>
         {st.file || st.url ? (
           <img src={st.file ? URL.createObjectURL(st.file) : st.url} alt="" className="h-full w-full object-cover" />
         ) : (
-          <span className="flex flex-col items-center gap-1"><ImagePlus size={18} /> Enviar</span>
+          <span className="inline-flex items-center gap-1.5 rounded-md bg-primary px-2.5 py-1.5 text-xs font-bold text-on-primary">
+            <ImagePlus size={14} /> Enviar
+          </span>
+        )}
+        {(st.file || st.url) && (
+          <span className="absolute bottom-2 right-2 rounded-md bg-slate-950/80 px-2 py-1 text-xs font-bold text-white">
+            Trocar
+          </span>
         )}
         <input type="file" accept="image/*" className="hidden" onChange={(e) => e.target.files?.[0] && setter({ url: st.url, file: e.target.files[0] })} />
       </label>
@@ -348,7 +390,7 @@ function ImgPick({ label, st, setter, ratio }: any) {
 
 export function ImagesSection({ logo, setLogo, cover, setCover }: any) {
   return (
-    <div className="grid gap-4 sm:grid-cols-[160px_1fr]">
+    <div className="grid gap-4 sm:grid-cols-[140px_1fr]">
       <ImgPick label="Logo" st={logo} setter={setLogo} ratio="h-32 w-32" />
       <ImgPick label="Capa" st={cover} setter={setCover} ratio="h-32 w-full" />
     </div>
@@ -367,7 +409,7 @@ export function DescriptionSection({ value, onChange }: { value: string; onChang
       }
     >
       <textarea
-        className="min-h-36 w-full rounded-lg border border-border bg-surface p-3 text-sm focus:border-primary focus:ring-1 focus:ring-primary"
+        className="min-h-36 w-full rounded-lg border border-border bg-white p-3 text-sm focus:border-primary focus:ring-1 focus:ring-primary"
         value={value}
         onChange={(e) => onChange(e.target.value.slice(0, 600))}
         placeholder="Conte sobre a sua empresa, diferenciais e formas de atendimento."
@@ -377,33 +419,46 @@ export function DescriptionSection({ value, onChange }: { value: string; onChang
   );
 }
 
-export function ContactSection({ f, set }: { f: any; set: (k: string, v: string) => void }) {
+export function ContactSection({
+  f, set, lockWhatsapp = false, showError = false,
+}: { f: any; set: (k: string, v: string) => void; lockWhatsapp?: boolean; showError?: boolean }) {
+  const hasContact = !!(f.whatsapp.trim() || f.phone.trim() || f.email.trim());
   return (
     <div className="space-y-4 max-w-xl">
-      <Field label="WhatsApp">
+      <p className="text-sm text-muted">
+        Informe ao menos um: <span className="font-semibold text-text">WhatsApp, telefone ou e-mail</span>.
+      </p>
+
+      <Field label="WhatsApp *">
         <Input
+          inputMode="tel"
           value={f.whatsapp}
-          onChange={(e) => set('whatsapp', e.target.value)}
+          onChange={(e) => set('whatsapp', lockWhatsapp ? phoneMask(e.target.value) : e.target.value)}
           placeholder="(77) 90000-0000"
         />
       </Field>
 
-      <Field label="Telefone">
+      <Field label="Telefone *">
         <Input
+          inputMode="tel"
           value={f.phone}
-          onChange={(e) => set('phone', e.target.value)}
+          onChange={(e) => set('phone', lockWhatsapp ? phoneMask(e.target.value) : e.target.value)}
           placeholder="(77) 0000-0000"
         />
       </Field>
 
-      <Field label="E-mail">
+      <Field label="E-mail *">
         <Input
           type="email"
           value={f.email}
-          onChange={(e) => set('email', e.target.value)}
+          onChange={(e) => set('email', cleanEmail(e.target.value))}
           placeholder="contato@suaempresa.com"
         />
       </Field>
+
+      {showError && !hasContact && (
+        <p className="text-xs text-danger">Preencha pelo menos um dos três campos marcados com *.</p>
+      )}
 
       <Field label="Site">
         <Input
@@ -416,7 +471,7 @@ export function ContactSection({ f, set }: { f: any; set: (k: string, v: string)
       <Field label="Instagram">
         <Input
           value={f.instagram}
-          onChange={(e) => set('instagram', e.target.value)}
+          onChange={(e) => set('instagram', instagramUsername(e.target.value))}
           placeholder="@suaempresa"
         />
       </Field>
@@ -443,7 +498,7 @@ export function HoursSection({ hours, setHour }: { hours: Record<string, string>
   );
 }
 
-export function BrokersSection({ brokers, addBroker, removeBroker, updateBroker }: any) {
+export function BrokersSection({ brokers, companyWhatsapp, addBroker, removeBroker, updateBroker }: any) {
   return (
     <div className="space-y-6 max-w-xl">
       {brokers.length === 0 && (
@@ -452,8 +507,8 @@ export function BrokersSection({ brokers, addBroker, removeBroker, updateBroker 
 
       <div className="space-y-6">
         {brokers.map((b: any, i: number) => (
-          <div key={i} className="rounded-xl border border-border p-4 bg-surface space-y-4 shadow-sm">
-            <div className="flex items-center justify-between border-b border-border/50 pb-2">
+          <div key={i} className="rounded-xl border border-border p-4 bg-white space-y-4 shadow-sm">
+            <div className="flex items-center justify-between">
               <span className="text-xs font-bold text-muted">CORRETOR</span>
               <button
                 type="button"
@@ -483,11 +538,22 @@ export function BrokersSection({ brokers, addBroker, removeBroker, updateBroker 
 
               <Field label="WhatsApp">
                 <Input
+                  inputMode="tel"
                   value={b.whatsapp ?? ''}
-                  onChange={(e) => updateBroker(i, { whatsapp: e.target.value })}
+                  onChange={(e) => updateBroker(i, { whatsapp: phoneMask(e.target.value) })}
                   placeholder="(77) 90000-0000"
                 />
               </Field>
+              <label className="flex items-center gap-2 text-sm font-medium text-muted">
+                <input
+                  type="checkbox"
+                  className="h-4 w-4 accent-primary"
+                  checked={!!companyWhatsapp && b.whatsapp === companyWhatsapp}
+                  onChange={(e) => updateBroker(i, { whatsapp: e.target.checked ? companyWhatsapp : '' })}
+                  disabled={!companyWhatsapp}
+                />
+                Usar WhatsApp da imobiliária
+              </label>
             </div>
           </div>
         ))}
@@ -496,7 +562,7 @@ export function BrokersSection({ brokers, addBroker, removeBroker, updateBroker 
       <button
         type="button"
         onClick={addBroker}
-        className="w-full flex items-center justify-center gap-1.5 py-3 rounded-xl border border-dashed border-primary text-link font-semibold text-sm hover:bg-primary/5 transition-all"
+        className="flex w-full items-center justify-center gap-1.5 rounded-xl border border-dashed border-primary bg-white py-3 text-sm font-semibold text-link transition-all hover:bg-primary/5"
       >
         <span className="text-lg">+</span> Adicionar corretor
       </button>
@@ -526,7 +592,7 @@ export function SpecialtiesSection({
         )}
       </div>
 
-      <div className="flex flex-wrap gap-2">
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
         {specialties.map((s) => {
           const active = specSet.has(s.id);
           return (
@@ -534,10 +600,10 @@ export function SpecialtiesSection({
               key={s.id}
               type="button"
               onClick={() => toggle(s.id)}
-              className={`flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition-all ${
+              className={`flex min-h-11 w-full items-center gap-2 rounded-lg border px-3 py-2 text-left text-sm font-medium transition-all ${
                 active
                   ? 'border-primary bg-primary/5 text-text ring-1 ring-primary'
-                  : 'border-border bg-surface text-text hover:bg-bg'
+                  : 'border-border bg-white text-text hover:bg-bg'
               }`}
             >
               <div
@@ -562,12 +628,14 @@ export function SpecialtiesSection({
   );
 }
 
-export function AddressSection({ f, set }: { f: any; set: (k: string, v: string) => void }) {
+export function AddressSection({ f, set, hideCep = false }: { f: any; set: (k: string, v: string) => void; hideCep?: boolean }) {
   return (
     <section className="grid gap-4 sm:grid-cols-2">
-      <Field label="CEP">
-        <Input value={f.cep} onChange={(e) => set('cep', e.target.value)} placeholder="00000-000" />
-      </Field>
+      {!hideCep && (
+        <Field label="CEP">
+          <Input value={f.cep} onChange={(e) => set('cep', e.target.value)} placeholder="00000-000" />
+        </Field>
+      )}
       <Field label="Rua">
         <Input value={f.street} onChange={(e) => set('street', e.target.value)} placeholder="Av. Brasil" />
       </Field>

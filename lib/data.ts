@@ -160,6 +160,7 @@ export async function getTypeByUrlSlug(tipoUrl: string) {
 export type SearchFilters = {
   cityId?: string;
   typeId?: string;
+  typeIds?: string[]; // múltipla escolha de tipo (ex.: casa + apartamento)
   neighborhoodId?: string;
   negotiations?: Negotiation[];
   acceptsExchange?: boolean;
@@ -204,7 +205,8 @@ export async function searchProperties(
 
   let q = db().from('properties').select(select, { count: 'exact' }).eq('status', 'ativo');
   if (f.cityId) q = q.eq('city_id', f.cityId);
-  if (f.typeId) q = q.eq('property_type_id', f.typeId);
+  if (f.typeIds?.length) q = q.in('property_type_id', f.typeIds);
+  else if (f.typeId) q = q.eq('property_type_id', f.typeId);
   if (f.neighborhoodId) q = q.eq('neighborhood_id', f.neighborhoodId);
   // Busca livre por título (saneada para não quebrar o filtro ilike).
   const text = f.text?.replace(/[%,]/g, ' ').trim();
@@ -376,6 +378,20 @@ export async function getNeighborhoods(cityId: string) {
   return data ?? [];
 }
 
+// Bairros agrupados por slug da cidade — alimenta o autocomplete do hero
+// (sugestões do bairro restritas à cidade escolhida).
+export async function getNeighborhoodsByCity(): Promise<Record<string, { value: string; label: string }[]>> {
+  if (!hasEnv()) return {};
+  const { data } = await db().from('neighborhoods').select('name,slug,cities(slug)').order('name');
+  const map: Record<string, { value: string; label: string }[]> = {};
+  for (const n of (data ?? []) as any[]) {
+    const citySlug = n.cities?.slug;
+    if (!citySlug) continue;
+    (map[citySlug] ??= []).push({ value: n.slug, label: n.name });
+  }
+  return map;
+}
+
 export async function getFeaturesAll() {
   if (!hasEnv()) return [];
   const { data } = await db().from('features').select('id,name,slug,category').order('category');
@@ -431,7 +447,7 @@ export async function getCompanies(type?: string) {
   if (!hasEnv()) return [];
   let q = db()
     .from('companies')
-    .select('trade_name,slug,type,city_id,logo_url,is_verified,is_featured,cities(name)')
+    .select('trade_name,slug,type,city_id,logo_url,is_verified,is_featured,cities!companies_city_id_fkey(name)')
     .eq('status', 'ativo');
   if (type) q = q.eq('type', type);
   const { data } = await q
@@ -446,7 +462,7 @@ export async function getCompanyBySlug(slug: string) {
   const { data } = await db()
     .from('companies')
     .select(
-      '*,cities(name,slug),company_specialties(specialties(name,slug))',
+      '*,cities!companies_city_id_fkey(name,slug),company_specialties(specialties(name,slug))',
     )
     .eq('slug', slug)
     .eq('status', 'ativo')
@@ -609,7 +625,7 @@ export async function adminListCompanies() {
   if (!hasEnv()) return [];
   const { data } = await createServerClient()
     .from('companies')
-    .select('id,trade_name,slug,type,status,is_verified,is_featured,cities(name)')
+    .select('id,trade_name,slug,type,status,is_verified,is_featured,cities!companies_city_id_fkey(name)')
     .order('created_at', { ascending: false })
     .limit(200);
   return data ?? [];

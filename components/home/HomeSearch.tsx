@@ -275,7 +275,7 @@ export function HomeSearch({
           type="button"
           onClick={buscar}
           className={cn(
-            'flex h-12 items-center justify-center gap-2 rounded-xl bg-primary px-4 text-[15px] font-bold text-on-primary shadow-[0_10px_22px_-10px_rgba(255,56,92,.45)] transition-colors hover:bg-primary-hover',
+            'flex h-12 items-center justify-center gap-2 rounded-xl bg-primary px-4 text-[15px] font-bold text-on-primary shadow-[0_10px_22px_-10px_rgba(14,165,233,.45)] transition-colors hover:bg-primary-hover',
             compact ? 'w-full' : 'flex-[1_1_150px]',
           )}
         >

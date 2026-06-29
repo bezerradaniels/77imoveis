@@ -60,7 +60,8 @@ function hasActiveFilters(sp: Search) {
 
 export async function generateMetadata({ searchParams }: { searchParams: Search }): Promise<Metadata> {
   const types = await getPropertyTypes();
-  const type = (types as any[]).find((t) => t.slug === str(searchParams.tipo));
+  const typeSlugs = list(searchParams.tipo);
+  const type = typeSlugs.length === 1 ? (types as any[]).find((t) => t.slug === typeSlugs[0]) : undefined;
   const negotiations = list(searchParams.modalidade).filter((m): m is Negotiation => NEGOS.includes(m as Negotiation));
   const busca = str(searchParams.busca)?.trim();
   const what = type?.name ? plural(type.name) : 'Imóveis';
@@ -133,14 +134,17 @@ export default async function ImoveisPage({ searchParams }: { searchParams: Sear
 
   const [cities, types] = await Promise.all([getCitiesAll(), getPropertyTypes()]);
   const city = (cities as any[]).find((c) => c.slug === str(searchParams.cidade));
-  const type = (types as any[]).find((t) => t.slug === str(searchParams.tipo));
+  const typeSlugs = list(searchParams.tipo);
+  const typeIds = (types as any[]).filter((t) => typeSlugs.includes(t.slug)).map((t) => t.id);
+  // Quando exatamente um tipo é selecionado, usamos seu nome no H1/título.
+  const type = typeSlugs.length === 1 ? (types as any[]).find((t) => t.slug === typeSlugs[0]) : undefined;
   const neighborhoods = city ? await getNeighborhoods(city.id) : [];
   const bairroSlug = str(searchParams.bairro);
   const neighborhoodId = bairroSlug ? (neighborhoods as any[]).find((n) => n.slug === bairroSlug)?.id : undefined;
 
   const { items, total } = await searchProperties({
     cityId: city?.id,
-    typeId: type?.id,
+    typeIds,
     neighborhoodId,
     negotiations,
     acceptsExchange,

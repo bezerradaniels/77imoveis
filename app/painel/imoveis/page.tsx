@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { Plus, Eye, MessageSquare, ArrowLeft } from 'lucide-react';
+import { LayoutDashboard, Plus, Eye, MessageSquare } from 'lucide-react';
 import { getMyProperties } from '@/lib/data';
 import { priceLabel } from '@/lib/format';
 import { PropertyActions } from '@/components/painel/PropertyActions';
@@ -23,14 +23,14 @@ export default async function MeusImoveisPage() {
 
   return (
     <main className="mx-auto max-w-5xl px-4 py-8">
-      <Link href="/painel" className="mb-3 inline-flex items-center gap-1 text-sm text-muted hover:text-text">
-        <ArrowLeft size={15} /> Painel
+      <Link href="/painel" className="mb-3 inline-flex items-center gap-1.5 text-sm font-medium text-muted hover:text-text lg:hidden">
+        <LayoutDashboard size={15} /> Painel
       </Link>
       <div className="mb-5 flex items-center justify-between">
         <h1 className="text-2xl font-bold">Meus imóveis</h1>
         <Link
           href="/painel/imoveis/novo"
-          className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 font-semibold text-on-primary"
+          className="inline-flex items-center gap-2 rounded-lg border border-primary bg-[#e0f2fe] px-3 py-1.5 text-sm font-semibold text-primary hover:bg-[#bae6fd]"
         >
           <Plus size={18} /> Novo
         </Link>
@@ -77,7 +77,7 @@ export default async function MeusImoveisPage() {
           <p className="text-muted">Você ainda não tem anúncios.</p>
           <Link
             href="/painel/imoveis/novo"
-            className="mt-4 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 font-semibold text-on-primary"
+            className="mt-4 inline-flex items-center gap-2 rounded-lg border border-primary bg-[#e0f2fe] px-3 py-1.5 text-sm font-semibold text-primary hover:bg-[#bae6fd]"
           >
             <Plus size={18} /> Criar meu primeiro anúncio
           </Link>

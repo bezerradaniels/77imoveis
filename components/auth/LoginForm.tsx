@@ -2,15 +2,17 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
+import { Eye, EyeOff } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { Input, Field } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 
 export function LoginForm() {
   const nextParam = useSearchParams().get('next');
-  const next = nextParam?.startsWith('/') && !nextParam.startsWith('//') ? nextParam : '/painel';
+  const next = nextParam?.startsWith('/') && !nextParam.startsWith('//') ? nextParam : '/painel/imoveis';
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -40,8 +42,29 @@ export function LoginForm() {
         <Input name="email" type="email" autoComplete="email" required placeholder="voce@email.com" />
       </Field>
       <Field label="Senha">
-        <Input name="password" type="password" autoComplete="current-password" required />
+        <div className="relative">
+          <Input
+            name="password"
+            type={showPassword ? 'text' : 'password'}
+            autoComplete="current-password"
+            required
+            className="pr-10"
+          />
+          <button
+            type="button"
+            onClick={() => setShowPassword((v) => !v)}
+            className="absolute inset-y-0 right-0 flex items-center px-3 text-muted"
+            aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
+          >
+            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+          </button>
+        </div>
       </Field>
+      <p className="text-right text-sm">
+        <Link href="/esqueci-senha" className="text-link">
+          Esqueci a senha
+        </Link>
+      </p>
       {error && <p className="text-sm text-danger">{error}</p>}
       <Button type="submit" disabled={loading} rounded="lg" className="w-full">
         {loading ? 'Entrando…' : 'Entrar'}

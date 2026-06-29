@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import { Inter_Tight } from 'next/font/google';
 import './globals.css';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
@@ -8,12 +7,6 @@ import { MobileBottomBar } from '@/components/layout/MobileBottomBar';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { websiteLd, organizationLd } from '@/lib/seo/jsonld';
 import { SITE_URL, SITE_NAME, REGION, DEFAULT_OG_IMAGE } from '@/lib/seo/meta';
-
-const interTight = Inter_Tight({
-  subsets: ['latin'],
-  display: 'swap',
-  variable: '--font-inter-tight',
-});
 
 const HOME_TITLE = `Imóveis no ${REGION} | ${SITE_NAME}`;
 const HOME_DESC =
@@ -70,7 +63,15 @@ const themeInit = `(function(){try{var t=localStorage.getItem('theme');if(t==='d
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="pt-BR" suppressHydrationWarning className={interTight.variable}>
+    <html lang="pt-BR" suppressHydrationWarning>
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Stack+Sans+Text:wght@400;500;600;700&family=Stack+Sans+Headline:wght@500;600;700&display=swap"
+        />
+      </head>
       <body className="font-sans antialiased pb-16 pt-[65px] md:pb-0">
         <script dangerouslySetInnerHTML={{ __html: themeInit }} />
         <JsonLd data={websiteLd()} />

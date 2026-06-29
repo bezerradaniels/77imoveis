@@ -30,6 +30,10 @@ function validUrl(value: string) {
   }
 }
 
+function validEmail(value: string) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+}
+
 export function useCompanyForm(initial?: any) {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
@@ -125,7 +129,10 @@ export function useCompanyForm(initial?: any) {
     if (f.cnpj && digits(f.cnpj).length !== 14) return setError('Informe um CNPJ com 14 dígitos ou deixe em branco.');
     if (f.whatsapp && digits(f.whatsapp).length < 10) return setError('Informe um WhatsApp válido com DDD.');
     if (f.phone && digits(f.phone).length < 10) return setError('Informe um telefone válido com DDD.');
+    if (f.email && !validEmail(f.email)) return setError('Informe um e-mail válido.');
     if (f.website && !validUrl(f.website)) return setError('Informe o site completo, começando com https://.');
+    if (brokers.some((b) => b.whatsapp && digits(b.whatsapp).length < 10))
+      return setError('Informe um WhatsApp válido com DDD para os corretores ou deixe em branco.');
     setBusy(true);
     try {
       const logoUrl = logo.file ? await upload(logo.file, 'empresa') : logo.url;

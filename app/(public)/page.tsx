@@ -1,13 +1,12 @@
-import Image from 'next/image';
 import Link from 'next/link';
 import {
   ArrowRight, Building2, Home, Trees, Store, Sparkles,
   HardHat, Compass, Handshake, Megaphone, PlusCircle, ChevronRight,
 } from 'lucide-react';
 import type { Metadata } from 'next';
-import { getFeaturedCities, getPropertyTypes, getFeaturedProperties, getCityCounts } from '@/lib/data';
+import { getFeaturedCities, getPropertyTypes, getFeaturedProperties, getCityCounts, getNeighborhoodsByCity } from '@/lib/data';
 import { PropertyCard } from '@/components/property/PropertyCard';
-import { HeroSearch } from '@/components/home/HeroSearch';
+import { HomeHero } from '@/components/home/HomeHero';
 import { ScrollRail } from '@/components/home/ScrollRail';
 import { cityImageFor } from '@/lib/constants';
 
@@ -18,7 +17,7 @@ export const metadata: Metadata = { alternates: { canonical: '/' } };
 
 // Padrão de pontos sutil para fundos de seção (GEO/mapa discreto).
 const dotPattern = {
-  backgroundImage: 'radial-gradient(circle, rgba(255,56,92,.10) 1px, transparent 1px)',
+  backgroundImage: 'radial-gradient(circle, rgba(14,165,233,.10) 1px, transparent 1px)',
   backgroundSize: '22px 22px',
 };
 
@@ -63,11 +62,12 @@ const citySequence = [
 ];
 
 export default async function HomePage() {
-  const [cities, types, venda, counts] = await Promise.all([
+  const [cities, types, venda, counts, neighborhoods] = await Promise.all([
     getFeaturedCities(),
     getPropertyTypes(),
     getFeaturedProperties('venda', 8),
     getCityCounts(),
+    getNeighborhoodsByCity(),
   ]);
   const cityOpts = cities.map((c) => ({ value: c.slug, label: c.name }));
   const typeOpts = types.map((t) => ({ value: t.slug, label: t.name }));
@@ -76,31 +76,7 @@ export default async function HomePage() {
   return (
     <main className="w-full overflow-x-hidden">
       {/* HERO */}
-      <section className="relative flex min-h-[480px] items-center overflow-hidden py-10 md:min-h-[clamp(480px,56vh,580px)]">
-        <Image
-          src="/hero-family-moving.jpg"
-          alt=""
-          fill
-          priority
-          sizes="100vw"
-          className="object-cover object-[68%_32%] md:object-[center_34%]"
-        />
-        <div aria-hidden className="absolute inset-0" style={{ background: 'linear-gradient(90deg,rgba(6,11,9,.88) 0%,rgba(6,11,9,.62) 42%,rgba(6,11,9,.2) 100%),linear-gradient(180deg,rgba(6,11,9,.12) 0%,rgba(6,11,9,.6) 100%)' }} />
-        <div className="relative z-[2] mx-auto w-full max-w-[1200px] px-6">
-          <div className="flex max-w-[440px] flex-col items-start text-left text-white md:block md:rounded-[26px] md:border md:border-white/70 md:bg-white/95 md:p-6 md:text-slate-900 md:shadow-[0_24px_55px_-26px_rgba(15,23,42,.55)] md:backdrop-blur-sm">
-            <span className="mb-3 inline-flex items-center gap-1.5 rounded-full border border-white/25 bg-white/10 px-3 py-1 text-[11px] font-bold uppercase tracking-[.12em] text-white backdrop-blur-sm md:hidden">
-              <Sparkles size={12} className="text-primary" /> Portal imobiliário regional
-            </span>
-            <h1 className="mb-1.5 max-w-[240px] text-[22px] font-extrabold leading-[1.12] tracking-tight sm:text-[24px] md:max-w-none md:text-[26px] md:text-slate-900">
-              Encontre o imóvel ideal no Oeste da Bahia
-            </h1>
-            <p className="mb-4 max-w-[240px] text-[15px] font-semibold leading-snug text-white/85 md:max-w-none md:text-slate-500">
-              Casas, apartamentos, terrenos e imóveis comerciais nas principais cidades da região.
-            </p>
-            <HeroSearch cities={cityOpts} types={typeOpts} />
-          </div>
-        </div>
-      </section>
+      <HomeHero cities={cityOpts} types={typeOpts} neighborhoods={neighborhoods} />
 
       {/* CIDADES */}
       <section className="relative overflow-hidden bg-[#f7f9f8] py-[clamp(40px,5.5vw,68px)] dark:bg-bg">
@@ -174,7 +150,7 @@ export default async function HomePage() {
                 href={c.href}
                 className="flex w-[210px] shrink-0 snap-start flex-col gap-3 rounded-2xl border border-border bg-surface p-5 outline-none transition-all hover:-translate-y-1 hover:border-primary/40 hover:shadow-[0_18px_34px_-22px_rgba(8,30,22,.45)] focus-visible:ring-2 focus-visible:ring-primary md:w-auto"
               >
-                <span className="flex h-11 w-11 items-center justify-center rounded-[13px] bg-[#ffe4ea] dark:bg-primary/15">
+                <span className="flex h-11 w-11 items-center justify-center rounded-[13px] bg-[#e0f2fe] dark:bg-primary/15">
                   <c.Icon size={22} className="text-link" />
                 </span>
                 <span>
@@ -200,7 +176,7 @@ export default async function HomePage() {
                 href={p.href}
                 className="flex w-[250px] shrink-0 snap-start flex-col gap-3 rounded-2xl border border-border bg-surface p-5 outline-none transition-all hover:-translate-y-1 hover:border-primary/40 hover:shadow-[0_18px_34px_-22px_rgba(8,30,22,.45)] focus-visible:ring-2 focus-visible:ring-primary md:w-auto"
               >
-                <span className="flex h-12 w-12 items-center justify-center rounded-[14px] bg-[#ffe4ea] dark:bg-primary/15">
+                <span className="flex h-12 w-12 items-center justify-center rounded-[14px] bg-[#e0f2fe] dark:bg-primary/15">
                   <p.Icon size={24} className="text-link" />
                 </span>
                 <span className="text-[15px] font-bold text-text">{p.label}</span>
@@ -249,12 +225,12 @@ export default async function HomePage() {
           </p>
           <div className="flex flex-wrap gap-2">
             {cities.map((c) => (
-              <Link key={c.slug} href={`/${c.slug}`} className="rounded-full bg-[#ffe4ea] px-3.5 py-1.5 text-[12.5px] font-semibold text-link transition-colors hover:bg-[#ffd6de] hover:text-link-hover dark:bg-primary/15">
+              <Link key={c.slug} href={`/${c.slug}`} className="rounded-full bg-[#e0f2fe] px-3.5 py-1.5 text-[12.5px] font-semibold text-link transition-colors hover:bg-[#bae6fd] hover:text-link-hover dark:bg-primary/15">
                 Imóveis em {c.name}
               </Link>
             ))}
             {seoChips.map((chip) => (
-              <Link key={chip.label} href={chip.href} className="rounded-full bg-[#ffe4ea] px-3.5 py-1.5 text-[12.5px] font-semibold text-link transition-colors hover:bg-[#ffd6de] hover:text-link-hover dark:bg-primary/15">
+              <Link key={chip.label} href={chip.href} className="rounded-full bg-[#e0f2fe] px-3.5 py-1.5 text-[12.5px] font-semibold text-link transition-colors hover:bg-[#bae6fd] hover:text-link-hover dark:bg-primary/15">
                 {chip.label}
               </Link>
             ))}

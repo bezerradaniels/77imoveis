@@ -37,7 +37,7 @@ export function AuthNav() {
   return (
     <Link
       href="/painel"
-      className="inline-flex items-center gap-1.5 rounded-full bg-primary px-3 py-1.5 text-sm font-medium text-on-primary"
+      className="inline-flex items-center gap-1.5 rounded-[10px] border border-primary bg-[#e0f2fe] px-3 py-2 text-sm font-bold text-primary hover:bg-[#bae6fd]"
     >
       <LayoutDashboard size={15} /> Painel
     </Link>

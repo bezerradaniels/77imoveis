@@ -36,7 +36,7 @@ function Col({ title, links }: { title: string; links: string[][] }) {
       <p className="mb-3.5 text-sm font-medium text-slate-950 dark:text-white">{title}</p>
       <div className="flex flex-col gap-2.5 text-sm">
         {links.map(([label, href]) => (
-          <Link key={href} href={href} className="font-medium text-slate-600 transition-colors hover:text-[#ff385c] dark:text-slate-300 dark:hover:text-[#ff385c]">
+          <Link key={href} href={href} className="font-medium text-slate-600 transition-colors hover:text-[#0ea5e9] dark:text-slate-300 dark:hover:text-[#0ea5e9]">
             {label}
           </Link>
         ))}
@@ -51,7 +51,7 @@ export function Footer() {
       <div className="mx-auto grid max-w-[1200px] gap-9 px-6 py-12 sm:grid-cols-2 lg:grid-cols-5">
         <div className="sm:col-span-2 lg:col-span-1">
           <div className="text-[22px] font-extrabold tracking-tight">
-            <span className="text-[#ff385c]">77</span><span className="text-slate-950 dark:text-white">imóveis</span>
+            <span className="text-[#0ea5e9]">77</span><span className="text-slate-950 dark:text-white">imóveis</span>
           </div>
           <p className="mt-3.5 max-w-[300px] text-sm font-medium leading-relaxed text-slate-600 dark:text-slate-400">
             O portal imobiliário do Oeste da Bahia. Imóveis, profissionais e empresas perto de você.

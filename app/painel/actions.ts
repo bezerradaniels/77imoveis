@@ -1,5 +1,6 @@
 'use server';
 import { revalidatePath } from 'next/cache';
+import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { getNeighborhoods } from '@/lib/data';
 import { slugify } from '@/lib/format';
@@ -35,6 +36,11 @@ export type PropertyInput = {
 // Bairros de uma cidade (usado no dropdown dependente do formulário).
 export async function loadNeighborhoods(cityId: string) {
   return getNeighborhoods(cityId);
+}
+
+export async function logout() {
+  await createClient().auth.signOut();
+  redirect('/entrar');
 }
 
 async function uniqueSlug(sb: any, base: string, excludeId?: string) {

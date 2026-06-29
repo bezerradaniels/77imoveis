@@ -22,7 +22,10 @@ const config: Config = {
         danger: 'var(--danger)',
       },
       borderRadius: { xl: 'var(--radius)' },
-      fontFamily: { sans: ['var(--font-inter-tight)', 'system-ui', 'sans-serif'] },
+      fontFamily: {
+        sans: ['Stack Sans Text', 'system-ui', 'sans-serif'],
+        heading: ['Stack Sans Headline', 'system-ui', 'sans-serif'],
+      },
     },
   },
   plugins: [],
