@@ -2,9 +2,14 @@
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
 import { createServiceClient } from '@/lib/supabase/service';
+import type { Database } from '@/lib/supabase/types';
 import { slugify } from '@/lib/format';
 
 type R = { ok?: true; error?: string };
+
+type ListingStatus = Database['public']['Enums']['listing_status'];
+const allowedRoles = ['particular', 'profissional', 'admin', 'moderador'] as const;
+type UserRole = (typeof allowedRoles)[number];
 
 // Garante que quem chama é admin/moderador (defesa extra além da RLS).
 async function ensureAdmin() {
@@ -13,15 +18,23 @@ async function ensureAdmin() {
   if (!auth.user) return null;
   const { data } = await sb.from('profiles').select('role').eq('id', auth.user.id).maybeSingle();
   if (!data || !['admin', 'moderador'].includes((data as any).role)) return null;
-  return sb;
+  return createServiceClient();
 }
 
 // ---- Imóveis ----
-export async function adminSetPropertyStatus(id: string, status: string): Promise<R> {
+function propertyUpdatePatch(status: ListingStatus) {
+  return {
+    status,
+    ...(status === 'ativo' ? { published_at: new Date().toISOString() } : {}),
+  } as Partial<Database['public']['Tables']['properties']['Update']>;
+}
+
+export async function adminSetPropertyStatus(id: string, status: ListingStatus): Promise<R> {
   const sb = await ensureAdmin();
   if (!sb) return { error: 'Sem permissão.' };
-  const patch: Record<string, any> = { status };
-  if (status === 'ativo') patch.published_at = new Date().toISOString();
+
+  const patch = propertyUpdatePatch(status);
+
   const { error } = await sb.from('properties').update(patch).eq('id', id);
   revalidatePath('/admin/imoveis');
   return error ? { error: 'Falha ao atualizar.' } : { ok: true };
@@ -36,7 +49,7 @@ export async function adminTogglePropertyFeatured(id: string, featured: boolean)
 }
 
 // ---- Empresas ----
-export async function adminUpdateCompany(id: string, patch: Record<string, any>): Promise<R> {
+export async function adminUpdateCompany(id: string, patch: Partial<Database['public']['Tables']['companies']['Update']>): Promise<R> {
   const sb = await ensureAdmin();
   if (!sb) return { error: 'Sem permissão.' };
   const { error } = await sb.from('companies').update(patch).eq('id', id);
@@ -45,10 +58,10 @@ export async function adminUpdateCompany(id: string, patch: Record<string, any>)
 }
 
 // ---- Usuários ----
-export async function adminSetUserRole(id: string, role: string): Promise<R> {
+export async function adminSetUserRole(id: string, role: UserRole): Promise<R> {
   const sb = await ensureAdmin();
   if (!sb) return { error: 'Sem permissão.' };
-  if (!['particular', 'profissional', 'admin', 'moderador'].includes(role)) return { error: 'Papel inválido.' };
+  if (!allowedRoles.includes(role)) return { error: 'Papel inválido.' };
   const { error } = await sb.from('profiles').update({ role }).eq('id', id);
   revalidatePath('/admin/usuarios');
   return error ? { error: 'Falha ao atualizar.' } : { ok: true };
@@ -132,7 +145,7 @@ export async function adminCreateBanner(data: {
   title: string;
   image_url: string;
   target_url: string;
-  slot: string;
+  slot: Database['public']['Enums']['banner_slot'];
 }): Promise<R> {
   const sb = await ensureAdmin();
   if (!sb) return { error: 'Sem permissão.' };
@@ -148,7 +161,7 @@ export async function adminToggleStorefront(id: string, active: boolean): Promis
   const sb = await ensureAdmin();
   if (!sb) return { error: 'Sem permissão.' };
   const service = createServiceClient();
-  const patch = active
+  const patch: Partial<Database['public']['Tables']['storefronts']['Update']> = active
     ? { status: 'ativo', activated_at: new Date().toISOString(), expires_at: null }
     : { status: 'expirado' };
   const { error } = await service.from('storefronts').update(patch).eq('id', id);

@@ -3,8 +3,11 @@ import { cookies } from 'next/headers';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
+import type { Database } from '@/lib/supabase/types';
 import { getListingPublishGate, getNeighborhoods, ACTIVE_COMPANY_COOKIE } from '@/lib/data';
 import { slugify } from '@/lib/format';
+
+type PropertyUpdate = Partial<Database['public']['Tables']['properties']['Update']>;
 
 // Define a empresa em foco no painel ('pessoal' = perfil pessoal).
 export async function setActiveCompany(companyId: string) {
@@ -19,7 +22,7 @@ export async function setActiveCompany(companyId: string) {
 type Result = { ok?: true; error?: string };
 
 export type NegotiationInput = {
-  negotiation: string;
+  negotiation: Database['public']['Enums']['negotiation_type'];
   price: number | null;
   priceVisibility: 'publico' | 'sob_consulta';
 };
@@ -137,7 +140,7 @@ export async function saveProperty(input: PropertyInput): Promise<{ id?: string;
       : 'ativo'
     : 'rascunho';
   const initialStatus = input.id ? publishStatus : 'rascunho';
-  const base: Record<string, any> = {
+  const base: PropertyUpdate = {
     owner_id: auth.user.id,
     title: input.title,
     description: input.description || null,
@@ -192,7 +195,7 @@ export async function saveProperty(input: PropertyInput): Promise<{ id?: string;
   // outra empresa ativa no seletor.
   if (!id) base.company_id = publishGate.companyId;
   if (id) {
-    const { error } = await sb.from('properties').update(base).eq('id', id);
+    const { error } = await sb.from('properties').update(base as any).eq('id', id);
     if (error) return { error: friendly(error.message) };
   } else {
     const referenceCode = await uniqueReferenceCode(sb);
