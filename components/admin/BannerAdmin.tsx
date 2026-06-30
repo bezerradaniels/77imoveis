@@ -5,6 +5,10 @@ import { Eye, EyeOff, Trash2, Plus } from 'lucide-react';
 import { adminToggleBanner, adminDeleteBanner, adminCreateBanner } from '@/app/admin/actions';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
+import type { Database } from '@/lib/supabase/types';
+
+type BannerSlot = Database['public']['Enums']['banner_slot'];
+type BannerFormState = { title: string; image_url: string; target_url: string; slot: BannerSlot };
 
 const slots = [
   { v: 'home_topo',       l: 'Home — topo' },
@@ -14,7 +18,7 @@ const slots = [
   { v: 'imovel_rodape',   l: 'Imóvel — rodapé' },
   { v: 'empresa_pagina',  l: 'Empresa — página' },
   { v: 'blog',            l: 'Blog' },
-];
+] satisfies { v: BannerSlot; l: string }[];
 
 export function BannerToggle({ id, active }: { id: string; active: boolean }) {
   const router = useRouter();
@@ -45,8 +49,8 @@ export function BannerForm() {
   const router = useRouter();
   const [pending, start] = useTransition();
   const [error, setError] = useState('');
-  const [form, setForm] = useState({ title: '', image_url: '', target_url: '', slot: 'home_topo' });
-  const set = (k: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
+  const [form, setForm] = useState<BannerFormState>({ title: '', image_url: '', target_url: '', slot: 'home_topo' });
+  const set = (k: keyof BannerFormState) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
     setForm((f) => ({ ...f, [k]: e.target.value }));
 
   return (

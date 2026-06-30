@@ -2,6 +2,10 @@
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
 import { slugify } from '@/lib/format';
+import type { Database } from '@/lib/supabase/types';
+
+type StorefrontInsert = Database['public']['Tables']['storefronts']['Insert'];
+type StorefrontUpdate = Database['public']['Tables']['storefronts']['Update'];
 
 export type StorefrontInput = {
   slug?: string;
@@ -36,7 +40,7 @@ export async function saveStorefront(input: StorefrontInput): Promise<{ slug?: s
   if (!company) return { error: 'Crie sua empresa antes de configurar a vitrine.' };
 
   const accentColor = /^#[0-9a-f]{6}$/i.test(input.accentColor ?? '') ? input.accentColor : '#0891b2';
-  const base: Record<string, any> = {
+  const base: StorefrontUpdate = {
     headline: input.headline?.trim() || null,
     about: input.about?.trim() || null,
     accent_color: accentColor,
@@ -55,7 +59,8 @@ export async function saveStorefront(input: StorefrontInput): Promise<{ slug?: s
   }
 
   const slug = await uniqueSlug(sb, slugify(input.slug || company.slug));
-  const { error } = await sb.from('storefronts').insert({ ...base, company_id: company.id, slug });
+  const insertPayload: StorefrontInsert = { ...base, company_id: company.id, slug };
+  const { error } = await sb.from('storefronts').insert(insertPayload);
   if (error) return { error: 'Não foi possível criar a vitrine.' };
   revalidatePath('/painel/vitrine');
   revalidatePath(`/vitrine/${slug}`);

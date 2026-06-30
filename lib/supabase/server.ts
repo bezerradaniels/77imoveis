@@ -1,14 +1,16 @@
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
-import type { Database } from './types';
 import type { SupabaseClient } from '@supabase/supabase-js';
+import type { Database } from './types';
+
+type ServerSupabaseClient = SupabaseClient<Database, Database['__InternalSupabase'], 'public'>;
 
 // Cliente Supabase para Server Components / Server Actions / Route Handlers.
 // Usa cookies (sessão compartilhada com o navegador via @supabase/ssr).
 // A segurança vem da RLS no banco; aqui é sempre a anon key.
-export function createClient() {
+export function createClient(): ServerSupabaseClient {
   const cookieStore = cookies();
-  return createServerClient<Database, 'public', Database['public']>(
+  return createServerClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
@@ -22,5 +24,5 @@ export function createClient() {
         },
       },
     },
-  );
+  ) as unknown as ServerSupabaseClient;
 }

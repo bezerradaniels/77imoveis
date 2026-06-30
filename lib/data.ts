@@ -23,6 +23,9 @@ const db = () =>
   );
 
 export type Negotiation = 'venda' | 'aluguel' | 'temporada' | 'romaria' | 'lancamento';
+type PublicCompanyType = (typeof publicCompanyTypeValues)[number];
+type ListingStatus = Database['public']['Enums']['listing_status'];
+const listingStatuses: ListingStatus[] = ['ativo', 'rascunho', 'pausado', 'arquivado', 'em_moderacao', 'reprovado'];
 
 export type CardProperty = {
   slug: string;
@@ -560,7 +563,7 @@ export async function getActiveCompanySlugs(): Promise<string[]> {
     .from('companies')
     .select('slug')
     .eq('status', 'ativo')
-    .in('type', publicCompanyTypeValues as any);
+    .in('type', [...publicCompanyTypeValues]);
   return (data ?? []).map((c: any) => c.slug);
 }
 
@@ -571,10 +574,10 @@ export async function getCompanies(type?: string) {
     .select('trade_name,slug,type,city_id,logo_url,is_verified,is_featured,cities!companies_city_id_fkey(name)')
     .eq('status', 'ativo');
   if (type) {
-    if (!publicCompanyTypeValues.includes(type as any)) return [];
-    q = q.eq('type', type);
+    if (!publicCompanyTypeValues.includes(type as PublicCompanyType)) return [];
+    q = q.eq('type', type as PublicCompanyType);
   } else {
-    q = q.in('type', publicCompanyTypeValues as any);
+    q = q.in('type', [...publicCompanyTypeValues]);
   }
   const { data } = await q
     .order('is_featured', { ascending: false })
@@ -735,7 +738,7 @@ export async function adminListProperties(status?: string) {
     .select('id,slug,title,status,is_featured,price,price_visibility,negotiation,created_at,cities(name),profiles!properties_owner_id_fkey(full_name)')
     .order('created_at', { ascending: false })
     .limit(100);
-  if (status) q = q.eq('status', status);
+  if (status && listingStatuses.includes(status as ListingStatus)) q = q.eq('status', status as ListingStatus);
   const { data } = await q;
   return data ?? [];
 }

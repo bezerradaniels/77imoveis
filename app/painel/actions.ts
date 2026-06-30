@@ -7,7 +7,8 @@ import type { Database } from '@/lib/supabase/types';
 import { getListingPublishGate, getNeighborhoods, ACTIVE_COMPANY_COOKIE } from '@/lib/data';
 import { slugify } from '@/lib/format';
 
-type PropertyUpdate = Partial<Database['public']['Tables']['properties']['Update']>;
+type PropertyInsert = Database['public']['Tables']['properties']['Insert'];
+type PropertyUpdate = Database['public']['Tables']['properties']['Update'];
 
 // Define a empresa em foco no painel ('pessoal' = perfil pessoal).
 export async function setActiveCompany(companyId: string) {
@@ -140,7 +141,7 @@ export async function saveProperty(input: PropertyInput): Promise<{ id?: string;
       : 'ativo'
     : 'rascunho';
   const initialStatus = input.id ? publishStatus : 'rascunho';
-  const base: PropertyUpdate = {
+  const base: PropertyUpdate & Omit<PropertyInsert, 'slug'> = {
     owner_id: auth.user.id,
     title: input.title,
     description: input.description || null,
@@ -195,13 +196,16 @@ export async function saveProperty(input: PropertyInput): Promise<{ id?: string;
   // outra empresa ativa no seletor.
   if (!id) base.company_id = publishGate.companyId;
   if (id) {
-    const { error } = await sb.from('properties').update(base as any).eq('id', id);
+    const { error } = await sb.from('properties').update(base).eq('id', id);
     if (error) return { error: friendly(error.message) };
   } else {
     const referenceCode = await uniqueReferenceCode(sb);
-    base.reference_code = referenceCode;
-    base.slug = await uniqueSlug(sb, slugify(`${input.title}-${input.citySlug}-${referenceCode}`));
-    const { data, error } = await sb.from('properties').insert(base).select('id').single();
+    const insertPayload: PropertyInsert = {
+      ...base,
+      reference_code: referenceCode,
+      slug: await uniqueSlug(sb, slugify(`${input.title}-${input.citySlug}-${referenceCode}`)),
+    };
+    const { data, error } = await sb.from('properties').insert(insertPayload).select('id').single();
     if (error) return { error: friendly(error.message) };
     id = data!.id;
   }
@@ -290,7 +294,10 @@ function friendly(msg: string) {
 }
 
 // Altera o status de um imóvel (ativar/pausar/arquivar). RLS garante que é do dono.
-export async function setPropertyStatus(id: string, status: string): Promise<Result> {
+export async function setPropertyStatus(
+  id: string,
+  status: Database['public']['Enums']['listing_status'],
+): Promise<Result> {
   const sb = createClient();
   const { data: auth } = await sb.auth.getUser();
   if (!auth.user) return { error: 'Sessão expirada. Entre novamente.' };
@@ -304,7 +311,7 @@ export async function setPropertyStatus(id: string, status: string): Promise<Res
     }
   }
 
-  const patch: Record<string, any> = { status };
+  const patch: PropertyUpdate = { status };
   if (status === 'ativo') patch.published_at = new Date().toISOString();
   const { error } = await sb.from('properties').update(patch).eq('id', id);
   revalidatePath('/painel/imoveis');

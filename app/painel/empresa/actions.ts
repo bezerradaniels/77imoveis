@@ -4,8 +4,13 @@ import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
 import { ACTIVE_COMPANY_COOKIE } from '@/lib/data';
 import { slugify } from '@/lib/format';
+import type { Database } from '@/lib/supabase/types';
 
-const ALLOWED_COMPANY_TYPES = ['imobiliaria', 'corretor_autonomo', 'construtora', 'incorporadora'];
+type CompanyInsert = Database['public']['Tables']['companies']['Insert'];
+type CompanyUpdate = Database['public']['Tables']['companies']['Update'];
+type CompanyType = Database['public']['Enums']['company_type'];
+
+const ALLOWED_COMPANY_TYPES: CompanyType[] = ['imobiliaria', 'corretor_autonomo', 'construtora', 'incorporadora'];
 
 export type CompanyInput = {
   id?: string;
@@ -48,11 +53,12 @@ export async function saveCompany(input: CompanyInput): Promise<{ slug?: string;
   const { data: auth } = await sb.auth.getUser();
   if (!auth.user) return { error: 'Sessão expirada. Entre novamente.' };
   if (!input.tradeName.trim() || !input.type) return { error: 'Informe o tipo e o nome do perfil.' };
-  if (!ALLOWED_COMPANY_TYPES.includes(input.type)) return { error: 'Escolha um tipo profissional válido.' };
+  const companyType = input.type as CompanyType;
+  if (!ALLOWED_COMPANY_TYPES.includes(companyType)) return { error: 'Escolha um tipo profissional válido.' };
 
-  const base: Record<string, any> = {
+  const base: CompanyUpdate & Omit<CompanyInsert, 'slug'> = {
     owner_id: auth.user.id,
-    type: input.type,
+    type: companyType,
     trade_name: input.tradeName.trim(),
     legal_name: input.legalName || null,
     cnpj: input.cnpj || null,
@@ -80,7 +86,8 @@ export async function saveCompany(input: CompanyInput): Promise<{ slug?: string;
     slug = data!.slug;
   } else {
     slug = await uniqueSlug(sb, slugify(input.tradeName));
-    const { data, error } = await sb.from('companies').insert({ ...base, slug }).select('id,slug').single();
+    const insertPayload: CompanyInsert = { ...base, slug };
+    const { data, error } = await sb.from('companies').insert(insertPayload).select('id,slug').single();
     if (error) return { error: 'Não foi possível criar a empresa.' };
     id = data!.id;
     // Foca a empresa recém-criada no painel.

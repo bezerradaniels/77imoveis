@@ -3,9 +3,15 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { slugify } from '@/lib/format';
+import type { Database } from '@/lib/supabase/types';
+
+type CompanyInsert = Database['public']['Tables']['companies']['Insert'];
+type CompanyUpdate = Database['public']['Tables']['companies']['Update'];
+type CompanyType = Database['public']['Enums']['company_type'];
+type ProfileUpdate = Database['public']['Tables']['profiles']['Update'];
 
 type RoleKey = 'pessoal' | 'corretor_autonomo' | 'imobiliaria' | 'construtora' | 'incorporadora';
-type ProfessionalRoleKey = Exclude<RoleKey, 'pessoal'>;
+type ProfessionalRoleKey = Exclude<RoleKey, 'pessoal'> & CompanyType;
 
 const professionalTypes: ProfessionalRoleKey[] = ['corretor_autonomo', 'imobiliaria', 'construtora', 'incorporadora'];
 const defaultTradeName: Record<ProfessionalRoleKey, string> = {
@@ -33,7 +39,7 @@ export async function completeOnboarding(
 
   // Campos essenciais do perfil. Profissionais já entram com role 'profissional'
   // (não rebaixa admin/moderador, por isso o filtro por role atual).
-  const update: Record<string, any> = {
+  const update: ProfileUpdate = {
     role_intent: isPro ? 'profissional' : 'particular',
     role_choice_made_at: new Date().toISOString(),
     city_id: cityId,
@@ -65,7 +71,7 @@ export async function completeOnboarding(
       ? profile?.full_name || defaultTradeName[companyType]
       : defaultTradeName[companyType];
     const tradeName = answers.trade_name?.trim() || (companyType === 'corretor_autonomo' ? fallbackName : existing?.trade_name) || fallbackName;
-    const companyPatch = {
+    const companyPatch: CompanyUpdate & Pick<CompanyInsert, 'type' | 'trade_name'> = {
       type: companyType,
       trade_name: tradeName,
       city_id: cityId,
@@ -81,11 +87,12 @@ export async function completeOnboarding(
         await sb.from('brokers').delete().eq('company_id', existing.id);
       }
     } else {
-      const { error } = await sb.from('companies').insert({
+      const insertPayload: CompanyInsert = {
         owner_id: uid,
         slug: `${slugify(tradeName) || 'empresa'}-${uid.slice(0, 6)}`,
         ...companyPatch,
-      });
+      };
+      const { error } = await sb.from('companies').insert(insertPayload);
       if (error) return { error: 'Não foi possível criar seu perfil profissional.' };
     }
   }

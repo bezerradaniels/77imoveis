@@ -387,7 +387,10 @@ export function PropertyForm({
 
   function buildNegotiations(): PropertyInput['negotiations'] {
     const vis = data.priceVisibility;
-    const make = (negotiation: string, price: Money): PropertyInput['negotiations'][number] => ({
+    const make = (
+      negotiation: PropertyInput['negotiations'][number]['negotiation'],
+      price: Money,
+    ): PropertyInput['negotiations'][number] => ({
       negotiation,
       price: vis === 'sob_consulta' ? null : price === '' ? null : Number(price),
       priceVisibility: vis,

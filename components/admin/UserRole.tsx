@@ -4,12 +4,14 @@ import { useRouter } from 'next/navigation';
 import { ShieldOff, ShieldCheck } from 'lucide-react';
 import { adminSetUserRole, adminSetUserActive } from '@/app/admin/actions';
 
+type UserRoleKey = 'particular' | 'profissional' | 'admin' | 'moderador';
+
 const roles = [
   { v: 'particular',   l: 'Particular' },
   { v: 'profissional', l: 'Profissional' },
   { v: 'moderador',    l: 'Moderador' },
   { v: 'admin',        l: 'Admin' },
-];
+] satisfies { v: UserRoleKey; l: string }[];
 
 export function UserRole({ id, role, isActive }: { id: string; role: string; isActive: boolean }) {
   const router = useRouter();
@@ -22,7 +24,7 @@ export function UserRole({ id, role, isActive }: { id: string; role: string; isA
       <select
         defaultValue={role}
         disabled={pending}
-        onChange={(e) => start(async () => { await adminSetUserRole(id, e.target.value); refresh(); })}
+        onChange={(e) => start(async () => { await adminSetUserRole(id, e.target.value as UserRoleKey); refresh(); })}
         className="rounded-md border border-border bg-surface px-2 py-1 text-sm disabled:opacity-50"
       >
         {roles.map((r) => <option key={r.v} value={r.v}>{r.l}</option>)}
