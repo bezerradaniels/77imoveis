@@ -11,15 +11,27 @@ const statusOpts = [
   { v: 'ativo', l: 'Ativos' },
   { v: 'rascunho', l: 'Rascunhos' },
   { v: 'pausado', l: 'Pausados' },
+  { v: 'arquivado', l: 'Arquivados' },
   { v: 'reprovado', l: 'Reprovados' },
 ];
 
-export default async function AdminImoveis({ searchParams }: { searchParams: { status?: string } }) {
+export default async function AdminImoveis({ searchParams }: { searchParams: { status?: string; q?: string } }) {
   const status = searchParams.status || '';
-  const items = await adminListProperties(status || undefined);
+  const q = searchParams.q || '';
+  const items = await adminListProperties(status || undefined, q);
 
   return (
     <div>
+      <form className="mb-3 flex gap-2">
+        <input
+          name="q"
+          defaultValue={q}
+          placeholder="Buscar por título"
+          className="h-10 flex-1 rounded-lg border border-border bg-surface px-3 text-sm outline-none focus:ring-2 focus:ring-primary"
+        />
+        {status && <input type="hidden" name="status" value={status} />}
+        <button className="rounded-lg bg-primary px-4 text-sm font-medium text-on-primary">Buscar</button>
+      </form>
       <div className="mb-4 flex flex-wrap gap-2">
         {statusOpts.map((s) => (
           <Link

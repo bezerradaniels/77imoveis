@@ -56,13 +56,13 @@ export function PropertyActions({ id, slug, status }: { id: string; slug: string
         )}
         <button
           onClick={() => {
-            if (confirm('Excluir este anúncio? Esta ação não pode ser desfeita.'))
+            if (confirm('Remover este anúncio? Ele sairá do site público, mas os dados históricos serão preservados.'))
               run(() => deleteProperty(id));
           }}
           disabled={pending}
           className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs text-danger hover:bg-danger/10"
         >
-          <Trash2 size={13} /> Excluir
+          <Trash2 size={13} /> Remover
         </button>
       </div>
       {error && (

@@ -8,7 +8,9 @@ import { Input, Field } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 
 export function LoginForm() {
-  const nextParam = useSearchParams().get('next');
+  const searchParams = useSearchParams();
+  const nextParam = searchParams.get('next');
+  const blocked = searchParams.get('blocked') === '1';
   const next = nextParam?.startsWith('/') && !nextParam.startsWith('//') ? nextParam : '/painel/imoveis';
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -65,6 +67,7 @@ export function LoginForm() {
           Esqueci a senha
         </Link>
       </p>
+      {blocked && <p className="text-sm font-medium text-danger">Sua conta está desativada. Fale com a administração para recuperar o acesso.</p>}
       {error && <p className="text-sm font-medium text-danger">{error}</p>}
       <Button type="submit" disabled={loading} rounded="lg" className="h-11 w-full font-bold">
         {loading ? 'Entrando…' : 'Entrar'}

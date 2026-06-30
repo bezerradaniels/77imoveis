@@ -11,6 +11,7 @@ const nav = [
   { href: '/admin',          label: 'Visão geral', icon: LayoutDashboard },
   { href: '/admin/imoveis',  label: 'Imóveis',     icon: Home },
   { href: '/admin/empresas', label: 'Empresas',    icon: Building2 },
+  { href: '/admin/corretores', label: 'Corretores', icon: Users },
   { href: '/admin/usuarios', label: 'Usuários',    icon: Users },
   { href: '/admin/cidades',  label: 'Cidades',     icon: MapPin },
   { href: '/admin/planos',   label: 'Planos',      icon: CreditCard },

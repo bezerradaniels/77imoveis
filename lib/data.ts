@@ -26,6 +26,7 @@ export type Negotiation = 'venda' | 'aluguel' | 'temporada' | 'romaria' | 'lanca
 type PublicCompanyType = (typeof publicCompanyTypeValues)[number];
 type ListingStatus = Database['public']['Enums']['listing_status'];
 const listingStatuses: ListingStatus[] = ['ativo', 'rascunho', 'pausado', 'arquivado', 'em_moderacao', 'reprovado'];
+const activeCompanyStatuses = ['ativo'];
 
 export type CardProperty = {
   slug: string;
@@ -139,7 +140,7 @@ export async function getCitySearchInsights(cityId: string, citySlug: string) {
   const head = { count: 'exact' as const, head: true };
   const [properties, companies, neighborhoods, cities] = await Promise.all([
     db().from('properties').select('*', head).eq('status', 'ativo').eq('city_id', cityId),
-    db().from('companies').select('*', head).eq('status', 'ativo').eq('city_id', cityId),
+    db().from('companies').select('*', head).in('status', activeCompanyStatuses).eq('city_id', cityId),
     db().from('neighborhoods').select('id,name,slug').eq('city_id', cityId).order('name'),
     db().from('cities').select('name,slug').neq('slug', citySlug).order('population', { ascending: false, nullsFirst: false }).limit(12),
   ]);
@@ -713,11 +714,12 @@ export async function adminCounts() {
   if (!hasEnv()) return null;
   const sb = createServerClient();
   const head = { count: 'exact' as const, head: true };
-  const [props, ativos, moderacao, companies, leads, users] = await Promise.all([
+  const [props, ativos, moderacao, companies, brokers, leads, users] = await Promise.all([
     sb.from('properties').select('*', head),
     sb.from('properties').select('*', head).eq('status', 'ativo'),
     sb.from('properties').select('*', head).eq('status', 'em_moderacao'),
     sb.from('companies').select('*', head),
+    sb.from('brokers').select('*', head),
     sb.from('leads').select('*', head),
     sb.from('profiles').select('*', head),
   ]);
@@ -726,12 +728,13 @@ export async function adminCounts() {
     ativos: ativos.count ?? 0,
     moderacao: moderacao.count ?? 0,
     companies: companies.count ?? 0,
+    brokers: brokers.count ?? 0,
     leads: leads.count ?? 0,
     users: users.count ?? 0,
   };
 }
 
-export async function adminListProperties(status?: string) {
+export async function adminListProperties(status?: string, search?: string) {
   if (!hasEnv()) return [];
   let q = createServerClient()
     .from('properties')
@@ -739,27 +742,56 @@ export async function adminListProperties(status?: string) {
     .order('created_at', { ascending: false })
     .limit(100);
   if (status && listingStatuses.includes(status as ListingStatus)) q = q.eq('status', status as ListingStatus);
+  const text = search?.replace(/[%,]/g, ' ').trim();
+  if (text) q = q.ilike('title', `%${text}%`);
   const { data } = await q;
   return data ?? [];
 }
 
-export async function adminListCompanies() {
+export async function adminListCompanies(filters: { status?: string; cityId?: string; text?: string } = {}) {
   if (!hasEnv()) return [];
-  const { data } = await createServerClient()
+  let q = createServerClient()
     .from('companies')
-    .select('id,trade_name,slug,type,status,is_verified,is_featured,cities!companies_city_id_fkey(name)')
+    .select('id,trade_name,legal_name,email,phone,whatsapp,slug,type,status,is_verified,is_featured,cities!companies_city_id_fkey(id,name),brokers(count),properties(count)')
     .order('created_at', { ascending: false })
     .limit(200);
+  if (filters.status) q = q.eq('status', filters.status);
+  if (filters.cityId) q = q.eq('city_id', filters.cityId);
+  const text = filters.text?.replace(/[%,]/g, ' ').trim();
+  if (text) q = q.or(`trade_name.ilike.%${text}%,legal_name.ilike.%${text}%,email.ilike.%${text}%`);
+  const { data } = await q;
   return data ?? [];
 }
 
-export async function adminListUsers() {
+export async function adminListUsers(filters: { role?: string; status?: string; text?: string } = {}) {
   if (!hasEnv()) return [];
-  const { data } = await createServerClient()
+  let q = createServerClient()
     .from('profiles')
-    .select('id,full_name,email,phone,role,is_active,created_at')
+    .select('id,full_name,email,phone,whatsapp,role,is_active,created_at,companies(count),brokers(count),properties(count)')
     .order('created_at', { ascending: false })
     .limit(200);
+  if (filters.role && ['particular', 'profissional', 'admin', 'moderador'].includes(filters.role)) q = q.eq('role', filters.role as any);
+  if (filters.status === 'active') q = q.eq('is_active', true);
+  if (filters.status === 'blocked') q = q.eq('is_active', false);
+  const text = filters.text?.replace(/[%,]/g, ' ').trim();
+  if (text) q = q.or(`full_name.ilike.%${text}%,email.ilike.%${text}%,phone.ilike.%${text}%`);
+  const { data } = await q;
+  return data ?? [];
+}
+
+export async function adminListBrokers(filters: { status?: string; companyId?: string; cityId?: string; text?: string } = {}) {
+  if (!hasEnv()) return [];
+  let q = createServerClient()
+    .from('brokers')
+    .select('id,name,email,creci,phone,whatsapp,photo_url,status,verified_at,approved_at,rejected_at,disabled_at,created_at,companies!brokers_company_id_fkey(id,trade_name,slug,city_id,cities!companies_city_id_fkey(id,name)),profiles(id,full_name,email),properties(count)')
+    .order('created_at', { ascending: false })
+    .limit(200);
+  if (filters.status) q = q.eq('status' as any, filters.status);
+  if (filters.companyId) q = q.eq('company_id', filters.companyId);
+  if (filters.cityId) q = q.eq('companies.city_id', filters.cityId);
+  const text = filters.text?.replace(/[%,]/g, ' ').trim();
+  if (text) q = q.or(`name.ilike.%${text}%,email.ilike.%${text}%,creci.ilike.%${text}%`);
+  const { data } = await q;
   return data ?? [];
 }
 

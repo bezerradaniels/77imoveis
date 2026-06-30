@@ -325,7 +325,9 @@ export async function setPropertyStatus(
 }
 
 export async function deleteProperty(id: string): Promise<Result> {
-  const { error } = await createClient().from('properties').delete().eq('id', id);
+  const { error } = await createClient().from('properties').update({ status: 'arquivado', is_featured: false }).eq('id', id);
   revalidatePath('/painel/imoveis');
-  return error ? { error: 'Não foi possível excluir.' } : { ok: true };
+  revalidatePath('/imoveis');
+  revalidatePath('/');
+  return error ? { error: 'Não foi possível remover o anúncio.' } : { ok: true };
 }

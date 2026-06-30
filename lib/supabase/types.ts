@@ -224,36 +224,54 @@ export type Database = {
           company_id: string
           created_at: string
           creci: string | null
+          disabled_at: string | null
           email: string | null
           id: string
           name: string
           phone: string | null
           photo_url: string | null
           profile_id: string | null
+          approved_at: string | null
+          rejected_at: string | null
+          status: string
+          updated_at: string
+          verified_at: string | null
           whatsapp: string | null
         }
         Insert: {
           company_id: string
           created_at?: string
           creci?: string | null
+          disabled_at?: string | null
           email?: string | null
           id?: string
           name: string
           phone?: string | null
           photo_url?: string | null
           profile_id?: string | null
+          approved_at?: string | null
+          rejected_at?: string | null
+          status?: string
+          updated_at?: string
+          verified_at?: string | null
           whatsapp?: string | null
         }
         Update: {
           company_id?: string
           created_at?: string
           creci?: string | null
+          disabled_at?: string | null
           email?: string | null
           id?: string
           name?: string
           phone?: string | null
           photo_url?: string | null
           profile_id?: string | null
+          approved_at?: string | null
+          rejected_at?: string | null
+          status?: string
+          updated_at?: string
+          verified_at?: string | null
           whatsapp?: string | null
         }
         Relationships: [

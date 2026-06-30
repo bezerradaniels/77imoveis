@@ -32,6 +32,20 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(login);
   }
 
+  if (protectedPath && user) {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('is_active')
+      .eq('id', user.id)
+      .maybeSingle();
+    if (profile && !profile.is_active) {
+      const login = request.nextUrl.clone();
+      login.pathname = '/entrar';
+      login.searchParams.set('blocked', '1');
+      return NextResponse.redirect(login);
+    }
+  }
+
   // Primeira visita ao painel: escolher Particular ou Profissional antes de seguir.
   const escolhaPath = '/painel/escolha-perfil';
   if (user && path.startsWith('/painel') && path !== escolhaPath) {

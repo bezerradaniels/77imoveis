@@ -17,6 +17,7 @@ export type Profile = {
   email: string | null;
   phone: string | null;
   whatsapp: string | null;
+  is_active: boolean;
   role_choice_made_at: string | null;
   role_intent: 'particular' | 'profissional' | null;
 };
@@ -27,8 +28,9 @@ export async function getProfile(): Promise<Profile | null> {
   if (!user) return null;
   const { data } = await createClient()
     .from('profiles')
-    .select('id,role,full_name,email,phone,whatsapp,role_choice_made_at,role_intent')
+    .select('id,role,full_name,email,phone,whatsapp,is_active,role_choice_made_at,role_intent')
     .eq('id', user.id)
     .maybeSingle();
-  return (data as Profile) ?? null;
+  if (!data || !(data as Profile).is_active) return null;
+  return data as Profile;
 }

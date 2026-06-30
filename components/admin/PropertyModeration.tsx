@@ -16,7 +16,7 @@ export function PropertyModeration({ id, status, featured }: { id: string; statu
   });
 
   const handleDelete = () => {
-    if (!confirm('Excluir este imóvel permanentemente?')) return;
+    if (!confirm('Remover este imóvel? Ele não aparecerá mais no site público, mas leads, fotos e histórico serão preservados.')) return;
     run(() => adminDeleteProperty(id));
   };
 
@@ -43,7 +43,7 @@ export function PropertyModeration({ id, status, featured }: { id: string; statu
           <Star size={13} className={featured ? 'fill-accent' : ''} /> {featured ? 'Destaque' : 'Destacar'}
         </button>
         <button disabled={pending} onClick={handleDelete} className={`${btn} bg-danger/10 text-danger`}>
-          <Trash2 size={13} /> Excluir
+          <Trash2 size={13} /> Remover
         </button>
       </div>
       {message && <p className={message === 'Atualizado.' ? 'text-xs text-success' : 'text-xs text-danger'}>{message}</p>}
