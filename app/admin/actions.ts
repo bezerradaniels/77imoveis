@@ -12,6 +12,11 @@ const allowedRoles = ['particular', 'profissional', 'admin', 'moderador'] as con
 type UserRole = (typeof allowedRoles)[number];
 const companyStatuses = ['ativo', 'pendente', 'pausado', 'bloqueado', 'arquivado', 'removido'] as const;
 const brokerStatuses = ['ativo', 'pendente', 'aprovado', 'reprovado', 'inativo', 'arquivado', 'removido'] as const;
+type CompanyBulkPatch = Pick<Database['public']['Tables']['companies']['Update'], 'status' | 'is_verified' | 'is_featured'>;
+
+function validIds(ids: string[]) {
+  return [...new Set(ids)].filter((id) => /^[0-9a-f-]{36}$/i.test(id)).slice(0, 200);
+}
 
 // Garante que quem chama é admin/moderador (defesa extra além da RLS).
 async function ensureAdmin() {
@@ -109,6 +114,28 @@ export async function adminUpdateCompany(id: string, patch: Partial<Database['pu
   return { ok: true };
 }
 
+export async function adminBulkUpdateCompanies(ids: string[], patch: CompanyBulkPatch): Promise<R> {
+  const admin = await ensureAdmin();
+  if (!admin) return { error: 'Sem permissão.' };
+  const selected = validIds(ids);
+  if (!selected.length) return { error: 'Selecione ao menos uma empresa.' };
+  if (patch.status && !companyStatuses.includes(patch.status as any)) return { error: 'Status inválido.' };
+  const safePatch: CompanyBulkPatch = {};
+  if (patch.status) safePatch.status = patch.status;
+  if (typeof patch.is_verified === 'boolean') safePatch.is_verified = patch.is_verified;
+  if (typeof patch.is_featured === 'boolean') safePatch.is_featured = patch.is_featured;
+  if (!Object.keys(safePatch).length) return { error: 'Escolha uma ação.' };
+
+  const { error } = await admin.sb.from('companies').update(safePatch).in('id', selected);
+  revalidatePath('/admin/empresas');
+  revalidatePath('/imobiliarias');
+  revalidatePath('/corretores');
+  revalidatePath('/profissionais');
+  if (error) return { error: `Falha ao atualizar empresas: ${error.message}` };
+  await logAdminAction(admin.sb, admin.adminId, 'company.bulk_update', 'company', selected[0], { ids: selected, patch: safePatch });
+  return { ok: true };
+}
+
 // ---- Usuários ----
 export async function adminSetUserRole(id: string, role: UserRole): Promise<R> {
   const admin = await ensureAdmin();
@@ -162,6 +189,17 @@ export async function adminToggleCityFeatured(id: string, featured: boolean): Pr
   return error ? { error: 'Falha ao atualizar.' } : { ok: true };
 }
 
+export async function adminBulkToggleCityFeatured(ids: string[], featured: boolean): Promise<R> {
+  const admin = await ensureAdmin();
+  if (!admin) return { error: 'Sem permissão.' };
+  const selected = validIds(ids);
+  if (!selected.length) return { error: 'Selecione ao menos uma cidade.' };
+  const { error } = await admin.sb.from('cities').update({ is_featured: featured }).in('id', selected);
+  revalidatePath('/admin/cidades');
+  revalidatePath('/');
+  return error ? { error: `Falha ao atualizar cidades: ${error.message}` } : { ok: true };
+}
+
 export async function adminAddNeighborhood(cityId: string, name: string): Promise<R> {
   const admin = await ensureAdmin();
   if (!admin) return { error: 'Sem permissão.' };
@@ -175,6 +213,27 @@ export async function adminAddNeighborhood(cityId: string, name: string): Promis
   if (!error) return { ok: true };
   if (error.message.includes('duplicate key')) return { error: 'Esse bairro já existe nessa cidade.' };
   return { error: 'Falha ao criar bairro.' };
+}
+
+export async function adminBulkDeleteNeighborhoods(ids: string[]): Promise<R> {
+  const admin = await ensureAdmin();
+  if (!admin) return { error: 'Sem permissão.' };
+  const selected = validIds(ids);
+  if (!selected.length) return { error: 'Selecione ao menos um bairro.' };
+
+  const head = { count: 'exact' as const, head: true };
+  const [properties, companies] = await Promise.all([
+    admin.sb.from('properties').select('id', head).in('neighborhood_id', selected),
+    admin.sb.from('companies').select('id', head).in('neighborhood_id', selected),
+  ]);
+  const blocked = (properties.count ?? 0) + (companies.count ?? 0);
+  if (blocked > 0) return { error: 'Não é possível excluir bairros vinculados a imóveis ou empresas.' };
+
+  const { error } = await admin.sb.from('neighborhoods').delete().in('id', selected);
+  revalidatePath('/admin/cidades');
+  if (error) return { error: `Falha ao excluir bairros: ${error.message}` };
+  await logAdminAction(admin.sb, admin.adminId, 'neighborhood.bulk_delete', 'neighborhood', selected[0], { ids: selected });
+  return { ok: true };
 }
 
 // ---- Remover imóvel ----
@@ -238,6 +297,26 @@ export async function adminSetBrokerStatus(id: string, status: string): Promise<
   return adminUpdateBroker(id, patch);
 }
 
+export async function adminBulkSetBrokerStatus(ids: string[], status: string): Promise<R> {
+  const admin = await ensureAdmin();
+  if (!admin) return { error: 'Sem permissão.' };
+  const selected = validIds(ids);
+  if (!selected.length) return { error: 'Selecione ao menos um corretor.' };
+  if (!brokerStatuses.includes(status as any)) return { error: 'Status inválido.' };
+  const now = new Date().toISOString();
+  const patch: any = { status };
+  if (status === 'aprovado' || status === 'ativo') patch.approved_at = now;
+  if (status === 'reprovado') patch.rejected_at = now;
+  if (status === 'inativo' || status === 'arquivado' || status === 'removido') patch.disabled_at = now;
+  const { error } = await admin.sb.from('brokers').update(patch).in('id', selected);
+  revalidatePath('/admin/corretores');
+  revalidatePath('/corretores');
+  revalidatePath('/profissionais/corretor_autonomo');
+  if (error) return { error: `Falha ao atualizar corretores: ${error.message}` };
+  await logAdminAction(admin.sb, admin.adminId, 'broker.bulk_status', 'broker', selected[0], { ids: selected, status });
+  return { ok: true };
+}
+
 // ---- Banners ----
 export async function adminToggleBanner(id: string, active: boolean): Promise<R> {
   const admin = await ensureAdmin();
@@ -281,4 +360,21 @@ export async function adminToggleStorefront(id: string, active: boolean): Promis
   const { error } = await service.from('storefronts').update(patch).eq('id', id);
   revalidatePath('/admin/vitrines');
   return error ? { error: 'Falha ao atualizar vitrine.' } : { ok: true };
+}
+
+export async function adminBulkToggleStorefronts(ids: string[], active: boolean): Promise<R> {
+  const admin = await ensureAdmin();
+  if (!admin) return { error: 'Sem permissão.' };
+  const selected = validIds(ids);
+  if (!selected.length) return { error: 'Selecione ao menos uma vitrine.' };
+  const service = createServiceClient();
+  const patch: Partial<Database['public']['Tables']['storefronts']['Update']> = active
+    ? { status: 'ativo', activated_at: new Date().toISOString(), expires_at: null }
+    : { status: 'expirado' };
+  const { error } = await service.from('storefronts').update(patch).in('id', selected);
+  revalidatePath('/admin/vitrines');
+  revalidatePath('/vitrine');
+  if (error) return { error: `Falha ao atualizar vitrines: ${error.message}` };
+  await logAdminAction(admin.sb, admin.adminId, active ? 'storefront.bulk_enable' : 'storefront.bulk_disable', 'storefront', selected[0], { ids: selected });
+  return { ok: true };
 }

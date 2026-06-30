@@ -804,6 +804,15 @@ export async function adminListCities() {
   return data ?? [];
 }
 
+export async function adminListNeighborhoods() {
+  if (!hasEnv()) return [];
+  const { data } = await createServerClient()
+    .from('neighborhoods')
+    .select('id,name,slug,created_at,cities(id,name,slug),properties(count),companies(count)')
+    .order('name');
+  return data ?? [];
+}
+
 // Imóvel completo pelo slug (com fotos, modalidades, características e contato).
 export async function getPropertyBySlug(slug: string) {
   if (!hasEnv()) return null;

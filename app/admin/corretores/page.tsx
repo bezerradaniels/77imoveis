@@ -1,6 +1,5 @@
-import Link from 'next/link';
 import { adminListBrokers, adminListCompanies, getCitiesAll } from '@/lib/data';
-import { BrokerAdmin } from '@/components/admin/BrokerAdmin';
+import { BrokerBulkList } from '@/components/admin/BrokerBulkList';
 
 export const dynamic = 'force-dynamic';
 
@@ -30,27 +29,7 @@ export default async function AdminCorretores({ searchParams }: { searchParams: 
         <button className="rounded-lg bg-primary px-4 text-sm font-medium text-on-primary">Filtrar</button>
       </form>
 
-      <ul className="space-y-2">
-        {brokers.map((b: any) => {
-          const company = Array.isArray(b.companies) ? b.companies[0] : b.companies;
-          return (
-            <li key={b.id} className="flex flex-col gap-3 rounded-xl border border-border bg-surface p-3 lg:flex-row lg:items-center lg:justify-between">
-              <div className="min-w-0">
-                <div className="flex flex-wrap items-center gap-2">
-                  <p className="text-sm font-medium">{b.name}</p>
-                  <span className="rounded bg-bg px-1.5 py-0.5 text-xs">{b.status ?? 'ativo'}</span>
-                </div>
-                <p className="text-xs text-muted">{b.email ?? b.phone ?? b.whatsapp ?? 'sem contato'} · CRECI {b.creci ?? '—'}</p>
-                <p className="mt-1 text-xs text-muted">
-                  Empresa: {company?.slug ? <Link href={`/empresa/${company.slug}`} className="text-link">{company.trade_name}</Link> : company?.trade_name ?? '—'} · Cidade: {company?.cities?.name ?? '—'} · Imóveis: {b.properties?.[0]?.count ?? 0}
-                </p>
-              </div>
-              <BrokerAdmin broker={b} />
-            </li>
-          );
-        })}
-        {!brokers.length && <p className="rounded-xl border border-dashed border-border p-10 text-center text-muted">Nenhum corretor.</p>}
-      </ul>
+      <BrokerBulkList brokers={brokers as any} />
     </div>
   );
 }

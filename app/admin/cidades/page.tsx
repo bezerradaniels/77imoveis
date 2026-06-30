@@ -1,10 +1,11 @@
-import { adminListCities } from '@/lib/data';
-import { AddCity, CityFeatured, AddNeighborhood } from '@/components/admin/CityAdmin';
+import { adminListCities, adminListNeighborhoods } from '@/lib/data';
+import { AddCity, AddNeighborhood } from '@/components/admin/CityAdmin';
+import { CityNeighborhoodBulkList } from '@/components/admin/CityNeighborhoodBulkList';
 
 export const dynamic = 'force-dynamic';
 
 export default async function AdminCidades() {
-  const cities = await adminListCities();
+  const [cities, neighborhoods] = await Promise.all([adminListCities(), adminListNeighborhoods()]);
   const cityOpts = cities.map((c: any) => ({ id: c.id, name: c.name }));
 
   return (
@@ -15,23 +16,7 @@ export default async function AdminCidades() {
         <AddNeighborhood cities={cityOpts} />
       </section>
 
-      <section>
-        <h2 className="mb-2 text-sm font-semibold">Cidades ({cities.length})</h2>
-        <ul className="space-y-2">
-          {cities.map((c: any) => (
-            <li key={c.id} className="flex items-center justify-between gap-2 rounded-xl border border-border bg-surface p-3">
-              <div>
-                <p className="text-sm font-medium">{c.name}</p>
-                <p className="text-xs text-muted">
-                  /{c.slug} · {c.neighborhoods?.[0]?.count ?? 0} bairros
-                  {c.population ? ` · ${c.population.toLocaleString('pt-BR')} hab.` : ''}
-                </p>
-              </div>
-              <CityFeatured id={c.id} featured={c.is_featured} />
-            </li>
-          ))}
-        </ul>
-      </section>
+      <CityNeighborhoodBulkList cities={cities as any} neighborhoods={neighborhoods as any} />
     </div>
   );
 }
