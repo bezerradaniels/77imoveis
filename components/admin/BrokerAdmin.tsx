@@ -1,8 +1,8 @@
 'use client';
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { BadgeCheck, Pencil, XCircle } from 'lucide-react';
-import { adminSetBrokerStatus, adminUpdateBroker } from '@/app/admin/actions';
+import { BadgeCheck, Pencil, Trash2, XCircle } from 'lucide-react';
+import { adminRemoveBroker, adminSetBrokerStatus, adminUpdateBroker } from '@/app/admin/actions';
 
 type Broker = {
   id: string;
@@ -50,14 +50,17 @@ export function BrokerAdmin({ broker }: { broker: Broker }) {
         <button disabled={pending} onClick={() => setEditing(true)} className={`${btn} text-muted`}>
           <Pencil size={13} /> Editar
         </button>
-        <select
-          defaultValue={broker.status ?? 'ativo'}
+        <button
           disabled={pending}
-          onChange={(e) => run(() => adminSetBrokerStatus(broker.id, e.target.value))}
-          className="rounded-md border border-border bg-surface px-2 py-1 text-xs"
+          onClick={() => {
+            if (confirm('Remover este corretor? O perfil deixará de aparecer publicamente, mas os vínculos históricos serão preservados.')) {
+              run(() => adminRemoveBroker(broker.id));
+            }
+          }}
+          className={`${btn} text-danger`}
         >
-          {['ativo', 'pendente', 'aprovado', 'reprovado', 'inativo', 'arquivado', 'removido'].map((s) => <option key={s} value={s}>{s}</option>)}
-        </select>
+          <Trash2 size={13} /> Remover
+        </button>
       </div>
       {editing && (
         <form

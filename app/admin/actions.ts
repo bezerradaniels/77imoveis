@@ -126,14 +126,19 @@ export async function adminBulkUpdateCompanies(ids: string[], patch: CompanyBulk
   if (typeof patch.is_featured === 'boolean') safePatch.is_featured = patch.is_featured;
   if (!Object.keys(safePatch).length) return { error: 'Escolha uma ação.' };
 
-  const { error } = await admin.sb.from('companies').update(safePatch).in('id', selected);
+  const { data, error } = await admin.sb.from('companies').update(safePatch).in('id', selected).select('id');
   revalidatePath('/admin/empresas');
   revalidatePath('/imobiliarias');
   revalidatePath('/corretores');
   revalidatePath('/profissionais');
   if (error) return { error: `Falha ao atualizar empresas: ${error.message}` };
+  if (!data?.length) return { error: 'Nenhuma empresa foi atualizada.' };
   await logAdminAction(admin.sb, admin.adminId, 'company.bulk_update', 'company', selected[0], { ids: selected, patch: safePatch });
   return { ok: true };
+}
+
+export async function adminRemoveCompany(id: string): Promise<R> {
+  return adminBulkUpdateCompanies([id], { status: 'removido', is_featured: false });
 }
 
 // ---- Usuários ----
@@ -194,10 +199,44 @@ export async function adminBulkToggleCityFeatured(ids: string[], featured: boole
   if (!admin) return { error: 'Sem permissão.' };
   const selected = validIds(ids);
   if (!selected.length) return { error: 'Selecione ao menos uma cidade.' };
-  const { error } = await admin.sb.from('cities').update({ is_featured: featured }).in('id', selected);
+  const { data, error } = await admin.sb.from('cities').update({ is_featured: featured }).in('id', selected).select('id');
   revalidatePath('/admin/cidades');
   revalidatePath('/');
-  return error ? { error: `Falha ao atualizar cidades: ${error.message}` } : { ok: true };
+  if (error) return { error: `Falha ao atualizar cidades: ${error.message}` };
+  return data?.length ? { ok: true } : { error: 'Nenhuma cidade foi atualizada.' };
+}
+
+export async function adminBulkRemoveCities(ids: string[]): Promise<R> {
+  const admin = await ensureAdmin();
+  if (!admin) return { error: 'Sem permissão.' };
+  const selected = validIds(ids);
+  if (!selected.length) return { error: 'Selecione ao menos uma cidade.' };
+
+  const head = { count: 'exact' as const, head: true };
+  const [neighborhoods, properties, companies, profiles, companyCities, banners] = await Promise.all([
+    admin.sb.from('neighborhoods').select('id', head).in('city_id', selected),
+    admin.sb.from('properties').select('id', head).in('city_id', selected),
+    admin.sb.from('companies').select('id', head).in('city_id', selected),
+    admin.sb.from('profiles').select('id', head).in('city_id', selected),
+    admin.sb.from('company_cities').select('company_id', head).in('city_id', selected),
+    admin.sb.from('banners').select('id', head).in('city_id', selected),
+  ]);
+  const blocked =
+    (neighborhoods.count ?? 0) +
+    (properties.count ?? 0) +
+    (companies.count ?? 0) +
+    (profiles.count ?? 0) +
+    (companyCities.count ?? 0) +
+    (banners.count ?? 0);
+  if (blocked > 0) return { error: 'Não é possível remover cidades com bairros, imóveis, empresas, usuários ou banners vinculados.' };
+
+  const { data, error } = await admin.sb.from('cities').delete().in('id', selected).select('id');
+  revalidatePath('/admin/cidades');
+  revalidatePath('/');
+  if (error) return { error: `Falha ao remover cidades: ${error.message}` };
+  if (!data?.length) return { error: 'Nenhuma cidade foi removida.' };
+  await logAdminAction(admin.sb, admin.adminId, 'city.bulk_remove', 'city', selected[0], { ids: selected });
+  return { ok: true };
 }
 
 export async function adminAddNeighborhood(cityId: string, name: string): Promise<R> {
@@ -229,9 +268,10 @@ export async function adminBulkDeleteNeighborhoods(ids: string[]): Promise<R> {
   const blocked = (properties.count ?? 0) + (companies.count ?? 0);
   if (blocked > 0) return { error: 'Não é possível excluir bairros vinculados a imóveis ou empresas.' };
 
-  const { error } = await admin.sb.from('neighborhoods').delete().in('id', selected);
+  const { data, error } = await admin.sb.from('neighborhoods').delete().in('id', selected).select('id');
   revalidatePath('/admin/cidades');
   if (error) return { error: `Falha ao excluir bairros: ${error.message}` };
+  if (!data?.length) return { error: 'Nenhum bairro foi removido.' };
   await logAdminAction(admin.sb, admin.adminId, 'neighborhood.bulk_delete', 'neighborhood', selected[0], { ids: selected });
   return { ok: true };
 }
@@ -308,13 +348,18 @@ export async function adminBulkSetBrokerStatus(ids: string[], status: string): P
   if (status === 'aprovado' || status === 'ativo') patch.approved_at = now;
   if (status === 'reprovado') patch.rejected_at = now;
   if (status === 'inativo' || status === 'arquivado' || status === 'removido') patch.disabled_at = now;
-  const { error } = await admin.sb.from('brokers').update(patch).in('id', selected);
+  const { data, error } = await admin.sb.from('brokers').update(patch).in('id', selected).select('id');
   revalidatePath('/admin/corretores');
   revalidatePath('/corretores');
   revalidatePath('/profissionais/corretor_autonomo');
   if (error) return { error: `Falha ao atualizar corretores: ${error.message}` };
+  if (!data?.length) return { error: 'Nenhum corretor foi atualizado.' };
   await logAdminAction(admin.sb, admin.adminId, 'broker.bulk_status', 'broker', selected[0], { ids: selected, status });
   return { ok: true };
+}
+
+export async function adminRemoveBroker(id: string): Promise<R> {
+  return adminBulkSetBrokerStatus([id], 'removido');
 }
 
 // ---- Banners ----
@@ -371,10 +416,15 @@ export async function adminBulkToggleStorefronts(ids: string[], active: boolean)
   const patch: Partial<Database['public']['Tables']['storefronts']['Update']> = active
     ? { status: 'ativo', activated_at: new Date().toISOString(), expires_at: null }
     : { status: 'expirado' };
-  const { error } = await service.from('storefronts').update(patch).in('id', selected);
+  const { data, error } = await service.from('storefronts').update(patch).in('id', selected).select('id');
   revalidatePath('/admin/vitrines');
   revalidatePath('/vitrine');
   if (error) return { error: `Falha ao atualizar vitrines: ${error.message}` };
+  if (!data?.length) return { error: 'Nenhuma vitrine foi atualizada.' };
   await logAdminAction(admin.sb, admin.adminId, active ? 'storefront.bulk_enable' : 'storefront.bulk_disable', 'storefront', selected[0], { ids: selected });
   return { ok: true };
+}
+
+export async function adminRemoveStorefront(id: string): Promise<R> {
+  return adminBulkToggleStorefronts([id], false);
 }

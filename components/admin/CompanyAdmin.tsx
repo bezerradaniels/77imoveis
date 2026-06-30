@@ -1,8 +1,8 @@
 'use client';
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { BadgeCheck, Pencil, Star } from 'lucide-react';
-import { adminUpdateCompany } from '@/app/admin/actions';
+import { BadgeCheck, Pencil, Star, Trash2 } from 'lucide-react';
+import { adminRemoveCompany, adminUpdateCompany } from '@/app/admin/actions';
 
 export function CompanyAdmin({
   company,
@@ -49,14 +49,22 @@ export function CompanyAdmin({
         <button disabled={pending} onClick={() => setEditing(true)} className={`${btn} text-muted`}>
           <Pencil size={13} /> Editar
         </button>
-        <select
-          defaultValue={company.status}
+        <button
           disabled={pending}
-          onChange={(e) => run({ status: e.target.value })}
-          className="rounded-md border border-border bg-surface px-2 py-1 text-xs"
+          onClick={() => {
+            if (confirm('Remover esta empresa? Ela deixará de aparecer publicamente, mas os dados históricos serão preservados.')) {
+              start(async () => {
+                setMessage('');
+                const r = await adminRemoveCompany(company.id);
+                setMessage(r?.error || 'Atualizado.');
+                if (!r?.error) router.refresh();
+              });
+            }
+          }}
+          className={`${btn} text-danger`}
         >
-          {['ativo', 'pendente', 'pausado', 'bloqueado', 'arquivado', 'removido'].map((s) => <option key={s} value={s}>{s}</option>)}
-        </select>
+          <Trash2 size={13} /> Remover
+        </button>
       </div>
       {editing && (
         <form

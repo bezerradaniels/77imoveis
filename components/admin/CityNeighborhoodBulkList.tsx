@@ -1,7 +1,7 @@
 'use client';
 import { useMemo, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { adminBulkDeleteNeighborhoods, adminBulkToggleCityFeatured } from '@/app/admin/actions';
+import { adminBulkDeleteNeighborhoods, adminBulkRemoveCities, adminBulkToggleCityFeatured } from '@/app/admin/actions';
 import { CityFeatured } from './CityAdmin';
 
 export function CityNeighborhoodBulkList({ cities, neighborhoods }: { cities: any[]; neighborhoods: any[] }) {
@@ -17,7 +17,10 @@ export function CityNeighborhoodBulkList({ cities, neighborhoods }: { cities: an
 
   const runCities = () => start(async () => {
     setMessage('');
-    const r = await adminBulkToggleCityFeatured(selectedCities, cityAction === 'feature');
+    if (cityAction === 'remove' && !confirm('Remover as cidades selecionadas? A ação só será aplicada em cidades sem bairros, imóveis, empresas, usuários ou banners vinculados.')) return;
+    const r = cityAction === 'remove'
+      ? await adminBulkRemoveCities(selectedCities)
+      : await adminBulkToggleCityFeatured(selectedCities, cityAction === 'feature');
     setMessage(r?.error || 'Ação aplicada.');
     if (!r?.error) {
       setSelectedCities([]);
@@ -28,7 +31,7 @@ export function CityNeighborhoodBulkList({ cities, neighborhoods }: { cities: an
 
   const runNeighborhoods = () => start(async () => {
     setMessage('');
-    if (!confirm('Excluir os bairros selecionados? A ação só será aplicada em bairros sem imóveis ou empresas vinculados.')) return;
+    if (!confirm('Remover os bairros selecionados? A ação só será aplicada em bairros sem imóveis ou empresas vinculados.')) return;
     const r = await adminBulkDeleteNeighborhoods(selectedNeighborhoods);
     setMessage(r?.error || 'Ação aplicada.');
     if (!r?.error) {
@@ -54,6 +57,7 @@ export function CityNeighborhoodBulkList({ cities, neighborhoods }: { cities: an
             <option value="">Ação em lote</option>
             <option value="feature">Destacar</option>
             <option value="unfeature">Remover destaque</option>
+            <option value="remove">Remover sem vínculos</option>
           </select>
           <button disabled={pending || !selectedCities.length || !cityAction} onClick={runCities} className="h-9 rounded-md bg-primary px-3 text-sm font-medium text-on-primary disabled:opacity-50">Aplicar</button>
         </div>
@@ -82,7 +86,7 @@ export function CityNeighborhoodBulkList({ cities, neighborhoods }: { cities: an
           </label>
           <select value={neighborhoodAction} onChange={(e) => setNeighborhoodAction(e.target.value)} className="h-9 rounded-md border border-border bg-bg px-2 text-sm">
             <option value="">Ação em lote</option>
-            <option value="delete">Excluir sem vínculos</option>
+            <option value="delete">Remover sem vínculos</option>
           </select>
           <button disabled={pending || !selectedNeighborhoods.length || neighborhoodAction !== 'delete'} onClick={runNeighborhoods} className="h-9 rounded-md bg-danger px-3 text-sm font-medium text-on-primary disabled:opacity-50">Aplicar</button>
         </div>

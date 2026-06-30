@@ -42,8 +42,8 @@ export function CompanyBulkList({ items }: { items: Company[] }) {
   const run = () => start(async () => {
     setMessage('');
     const patch =
-      action.startsWith('status:')
-        ? { status: action.replace('status:', '') }
+      action === 'remove'
+        ? { status: 'removido', is_featured: false }
         : action === 'verify'
           ? { is_verified: true }
           : action === 'unverify'
@@ -71,11 +71,11 @@ export function CompanyBulkList({ items }: { items: Company[] }) {
         </label>
         <select value={action} onChange={(e) => setAction(e.target.value)} className="h-9 rounded-md border border-border bg-bg px-2 text-sm">
           <option value="">Ação em lote</option>
-          {['ativo', 'pendente', 'pausado', 'bloqueado', 'arquivado', 'removido'].map((s) => <option key={s} value={`status:${s}`}>Status: {s}</option>)}
           <option value="verify">Verificar</option>
           <option value="unverify">Remover verificação</option>
           <option value="feature">Destacar</option>
           <option value="unfeature">Remover destaque</option>
+          <option value="remove">Remover</option>
         </select>
         <button disabled={pending || !selected.length || !action} onClick={run} className="h-9 rounded-md bg-primary px-3 text-sm font-medium text-on-primary disabled:opacity-50">Aplicar</button>
         {message && <p className={message === 'Ação aplicada.' ? 'text-sm text-success' : 'text-sm text-danger'}>{message}</p>}
@@ -87,10 +87,7 @@ export function CompanyBulkList({ items }: { items: Company[] }) {
             <div className="flex min-w-0 gap-3">
               <input aria-label={`Selecionar ${c.trade_name}`} type="checkbox" checked={selected.includes(c.id)} onChange={() => toggle(c.id)} className="mt-1" />
               <div>
-                <div className="flex flex-wrap items-center gap-2">
-                  <Link href={`/empresa/${c.slug}`} className="text-sm font-medium hover:text-link-hover">{c.trade_name}</Link>
-                  <span className="rounded bg-bg px-1.5 py-0.5 text-xs">{c.status}</span>
-                </div>
+                <Link href={`/empresa/${c.slug}`} className="text-sm font-medium hover:text-link-hover">{c.trade_name}</Link>
                 <p className="text-xs text-muted">{companyTypeLabel(c.type)} · {c.cities?.name ?? '—'} · {c.email ?? c.phone ?? 'sem contato'}</p>
                 <p className="mt-1 text-xs text-muted">Corretores: {c.brokers?.[0]?.count ?? 0} · Imóveis: {c.properties?.[0]?.count ?? 0}</p>
               </div>

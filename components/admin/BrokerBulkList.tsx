@@ -8,7 +8,7 @@ import { BrokerAdmin } from './BrokerAdmin';
 export function BrokerBulkList({ brokers }: { brokers: any[] }) {
   const router = useRouter();
   const [selected, setSelected] = useState<string[]>([]);
-  const [status, setStatus] = useState('');
+  const [action, setAction] = useState('');
   const [message, setMessage] = useState('');
   const [pending, start] = useTransition();
   const ids = useMemo(() => brokers.map((item) => item.id), [brokers]);
@@ -17,11 +17,12 @@ export function BrokerBulkList({ brokers }: { brokers: any[] }) {
 
   const run = () => start(async () => {
     setMessage('');
+    const status = action === 'approve' ? 'aprovado' : action === 'reject' ? 'reprovado' : 'removido';
     const r = await adminBulkSetBrokerStatus(selected, status);
     setMessage(r?.error || 'Ação aplicada.');
     if (!r?.error) {
       setSelected([]);
-      setStatus('');
+      setAction('');
       router.refresh();
     }
   });
@@ -33,11 +34,13 @@ export function BrokerBulkList({ brokers }: { brokers: any[] }) {
           <input type="checkbox" checked={allSelected} onChange={(e) => setSelected(e.target.checked ? ids : [])} />
           {selected.length ? `${selected.length} selecionado(s)` : 'Selecionar tudo'}
         </label>
-        <select value={status} onChange={(e) => setStatus(e.target.value)} className="h-9 rounded-md border border-border bg-bg px-2 text-sm">
-          <option value="">Status em lote</option>
-          {['ativo', 'pendente', 'aprovado', 'reprovado', 'inativo', 'arquivado', 'removido'].map((s) => <option key={s} value={s}>{s}</option>)}
+        <select value={action} onChange={(e) => setAction(e.target.value)} className="h-9 rounded-md border border-border bg-bg px-2 text-sm">
+          <option value="">Ação em lote</option>
+          <option value="approve">Aprovar</option>
+          <option value="reject">Rejeitar</option>
+          <option value="remove">Remover</option>
         </select>
-        <button disabled={pending || !selected.length || !status} onClick={run} className="h-9 rounded-md bg-primary px-3 text-sm font-medium text-on-primary disabled:opacity-50">Aplicar</button>
+        <button disabled={pending || !selected.length || !action} onClick={run} className="h-9 rounded-md bg-primary px-3 text-sm font-medium text-on-primary disabled:opacity-50">Aplicar</button>
         {message && <p className={message === 'Ação aplicada.' ? 'text-sm text-success' : 'text-sm text-danger'}>{message}</p>}
       </div>
 
@@ -49,10 +52,7 @@ export function BrokerBulkList({ brokers }: { brokers: any[] }) {
               <div className="flex min-w-0 gap-3">
                 <input aria-label={`Selecionar ${b.name}`} type="checkbox" checked={selected.includes(b.id)} onChange={() => toggle(b.id)} className="mt-1" />
                 <div className="min-w-0">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <p className="text-sm font-medium">{b.name}</p>
-                    <span className="rounded bg-bg px-1.5 py-0.5 text-xs">{b.status ?? 'ativo'}</span>
-                  </div>
+                  <p className="text-sm font-medium">{b.name}</p>
                   <p className="text-xs text-muted">{b.email ?? b.phone ?? b.whatsapp ?? 'sem contato'} · CRECI {b.creci ?? '—'}</p>
                   <p className="mt-1 text-xs text-muted">
                     Empresa: {company?.slug ? <Link href={`/empresa/${company.slug}`} className="text-link">{company.trade_name}</Link> : company?.trade_name ?? '—'} · Cidade: {company?.cities?.name ?? '—'} · Imóveis: {b.properties?.[0]?.count ?? 0}

@@ -37,6 +37,7 @@ export function StorefrontBulkList({ vitrines }: { vitrines: any[] }) {
           <option value="">Ação em lote</option>
           <option value="active">Ativar</option>
           <option value="expired">Desativar</option>
+          <option value="remove">Remover</option>
         </select>
         <button disabled={pending || !selected.length || !action} onClick={run} className="h-9 rounded-md bg-primary px-3 text-sm font-medium text-on-primary disabled:opacity-50">Aplicar</button>
         {message && <p className={message === 'Ação aplicada.' ? 'text-sm text-success' : 'text-sm text-danger'}>{message}</p>}
@@ -52,9 +53,6 @@ export function StorefrontBulkList({ vitrines }: { vitrines: any[] }) {
                   <Link href={`/vitrine/${v.slug}`} className="text-sm font-medium hover:text-link-hover">
                     {v.companies?.trade_name ?? v.slug}
                   </Link>
-                  <span className={`rounded px-1.5 py-0.5 text-xs ${v.status === 'ativo' ? 'bg-success/15 text-success' : 'bg-border text-muted'}`}>
-                    {v.status}
-                  </span>
                 </div>
                 <p className="text-xs text-muted">/vitrine/{v.slug}{v.expires_at ? ` · expira ${new Date(v.expires_at).toLocaleDateString('pt-BR')}` : ' · sem expiração'} · {v.views_count} visualizações</p>
               </div>
