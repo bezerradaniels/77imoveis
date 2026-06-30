@@ -19,7 +19,7 @@ export function AuthNav() {
   if (!logged)
     return (
       <Link href="/entrar" className="text-sm font-bold text-text/75 transition-colors hover:text-link-hover">
-        Login
+        Acessar painel
       </Link>
     );
 

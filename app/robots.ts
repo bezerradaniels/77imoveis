@@ -10,6 +10,8 @@ const DISALLOW = [
   '/admin',
   '/entrar',
   '/cadastro',
+  '/esqueci-senha',
+  '/redefinir-senha',
   '/anunciar',
 ];
 

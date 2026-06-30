@@ -72,12 +72,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           href="https://fonts.googleapis.com/css2?family=Stack+Sans+Text:wght@400;500;600;700&family=Stack+Sans+Headline:wght@500;600;700&display=swap"
         />
       </head>
-      <body className="font-sans antialiased pb-16 pt-[65px] md:pb-0">
+      <body className="flex min-h-screen flex-col font-sans antialiased pb-16 pt-[65px] md:pb-0">
         <script dangerouslySetInnerHTML={{ __html: themeInit }} />
         <JsonLd data={websiteLd()} />
         <JsonLd data={organizationLd()} />
         <Header />
-        {children}
+        <div className="flex-1">{children}</div>
         <Footer />
         <ConsentBanner />
         <MobileBottomBar />

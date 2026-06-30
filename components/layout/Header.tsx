@@ -3,12 +3,8 @@ import { ThemeToggle } from './ThemeToggle';
 import { AuthNav } from './AuthNav';
 
 const menu = [
-  { href: '/imoveis', label: 'Imóveis' },
   { href: '/imoveis?modalidade=venda', label: 'Venda' },
   { href: '/imoveis?modalidade=aluguel', label: 'Aluguel' },
-  { href: '/imobiliarias', label: 'Imobiliárias' },
-  { href: '/corretores', label: 'Corretores' },
-  { href: '/profissionais', label: 'Profissionais' },
 ];
 
 // Cabeçalho do site (handoff): logo, "Anuncie", tema e entrar — com degradê sutil.

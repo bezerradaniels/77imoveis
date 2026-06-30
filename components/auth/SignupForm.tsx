@@ -66,13 +66,13 @@ export function SignupForm() {
 
   if (sent)
     return (
-      <div className="space-y-3 rounded-[30px] border border-border bg-surface p-6 text-center">
+      <div className="space-y-3 py-3 text-center">
         <MailCheck size={32} className="mx-auto text-success" />
-        <h2 className="font-semibold">Confirme seu e-mail</h2>
+        <h2 className="font-bold">Confirme seu e-mail</h2>
         <p className="text-sm text-muted">
           Enviamos um link de confirmação. Abra-o para ativar sua conta e entrar.
         </p>
-        <Link href="/entrar" className="inline-block text-sm text-link">
+        <Link href="/entrar" className="inline-block text-sm font-bold text-link hover:text-link-hover">
           Voltar para o login
         </Link>
       </div>
@@ -127,13 +127,13 @@ export function SignupForm() {
           </button>
         </div>
       </Field>
-      {error && <p className="text-sm text-danger">{error}</p>}
-      <Button type="submit" disabled={loading} rounded="lg" className="w-full">
+      {error && <p className="text-sm font-medium text-danger">{error}</p>}
+      <Button type="submit" disabled={loading} rounded="lg" className="h-11 w-full font-bold">
         {loading ? 'Criando conta…' : 'Criar conta grátis'}
       </Button>
       <p className="text-center text-sm text-muted">
         Já tem conta?{' '}
-        <Link href="/entrar" className="text-link">
+        <Link href="/entrar" className="font-bold text-link hover:text-link-hover">
           Entrar
         </Link>
       </p>

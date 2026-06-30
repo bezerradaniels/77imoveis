@@ -61,17 +61,17 @@ export function LoginForm() {
         </div>
       </Field>
       <p className="text-right text-sm">
-        <Link href="/esqueci-senha" className="text-link">
+        <Link href="/esqueci-senha" className="font-bold text-link hover:text-link-hover">
           Esqueci a senha
         </Link>
       </p>
-      {error && <p className="text-sm text-danger">{error}</p>}
-      <Button type="submit" disabled={loading} rounded="lg" className="w-full">
+      {error && <p className="text-sm font-medium text-danger">{error}</p>}
+      <Button type="submit" disabled={loading} rounded="lg" className="h-11 w-full font-bold">
         {loading ? 'Entrando…' : 'Entrar'}
       </Button>
       <p className="text-center text-sm text-muted">
         Não tem conta?{' '}
-        <Link href="/cadastro" className="text-link">
+        <Link href="/cadastro" className="font-bold text-link hover:text-link-hover">
           Cadastre-se grátis
         </Link>
       </p>

@@ -75,6 +75,14 @@ textarea {
   border-radius: var(--radius);
 }
 
+.auth-form input:not([type='checkbox']):not([type='radio']):not([type='file']):not([type='color']) {
+  border-color: #9ca3af;
+}
+
+.dark .auth-form input:not([type='checkbox']):not([type='radio']):not([type='file']):not([type='color']) {
+  border-color: #4b5563;
+}
+
 /* rolagem horizontal sem barra (chips/categorias) */
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
