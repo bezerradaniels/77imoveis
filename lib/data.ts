@@ -2,9 +2,14 @@
 // ACESSO A DADOS — todas as consultas ao banco ficam AQUI.
 // Quer mudar o que aparece numa página? Edite a função correspondente.
 // =====================================================================
+import { cookies } from 'next/headers';
 import { createClient } from '@supabase/supabase-js';
 import { createClient as createServerClient } from './supabase/server';
 import type { Database } from './supabase/types';
+import { publicCompanyTypeValues } from './constants';
+
+// Cookie que guarda a empresa em foco no painel ('pessoal' = perfil pessoal).
+export const ACTIVE_COMPANY_COOKIE = 'active_company';
 
 const hasEnv = () =>
   !!process.env.NEXT_PUBLIC_SUPABASE_URL && !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -66,7 +71,7 @@ export async function getFeaturedCities() {
   if (!hasEnv()) return [];
   const { data } = await db()
     .from('cities')
-    .select('name,slug')
+    .select('id,name,slug')
     .eq('is_featured', true)
     .order('population', { ascending: false, nullsFirst: false });
   return data ?? [];
@@ -340,13 +345,17 @@ export async function getMyProperties(): Promise<DashProperty[]> {
   if (!hasEnv()) return [];
   const uid = await authUserId();
   if (!uid) return [];
-  const { data } = await createServerClient()
+  // Escopo pela empresa ativa: contexto pessoal mostra imóveis sem empresa;
+  // contexto de empresa mostra os imóveis daquela empresa.
+  const company = await getMyCompany();
+  let q = createServerClient()
     .from('properties')
     .select(
       'id,slug,title,status,price,price_visibility,negotiation,views_count,leads_count,cities(name),property_images(url,is_cover)',
     )
-    .eq('owner_id', uid)
-    .order('updated_at', { ascending: false });
+    .eq('owner_id', uid);
+  q = company ? q.eq('company_id', company.id) : q.is('company_id', null);
+  const { data } = await q.order('updated_at', { ascending: false });
   return (data ?? []).map((p: any) => ({
     id: p.id,
     slug: p.slug,
@@ -405,25 +414,133 @@ export async function getPropertyForEdit(id: string) {
     .from('properties')
     .select(
       '*,property_negotiations(negotiation,price,price_visibility,is_primary),' +
-        'property_features(feature_id),property_images(url,sort,is_cover)',
+        'property_features(feature_id),property_images(url,sort,is_cover),' +
+        'companies(brokers(id,name,email,whatsapp,phone))',
     )
     .eq('id', id)
     .maybeSingle();
   return data;
 }
 
-// Empresa do usuário logado (para o onboarding/edição). Inclui cidades e especialidades.
+// Empresas do usuário logado (lista enxuta para o seletor de empresa ativa).
+export async function getMyCompanies() {
+  if (!hasEnv()) return [];
+  const uid = await authUserId();
+  if (!uid) return [];
+  const { data } = await createServerClient()
+    .from('companies')
+    .select('id,type,trade_name,slug,status')
+    .eq('owner_id', uid)
+    .order('created_at', { ascending: true });
+  return data ?? [];
+}
+
+// Empresa em foco no painel, lida do cookie. 'pessoal' (ou cookie ausente sem
+// empresas) significa contexto pessoal → null.
+export function getActiveCompanyId(): string | null {
+  return cookies().get(ACTIVE_COMPANY_COOKIE)?.value ?? null;
+}
+
+// Empresa ATIVA do usuário (cookie → valida posse → fallback na primeira).
+// Inclui cidades, especialidades e corretores. Retorna null no contexto pessoal.
 export async function getMyCompany() {
   if (!hasEnv()) return null;
   const uid = await authUserId();
   if (!uid) return null;
-  const { data } = await createServerClient()
-    .from('companies')
-    .select('*,company_cities(city_id),company_specialties(specialty_id),brokers(*)')
-    .eq('owner_id', uid)
-    .order('created_at', { ascending: true })
-    .limit(1);
+  const active = getActiveCompanyId();
+  if (active === 'pessoal') return null;
+
+  const sb = createServerClient();
+  const sel = '*,company_cities(city_id),company_specialties(specialty_id),brokers(*)';
+  if (active) {
+    const { data } = await sb.from('companies').select(sel).eq('owner_id', uid).eq('id', active).maybeSingle();
+    if (data) return data;
+  }
+  // Sem cookie válido → primeira empresa do usuário (ou null se não tiver nenhuma).
+  const { data } = await sb.from('companies').select(sel).eq('owner_id', uid)
+    .order('created_at', { ascending: true }).limit(1);
   return data?.[0] ?? null;
+}
+
+export type ListingPublishGate = {
+  companyId: string | null;
+  companyType: string | null;
+  allowed: boolean;
+  activeCount: number;
+  maxActive: number;
+  needsUpgrade: boolean;
+};
+
+// Regra de publicação do corretor autônomo:
+// 1 imóvel ativo grátis; acima disso precisa de assinatura ativa/trial.
+export async function getListingPublishGate(userId: string, excludePropertyId?: string): Promise<ListingPublishGate> {
+  if (!hasEnv()) {
+    return { companyId: null, companyType: null, allowed: true, activeCount: 0, maxActive: 1, needsUpgrade: false };
+  }
+
+  const sb = createServerClient();
+  const active = getActiveCompanyId();
+  let company: any = null;
+  if (active && active !== 'pessoal') {
+    ({ data: company } = await sb.from('companies').select('id,type').eq('owner_id', userId).eq('id', active).maybeSingle());
+  }
+  if (!company && active !== 'pessoal') {
+    ({ data: company } = await sb.from('companies').select('id,type').eq('owner_id', userId)
+      .order('created_at', { ascending: true }).limit(1).maybeSingle());
+  }
+
+  const companyId = (company as any)?.id ?? null;
+  const companyType = (company as any)?.type ?? null;
+  if (companyType !== 'corretor_autonomo') {
+    return { companyId, companyType, allowed: true, activeCount: 0, maxActive: 100000, needsUpgrade: false };
+  }
+
+  const now = new Date().toISOString();
+  const { data: subscriptions } = await sb
+    .from('subscriptions')
+    .select('status,current_period_end,plans(max_active_listings)')
+    .eq('company_id', companyId)
+    .in('status', ['ativa', 'trial'])
+    .or(`current_period_end.is.null,current_period_end.gt.${now}`)
+    .order('created_at', { ascending: false })
+    .limit(3);
+
+  const subscribedLimit = Math.max(
+    0,
+    ...((subscriptions ?? []) as any[]).map((s) => Number(s.plans?.max_active_listings ?? 0)),
+  );
+  const maxActive = subscribedLimit || 1;
+
+  let q = sb
+    .from('properties')
+    .select('id', { count: 'exact', head: true })
+    .eq('company_id', companyId)
+    .eq('status', 'ativo');
+  if (excludePropertyId) q = q.neq('id', excludePropertyId);
+  const { count } = await q;
+  const activeCount = count ?? 0;
+
+  return {
+    companyId,
+    companyType,
+    allowed: activeCount < maxActive,
+    activeCount,
+    maxActive,
+    needsUpgrade: maxActive <= 1 && activeCount >= 1,
+  };
+}
+
+// Perfil completo do usuário logado (para edição em /painel/perfil e /admin/perfil).
+export async function getMyProfile() {
+  if (!hasEnv()) return null;
+  const uid = await authUserId();
+  if (!uid) return null;
+  const { data } = await createServerClient()
+    .from('profiles')
+    .select('id,full_name,email,phone,whatsapp,avatar_url,city_id')
+    .eq('id', uid)
+    .maybeSingle();
+  return data ?? null;
 }
 
 export async function getSpecialties() {
@@ -439,7 +556,11 @@ export async function getSpecialties() {
 // Slugs de empresas ativas (para o sitemap).
 export async function getActiveCompanySlugs(): Promise<string[]> {
   if (!hasEnv()) return [];
-  const { data } = await db().from('companies').select('slug').eq('status', 'ativo');
+  const { data } = await db()
+    .from('companies')
+    .select('slug')
+    .eq('status', 'ativo')
+    .in('type', publicCompanyTypeValues as any);
   return (data ?? []).map((c: any) => c.slug);
 }
 
@@ -449,7 +570,12 @@ export async function getCompanies(type?: string) {
     .from('companies')
     .select('trade_name,slug,type,city_id,logo_url,is_verified,is_featured,cities!companies_city_id_fkey(name)')
     .eq('status', 'ativo');
-  if (type) q = q.eq('type', type);
+  if (type) {
+    if (!publicCompanyTypeValues.includes(type as any)) return [];
+    q = q.eq('type', type);
+  } else {
+    q = q.in('type', publicCompanyTypeValues as any);
+  }
   const { data } = await q
     .order('is_featured', { ascending: false })
     .order('trade_name');
@@ -485,17 +611,10 @@ export async function getCompanyBySlug(slug: string) {
 // Empresa + vitrine do usuário logado (para o editor). storefront pode ser null.
 export async function getMyStorefront() {
   if (!hasEnv()) return { company: null, storefront: null };
-  const uid = await authUserId();
-  if (!uid) return { company: null, storefront: null };
-  const sb = createServerClient();
-  const { data: companies } = await sb
-    .from('companies')
-    .select('id,trade_name,slug,logo_url,whatsapp,phone')
-    .eq('owner_id', uid)
-    .limit(1);
-  const company = companies?.[0] ?? null;
+  // Respeita a empresa ativa (cookie), não "a primeira" do usuário.
+  const company = await getMyCompany();
   if (!company) return { company: null, storefront: null };
-  const { data: storefront } = await sb
+  const { data: storefront } = await createServerClient()
     .from('storefronts')
     .select('*')
     .eq('company_id', (company as any).id)
@@ -635,7 +754,7 @@ export async function adminListUsers() {
   if (!hasEnv()) return [];
   const { data } = await createServerClient()
     .from('profiles')
-    .select('id,full_name,email,phone,role,created_at')
+    .select('id,full_name,email,phone,role,is_active,created_at')
     .order('created_at', { ascending: false })
     .limit(200);
   return data ?? [];
@@ -683,4 +802,34 @@ export async function getPropertyBySlug(slug: string) {
     .limit(1)
     .maybeSingle();
   return fallback;
+}
+
+export async function adminListSubscriptions() {
+  if (!hasEnv()) return [];
+  const { data } = await createServerClient()
+    .from('subscriptions')
+    .select('id,status,current_period_end,cancel_at_period_end,created_at,plans(name,slug,price,interval),companies(trade_name,slug)')
+    .order('created_at', { ascending: false })
+    .limit(200);
+  return data ?? [];
+}
+
+export async function adminListBanners() {
+  if (!hasEnv()) return [];
+  const { data } = await createServerClient()
+    .from('banners')
+    .select('id,title,image_url,target_url,slot,is_active,impressions,clicks,created_at,cities(name)')
+    .order('created_at', { ascending: false })
+    .limit(200);
+  return data ?? [];
+}
+
+export async function adminListStorefronts() {
+  if (!hasEnv()) return [];
+  const { data } = await createServerClient()
+    .from('storefronts')
+    .select('id,slug,headline,status,activated_at,expires_at,views_count,created_at,companies(trade_name,slug)')
+    .order('created_at', { ascending: false })
+    .limit(200);
+  return data ?? [];
 }

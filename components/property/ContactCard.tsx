@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import { priceLabel } from '@/lib/format';
 import { BadgeCheck, Lock } from 'lucide-react';
 import { ContactActions } from './ContactActions';
@@ -89,8 +90,7 @@ export function ContactCard({
       {anunciante && (
         <div className="flex items-center gap-3 border-y border-border bg-bg px-5 py-4">
           {advertiserLogo ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={advertiserLogo} alt={anunciante} className="h-11 w-11 rounded-full object-cover" />
+            <Image src={advertiserLogo} alt={anunciante} width={44} height={44} loading="lazy" unoptimized={!advertiserLogo.includes('.supabase.co')} className="h-11 w-11 rounded-full object-cover" />
           ) : (
             <div className="flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-br from-primary to-primary-hover text-sm font-bold text-on-primary">
               {initials}

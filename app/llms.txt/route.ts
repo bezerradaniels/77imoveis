@@ -15,12 +15,12 @@ export async function GET() {
 
 > 77Imóveis é o portal imobiliário regional do ${REGION} (Bahia, Brasil).
 > Conecta quem busca imóveis a imobiliárias, corretores, construtoras e
-> profissionais da construção. Conteúdo 100% em pt-BR.
+> anunciantes locais. Conteúdo 100% em pt-BR.
 
 ## O que é
 - Marketplace de imóveis à venda, para alugar, por temporada, para romaria e em lançamento.
 - Região atendida: ${REGION} e sudoeste da Bahia.
-- Anunciantes: imobiliárias, corretores autônomos, construtoras, incorporadoras e profissionais (engenharia civil, arquitetura, topografia, energia solar, financiamento, reformas).
+- Anunciantes: proprietários particulares, corretores autônomos, imobiliárias e construtoras.
 
 ## Como navegar
 - Busca geral de imóveis: ${SITE_URL}/imoveis
@@ -31,14 +31,14 @@ export async function GET() {
 - Imobiliárias: ${SITE_URL}/imobiliarias
 - Corretores: ${SITE_URL}/corretores
 - Profissionais e empresas: ${SITE_URL}/profissionais
-- Profissionais por categoria: ${SITE_URL}/profissionais/{categoria}
+- Profissionais por categoria: ${SITE_URL}/profissionais/{categoria} (imobiliaria, corretor_autonomo, construtora)
 - Vitrines de empresas: ${SITE_URL}/vitrine/{slug}
 
 ## Tipos de imóvel
 ${(types as any[]).map((t) => `- ${plural(t.name)}: ${SITE_URL}/imoveis?tipo=${t.slug}`).join('\n') || '- Casas, apartamentos, terrenos, imóveis comerciais e rurais'}
 
 ## Categorias de profissional
-${companyTypes.filter((t) => t.value !== 'outro').map((t) => `- ${t.label}: ${SITE_URL}/profissionais/${t.value}`).join('\n')}
+${companyTypes.map((t) => `- ${t.label}: ${SITE_URL}/profissionais/${t.value}`).join('\n')}
 
 ## Cidades atendidas
 ${cities.map((c: any) => `- ${c.name} (BA): ${SITE_URL}/${c.slug}`).join('\n')}

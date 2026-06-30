@@ -38,7 +38,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // Landing pages por categoria de profissional (SEO programático).
   for (const t of companyTypes) {
-    if (t.value === 'outro') continue;
     urls.push({ url: `${SITE_URL}/profissionais/${t.value}`, changeFrequency: 'weekly', priority: 0.5 });
   }
 

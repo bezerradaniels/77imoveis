@@ -14,16 +14,17 @@ export function OnboardingWizard({ cities, specialties }: { cities: Opt[]; speci
   const c = useCompanyForm();
   const [step, setStep] = useState(0);
   const [triedAdvance, setTriedAdvance] = useState(false);
+  const showBrokersStep = c.f.type === 'imobiliaria';
 
   const steps = [
     {
-      title: 'Tipo de empresa',
+      title: 'Tipo de perfil',
       description: 'Como você atua no mercado imobiliário.',
       content: <TypeSection value={c.f.type} onChange={(v) => c.set('type', v)} />,
       canAdvance: !!c.f.type
     },
     {
-      title: 'Dados da empresa',
+      title: 'Dados do perfil',
       description: 'As informações principais do seu perfil.',
       content: <DataSection f={c.f} set={c.set} cities={cities} isWizard />,
       canAdvance: !!c.f.tradeName.trim()
@@ -40,9 +41,9 @@ export function OnboardingWizard({ cities, specialties }: { cities: Opt[]; speci
       content: <AddressSection f={c.f} set={c.set} hideCep />,
       canAdvance: true
     },
-    {
+    ...(showBrokersStep ? [{
       title: 'Corretores',
-      description: 'Equipe que aparece no perfil da empresa.',
+      description: 'Equipe avulsa que aparece no perfil da imobiliária.',
       content: (
         <BrokersSection
           brokers={c.brokers}
@@ -53,7 +54,7 @@ export function OnboardingWizard({ cities, specialties }: { cities: Opt[]; speci
         />
       ),
       canAdvance: true
-    },
+    }] : []),
     {
       title: 'Cidades de atuação',
       description: 'Onde sua empresa anuncia e atende.',
@@ -119,7 +120,7 @@ export function OnboardingWizard({ cities, specialties }: { cities: Opt[]; speci
         {isLast ? (
           <Button onClick={c.submit} disabled={c.busy} rounded="lg">
             {c.busy && <Loader2 size={16} className="animate-spin" />}
-            {c.busy ? 'Criando…' : 'Criar empresa e virar profissional'}
+            {c.busy ? 'Criando…' : 'Criar perfil profissional'}
           </Button>
         ) : (
           <Button

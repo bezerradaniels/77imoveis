@@ -1,9 +1,20 @@
 'use server';
+import { cookies } from 'next/headers';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
-import { getNeighborhoods } from '@/lib/data';
+import { getListingPublishGate, getNeighborhoods, ACTIVE_COMPANY_COOKIE } from '@/lib/data';
 import { slugify } from '@/lib/format';
+
+// Define a empresa em foco no painel ('pessoal' = perfil pessoal).
+export async function setActiveCompany(companyId: string) {
+  cookies().set(ACTIVE_COMPANY_COOKIE, companyId || 'pessoal', {
+    path: '/',
+    maxAge: 60 * 60 * 24 * 365,
+    sameSite: 'lax',
+  });
+  revalidatePath('/painel', 'layout');
+}
 
 type Result = { ok?: true; error?: string };
 
@@ -60,6 +71,7 @@ export type PropertyInput = {
   contactPref?: string;
   showPhone?: boolean;
   leadEmail?: string;
+  brokerId?: string | null;
   negotiations: NegotiationInput[];
   featureIds: string[];
   images: string[];
@@ -111,13 +123,12 @@ export async function saveProperty(input: PropertyInput): Promise<{ id?: string;
     if (!neighborhood) return { error: 'Selecione novamente o bairro do imóvel.' };
   }
 
-  const { data: company } = await sb
-    .from('companies')
-    .select('id')
-    .eq('owner_id', auth.user.id)
-    .order('created_at', { ascending: true })
-    .limit(1)
-    .maybeSingle();
+  const publishGate = await getListingPublishGate(auth.user.id, input.id);
+  if (input.publish && !publishGate.allowed) {
+    return {
+      error: 'Corretor autônomo pode manter 1 imóvel ativo gratuitamente. Para publicar mais imóveis, assine um plano profissional.',
+    };
+  }
 
   const primary = input.negotiations[0];
   const publishStatus = input.publish
@@ -167,6 +178,7 @@ export async function saveProperty(input: PropertyInput): Promise<{ id?: string;
     contact_pref: input.contactPref || 'whatsapp',
     show_phone: input.showPhone ?? true,
     lead_email: input.leadEmail || null,
+    broker_id: input.brokerId || null,
     negotiation: primary.negotiation,
     price: primary.price,
     price_visibility: primary.priceVisibility,
@@ -175,7 +187,10 @@ export async function saveProperty(input: PropertyInput): Promise<{ id?: string;
   };
 
   let id = input.id;
-  if (company?.id || !id) base.company_id = company?.id ?? null;
+  // company_id é definido só na CRIAÇÃO (pela empresa ativa). Em edição, nunca
+  // sobrescrevemos — evita migrar o imóvel para outra empresa ao editar com
+  // outra empresa ativa no seletor.
+  if (!id) base.company_id = publishGate.companyId;
   if (id) {
     const { error } = await sb.from('properties').update(base).eq('id', id);
     if (error) return { error: friendly(error.message) };
@@ -247,9 +262,11 @@ export async function saveProperty(input: PropertyInput): Promise<{ id?: string;
 function friendly(msg: string) {
   if (process.env.NODE_ENV === 'development') console.error('[saveProperty]', msg);
   if (msg.includes('schema cache'))
-    return 'O banco ainda não está com as migrations mais recentes. Rode as migrations 13 e 14 no Supabase e tente salvar novamente.';
+    return 'O banco ainda não está com as migrations mais recentes. Aplique os arquivos novos em /database e tente salvar novamente.';
   if (msg.includes('LIMITE_PARTICULAR'))
     return 'Você já tem 1 anúncio ativo no plano Particular. Crie um perfil profissional para publicar mais imóveis.';
+  if (msg.includes('LIMITE_CORRETOR_AUTONOMO'))
+    return 'Corretor autônomo pode manter 1 imóvel ativo gratuitamente. Para publicar mais imóveis, assine um plano profissional.';
   if (msg.includes('row-level security'))
     return 'Você não tem permissão para salvar esse anúncio. Saia e entre novamente.';
   if (msg.includes('invalid input syntax for type uuid') && msg.includes('property_type_id'))
@@ -271,14 +288,29 @@ function friendly(msg: string) {
 
 // Altera o status de um imóvel (ativar/pausar/arquivar). RLS garante que é do dono.
 export async function setPropertyStatus(id: string, status: string): Promise<Result> {
+  const sb = createClient();
+  const { data: auth } = await sb.auth.getUser();
+  if (!auth.user) return { error: 'Sessão expirada. Entre novamente.' };
+
+  if (status === 'ativo') {
+    const gate = await getListingPublishGate(auth.user.id, id);
+    if (!gate.allowed) {
+      return {
+        error: 'Corretor autônomo pode manter 1 imóvel ativo gratuitamente. Para ativar mais imóveis, assine um plano profissional.',
+      };
+    }
+  }
+
   const patch: Record<string, any> = { status };
   if (status === 'ativo') patch.published_at = new Date().toISOString();
-  const { error } = await createClient().from('properties').update(patch).eq('id', id);
+  const { error } = await sb.from('properties').update(patch).eq('id', id);
   revalidatePath('/painel/imoveis');
   if (!error) return { ok: true };
   // O trigger do banco bloqueia o 2º imóvel ativo de conta Particular.
   if (error.message.includes('LIMITE_PARTICULAR'))
     return { error: 'Você já tem 1 anúncio ativo no plano Particular. Crie um perfil profissional para publicar mais imóveis.' };
+  if (error.message.includes('LIMITE_CORRETOR_AUTONOMO'))
+    return { error: 'Corretor autônomo pode manter 1 imóvel ativo gratuitamente. Para ativar mais imóveis, assine um plano profissional.' };
   return { error: 'Não foi possível atualizar o anúncio.' };
 }
 

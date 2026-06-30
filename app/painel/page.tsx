@@ -1,6 +1,8 @@
 import Link from 'next/link';
-import { Building2, CreditCard, Home, MessageSquare, Shield, Store } from 'lucide-react';
+import { redirect } from 'next/navigation';
+import { Building2, CreditCard, Home, MessageSquare, Shield, Store, UserCog, Users } from 'lucide-react';
 import { getProfile } from '@/lib/auth';
+import { getMyCompany } from '@/lib/data';
 import { logout } from './actions';
 
 export const dynamic = 'force-dynamic';
@@ -15,7 +17,49 @@ const roleLabel: Record<string, string> = {
 
 export default async function PainelPage() {
   const profile = await getProfile();
+  if (profile?.role === 'admin') redirect('/admin');
+  const company = profile?.role === 'profissional' ? await getMyCompany() : null;
+  const isProfessional = profile?.role === 'profissional' && !!company;
+  const showBrokers = company?.type === 'imobiliaria';
   const nome = profile?.full_name?.split(' ')[0] ?? 'bem-vindo';
+  const accountLabel =
+    company?.type === 'corretor_autonomo'
+      ? 'Corretor autônomo'
+      : company?.type === 'imobiliaria'
+        ? 'Imobiliária'
+        : company?.type === 'construtora'
+          ? 'Construtora'
+          : roleLabel[profile?.role ?? 'particular'];
+
+  const cards = [
+    {
+      href: '/painel/imoveis',
+      icon: Home,
+      label: 'Meus imóveis',
+      description: isProfessional && company?.type === 'corretor_autonomo'
+        ? '1 grátis, mais imóveis com plano'
+        : 'Criar, editar, ativar ou pausar',
+    },
+    { href: '/painel/contatos', icon: MessageSquare, label: 'Contatos recebidos', description: 'Leads dos seus anúncios' },
+    {
+      href: '/painel/empresa',
+      icon: Building2,
+      label: isProfessional ? 'Perfil profissional' : 'Atuar profissionalmente',
+      description: isProfessional
+        ? 'Dados públicos, contatos e cidades'
+        : 'Virar corretor autônomo, imobiliária ou construtora',
+    },
+    ...(showBrokers
+      ? [{ href: '/painel/corretores', icon: Users, label: 'Equipe de corretores', description: 'Cadastro avulso da imobiliária' }]
+      : []),
+    ...(isProfessional
+      ? [
+          { href: '/painel/vitrine', icon: Store, label: 'Minha vitrine', description: 'Página própria com seus imóveis' },
+          { href: '/painel/planos', icon: CreditCard, label: 'Planos e upgrade', description: 'Limites, destaques e recursos profissionais' },
+        ]
+      : []),
+    { href: '/painel/perfil', icon: UserCog, label: 'Meu perfil', description: 'Nome, foto, contatos e cidade' },
+  ];
 
   return (
     <main className="min-h-screen bg-slate-100 px-4 py-8 dark:bg-bg">
@@ -23,7 +67,7 @@ export default async function PainelPage() {
         <div className="mb-6">
           <h1 className="text-2xl font-bold">Olá, {nome} 👋</h1>
           <div className="mt-1 flex items-center gap-2 text-sm text-muted">
-            <span>Conta {roleLabel[profile?.role ?? 'particular']}</span>
+            <span>Conta {accountLabel}</span>
             <span aria-hidden>·</span>
             <form action={logout}>
               <button type="submit" className="font-medium text-link hover:text-link-hover">
@@ -34,58 +78,22 @@ export default async function PainelPage() {
         </div>
 
         <div className="grid gap-3 sm:grid-cols-2">
-          <Link
-            href="/painel/imoveis"
-            className="flex items-center gap-2.5 rounded-lg border border-border bg-surface p-4 hover:bg-bg"
-          >
-            <Home size={20} className="text-link" />
-            <div>
-              <p className="font-medium">Meus imóveis</p>
-              <p className="text-xs text-muted">Criar, editar, ativar ou pausar</p>
-            </div>
-          </Link>
-          <Link
-            href="/painel/contatos"
-            className="flex items-center gap-2.5 rounded-lg border border-border bg-surface p-4 hover:bg-bg"
-          >
-            <MessageSquare size={20} className="text-link" />
-            <div>
-              <p className="font-medium">Contatos recebidos</p>
-              <p className="text-xs text-muted">Leads dos seus anúncios</p>
-            </div>
-          </Link>
-          <Link
-            href="/painel/empresa"
-            className="flex items-center gap-2.5 rounded-lg border border-border bg-surface p-4 hover:bg-bg"
-          >
-            <Building2 size={20} className="text-link" />
-            <div>
-              <p className="font-medium">
-                {profile?.role === 'profissional' ? 'Minha empresa' : 'Tornar-se profissional'}
-              </p>
-              <p className="text-xs text-muted">Perfil de empresa, vitrine e mais imóveis</p>
-            </div>
-          </Link>
-          <Link
-            href="/painel/vitrine"
-            className="flex items-center gap-2.5 rounded-lg border border-border bg-surface p-4 hover:bg-bg"
-          >
-            <Store size={20} className="text-link" />
-            <div>
-              <p className="font-medium">Minha vitrine</p>
-              <p className="text-xs text-muted">Página própria com seus imóveis</p>
-            </div>
-          </Link>
-          <Link
-            href="/painel/planos"
-            className="flex items-center gap-2.5 rounded-lg border border-border bg-surface p-4 hover:bg-bg"
-          >
-            <CreditCard size={20} className="text-link" />
-            <div>
-              <p className="font-medium">Planos e upgrade</p>
-              <p className="text-xs text-muted">Limites, destaques e recursos profissionais</p>
-            </div>
-          </Link>
+          {cards.map((card) => {
+            const Icon = card.icon;
+            return (
+              <Link
+                key={card.href}
+                href={card.href}
+                className="flex items-center gap-2.5 rounded-lg border border-border bg-surface p-4 hover:bg-bg"
+              >
+                <Icon size={20} className="text-link" />
+                <div>
+                  <p className="font-medium">{card.label}</p>
+                  <p className="text-xs text-muted">{card.description}</p>
+                </div>
+              </Link>
+            );
+          })}
           {['admin', 'moderador'].includes(profile?.role ?? '') && (
             <Link
               href="/admin"

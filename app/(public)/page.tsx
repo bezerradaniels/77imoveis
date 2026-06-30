@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import {
   ArrowRight, Building2, Home, Trees, Store, Sparkles,
-  HardHat, Compass, Handshake, Megaphone, PlusCircle, ChevronRight,
+  HardHat, Handshake, Megaphone, PlusCircle, ChevronRight,
 } from 'lucide-react';
 import type { Metadata } from 'next';
 import { getFeaturedCities, getPropertyTypes, getFeaturedProperties, getCityCounts, getNeighborhoodsByCity } from '@/lib/data';
@@ -32,7 +32,6 @@ const categorias = [
 const profissionais = [
   { Icon: Building2, label: 'Imobiliárias', desc: 'Agências completas para comprar, vender e alugar com segurança.', href: '/profissionais/imobiliaria' },
   { Icon: HardHat, label: 'Construtoras', desc: 'Empreendimentos e lançamentos das principais construtoras da região.', href: '/profissionais/construtora' },
-  { Icon: Compass, label: 'Engenheiros civis', desc: 'Projetos, laudos e acompanhamento de obra com profissionais habilitados.', href: '/profissionais/engenharia_civil' },
   { Icon: Handshake, label: 'Corretores', desc: 'Corretores credenciados para te ajudar em cada etapa da negociação.', href: '/profissionais/corretor_autonomo' },
 ];
 
@@ -167,7 +166,7 @@ export default async function HomePage() {
       <section className="bg-surface">
         <div className="mx-auto max-w-[1200px] px-6 py-[clamp(40px,5.5vw,68px)]">
           <div className="mb-5">
-            <SectionTitle title="Profissionais e empresas da região" sub="Conecte-se com imobiliárias, construtoras, engenheiros e corretores do Oeste da Bahia." />
+            <SectionTitle title="Profissionais e empresas da região" sub="Conecte-se com imobiliárias, construtoras e corretores do Oeste da Bahia." />
           </div>
           <ScrollRail count={profissionais.length} className="md:grid md:overflow-visible md:[grid-template-columns:repeat(auto-fit,minmax(230px,1fr))]">
             {profissionais.map((p) => (
@@ -202,7 +201,7 @@ export default async function HomePage() {
               Anuncie seu imóvel ou sua empresa
             </h2>
             <p className="m-0 text-[14px] leading-relaxed text-white/85 md:text-[15px]">
-              Proprietários particulares anunciam <strong className="text-on-primary">grátis</strong>. Imobiliárias, construtoras e profissionais contam com planos para destacar seus imóveis e captar mais clientes no Oeste da Bahia.
+              Proprietários particulares anunciam <strong className="text-on-primary">grátis</strong>. Corretores autônomos, imobiliárias e construtoras contam com planos para destacar seus imóveis e captar mais clientes no Oeste da Bahia.
             </p>
           </div>
           <div className="flex w-full flex-col gap-3 md:w-auto md:min-w-[240px]">
@@ -221,7 +220,7 @@ export default async function HomePage() {
         <div className="mx-auto max-w-[1200px] px-6 py-[clamp(40px,5.5vw,64px)]">
           <h2 className="mb-3 text-[clamp(19px,2.1vw,23px)] font-extrabold tracking-tight text-text">Imóveis no Oeste da Bahia</h2>
           <p className="mb-4 max-w-[920px] text-[14px] leading-relaxed text-[#46514a] dark:text-muted">
-            O <strong>77imóveis</strong> é o portal imobiliário regional que reúne casas, apartamentos, terrenos e imóveis comerciais nas principais cidades do sudoeste e oeste da Bahia. Pesquise para comprar ou alugar com filtros de cidade, tipo e número de quartos, e fale diretamente com imobiliárias, construtoras, engenheiros civis e corretores da sua região.
+            O <strong>77imóveis</strong> é o portal imobiliário regional que reúne casas, apartamentos, terrenos e imóveis comerciais nas principais cidades do sudoeste e oeste da Bahia. Pesquise para comprar ou alugar com filtros de cidade, tipo e número de quartos, e fale diretamente com imobiliárias, construtoras e corretores da sua região.
           </p>
           <div className="flex flex-wrap gap-2">
             {cities.map((c) => (

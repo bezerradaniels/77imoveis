@@ -1,37 +1,84 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
+import { LayoutDashboard, Home, Building2, Users, MapPin, CreditCard, Image, Store, UserCog, LogOut } from 'lucide-react';
 import { getProfile } from '@/lib/auth';
+import { logout } from '@/app/painel/actions';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Admin', robots: { index: false, follow: false, nocache: true } };
+export const metadata = { title: 'Admin — 77Imóveis', robots: { index: false, follow: false, nocache: true } };
 
 const nav = [
-  { href: '/admin', label: 'Visão geral' },
-  { href: '/admin/imoveis', label: 'Imóveis' },
-  { href: '/admin/empresas', label: 'Empresas' },
-  { href: '/admin/usuarios', label: 'Usuários' },
-  { href: '/admin/cidades', label: 'Cidades' },
+  { href: '/admin',          label: 'Visão geral', icon: LayoutDashboard },
+  { href: '/admin/imoveis',  label: 'Imóveis',     icon: Home },
+  { href: '/admin/empresas', label: 'Empresas',    icon: Building2 },
+  { href: '/admin/usuarios', label: 'Usuários',    icon: Users },
+  { href: '/admin/cidades',  label: 'Cidades',     icon: MapPin },
+  { href: '/admin/planos',   label: 'Planos',      icon: CreditCard },
+  { href: '/admin/banners',  label: 'Banners',     icon: Image },
+  { href: '/admin/vitrines', label: 'Vitrines',    icon: Store },
+  { href: '/admin/perfil',   label: 'Meu perfil',  icon: UserCog },
 ];
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const profile = await getProfile();
   if (!profile || !['admin', 'moderador'].includes(profile.role)) redirect('/painel');
+  const nome = profile.full_name?.split(' ')[0] ?? 'Admin';
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-6">
-      <h1 className="mb-3 text-2xl font-bold">Administração</h1>
-      <nav className="mb-6 flex gap-1 overflow-x-auto border-b border-border pb-2">
-        {nav.map((n) => (
-          <Link
-            key={n.href}
-            href={n.href}
-            className="whitespace-nowrap rounded-lg px-3 py-1.5 text-sm text-muted hover:bg-surface hover:text-text"
-          >
-            {n.label}
-          </Link>
-        ))}
-      </nav>
-      {children}
-    </div>
+    <>
+      {/* Sidebar — só desktop */}
+      <aside className="fixed bottom-0 left-0 top-0 z-30 hidden w-64 overflow-hidden bg-slate-200 text-slate-900 lg:flex lg:flex-col">
+        <div className="flex h-full flex-col gap-5 px-4 py-6">
+          <div>
+            <p className="text-lg font-bold leading-tight">Olá, {nome}</p>
+            <p className="mt-1 text-sm font-medium text-slate-600">Administração do portal</p>
+          </div>
+
+          <nav className="flex-1 space-y-1 overflow-y-auto" aria-label="Navegação admin">
+            {nav.map(({ href, label, icon: Icon }) => (
+              <Link
+                key={href}
+                href={href}
+                className="flex items-center gap-3 rounded-[10px] px-3 py-2 text-sm font-semibold text-slate-900 transition hover:bg-white/65"
+              >
+                <Icon size={18} className="text-primary" />
+                {label}
+              </Link>
+            ))}
+          </nav>
+
+          <form action={logout}>
+            <button
+              type="submit"
+              className="flex w-full items-center gap-3 rounded-[10px] px-3 py-2 text-left text-sm font-semibold text-slate-900 transition hover:bg-white/65"
+            >
+              <LogOut size={18} className="text-primary" />
+              Sair
+            </button>
+          </form>
+        </div>
+      </aside>
+
+      {/* Conteúdo */}
+      <div data-painel-shell className="min-h-screen bg-slate-100 dark:bg-bg lg:pl-64">
+        {/* Nav móvel — tabs com scroll horizontal */}
+        <nav className="no-scrollbar flex gap-1 overflow-x-auto border-b border-slate-300 bg-slate-200 px-3 py-2 lg:hidden">
+          {nav.map(({ href, label, icon: Icon }) => (
+            <Link
+              key={href}
+              href={href}
+              className="inline-flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-white/60"
+            >
+              <Icon size={14} />
+              {label}
+            </Link>
+          ))}
+        </nav>
+
+        <div className="mx-auto max-w-5xl px-4 py-6">
+          {children}
+        </div>
+      </div>
+    </>
   );
 }

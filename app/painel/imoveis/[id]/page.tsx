@@ -15,6 +15,8 @@ export default async function EditarImovelPage({ params }: { params: { id: strin
     getProfile(),
   ]);
   if (!property) notFound();
+  // Corretores da empresa DONA do imóvel (não da empresa ativa no seletor).
+  const companyBrokers = (property as any).companies?.brokers ?? [];
 
   return (
     <PropertyForm
@@ -24,6 +26,7 @@ export default async function EditarImovelPage({ params }: { params: { id: strin
       initial={property}
       defaults={{ name: profile?.full_name ?? '', whatsapp: profile?.whatsapp ?? profile?.phone ?? '', email: profile?.email ?? '' }}
       ownerType={profile?.role ?? 'particular'}
+      brokers={companyBrokers.map((b: any) => ({ id: b.id, name: b.name, email: b.email ?? '', whatsapp: b.whatsapp ?? '', phone: b.phone ?? '' }))}
     />
   );
 }

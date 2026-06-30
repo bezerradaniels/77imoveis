@@ -3,18 +3,7 @@ import { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { LayoutDashboard } from 'lucide-react';
-
-// Detecta a sessão pela presença do cookie de auth do Supabase, SEM carregar o
-// SDK do Supabase nas páginas públicas (mantém o bundle leve e o cache/SEO).
-// É só para alternar "Login"/"Painel": o middleware é quem protege as rotas.
-function hasAuthCookie() {
-  if (typeof document === 'undefined') return false;
-  const ref = (process.env.NEXT_PUBLIC_SUPABASE_URL ?? '')
-    .replace(/^https?:\/\//, '')
-    .split('.')[0];
-  if (!ref) return false;
-  return document.cookie.split('; ').some((c) => c.startsWith(`sb-${ref}-auth-token`));
-}
+import { hasAuthCookie } from '@/lib/has-auth-cookie';
 
 export function AuthNav() {
   const pathname = usePathname();

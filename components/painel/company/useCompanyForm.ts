@@ -34,7 +34,8 @@ function validEmail(value: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 }
 
-export function useCompanyForm(initial?: any) {
+export function useCompanyForm(initial?: any, opts?: { manageBrokers?: boolean }) {
+  const manageBrokers = opts?.manageBrokers ?? true;
   const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
@@ -123,7 +124,7 @@ export function useCompanyForm(initial?: any) {
 
   async function submit() {
     setError('');
-    if (!f.type || !f.tradeName.trim()) return setError('Informe o tipo e o nome da empresa.');
+    if (!f.type || !f.tradeName.trim()) return setError('Informe o tipo e o nome do perfil.');
     if (!f.whatsapp.trim() && !f.phone.trim() && !f.email.trim())
       return setError('Informe ao menos um contato: WhatsApp, telefone ou e-mail.');
     if (f.cnpj && digits(f.cnpj).length !== 14) return setError('Informe um CNPJ com 14 dígitos ou deixe em branco.');
@@ -131,23 +132,25 @@ export function useCompanyForm(initial?: any) {
     if (f.phone && digits(f.phone).length < 10) return setError('Informe um telefone válido com DDD.');
     if (f.email && !validEmail(f.email)) return setError('Informe um e-mail válido.');
     if (f.website && !validUrl(f.website)) return setError('Informe o site completo, começando com https://.');
-    if (brokers.some((b) => b.whatsapp && digits(b.whatsapp).length < 10))
+    if (manageBrokers && brokers.some((b) => b.whatsapp && digits(b.whatsapp).length < 10))
       return setError('Informe um WhatsApp válido com DDD para os corretores ou deixe em branco.');
     setBusy(true);
     try {
       const logoUrl = logo.file ? await upload(logo.file, 'empresa') : logo.url;
       const coverUrl = cover.file ? await upload(cover.file, 'empresa') : cover.url;
-      const resolvedBrokers = await Promise.all(
-        brokers
-          .filter((b) => b.name.trim())
-          .map(async (b) => ({
-            name: b.name.trim(),
-            creci: b.creci,
-            phone: b.phone,
-            whatsapp: b.whatsapp,
-            photoUrl: b.photoFile ? await upload(b.photoFile, 'corretores') : b.photoUrl,
-          })),
-      );
+      const resolvedBrokers = manageBrokers && f.type === 'imobiliaria'
+        ? await Promise.all(
+            brokers
+              .filter((b) => b.name.trim())
+              .map(async (b) => ({
+                name: b.name.trim(),
+                creci: b.creci,
+                phone: b.phone,
+                whatsapp: b.whatsapp,
+                photoUrl: b.photoFile ? await upload(b.photoFile, 'corretores') : b.photoUrl,
+              })),
+          )
+        : undefined;
       const { cep, street, number, neighborhood, ...cleanF } = f;
       const input: CompanyInput = {
         id: initial?.id,

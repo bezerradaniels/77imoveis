@@ -19,8 +19,7 @@ const tipos = [
 const profissionais = [
   ['Imobiliárias', '/profissionais/imobiliaria'],
   ['Construtoras', '/profissionais/construtora'],
-  ['Engenheiros civis', '/profissionais/engenharia_civil'],
-  ['Corretores', '/profissionais/corretor_autonomo'],
+  ['Corretores autônomos', '/profissionais/corretor_autonomo'],
 ];
 
 const institucional = [

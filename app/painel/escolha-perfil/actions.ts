@@ -2,34 +2,94 @@
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
+import { slugify } from '@/lib/format';
 
-type RoleIntent = 'particular' | 'profissional';
+type RoleKey = 'pessoal' | 'corretor_autonomo' | 'imobiliaria' | 'construtora' | 'incorporadora';
+type ProfessionalRoleKey = Exclude<RoleKey, 'pessoal'>;
 
-// Marca a escolha (Particular ou Profissional) como feita e guarda a intenção
-// para retomar o fluxo correto se o usuário sair no meio do onboarding.
-export async function chooseRole(target: RoleIntent): Promise<{ error?: string } | never> {
+const professionalTypes: ProfessionalRoleKey[] = ['corretor_autonomo', 'imobiliaria', 'construtora', 'incorporadora'];
+const defaultTradeName: Record<ProfessionalRoleKey, string> = {
+  corretor_autonomo: 'Meu perfil de corretor',
+  imobiliaria: 'Minha imobiliária',
+  construtora: 'Minha construtora',
+  incorporadora: 'Minha incorporadora',
+};
+
+export async function completeOnboarding(
+  roleKey: RoleKey,
+  answers: Record<string, string>,
+): Promise<{ error?: string } | never> {
   const sb = createClient();
   const { data: auth } = await sb.auth.getUser();
   if (!auth.user) redirect('/entrar');
+  const uid = auth.user.id;
 
-  const { data, error } = await sb
+  const isPro = roleKey !== 'pessoal';
+  const companyType = isPro ? (roleKey as ProfessionalRoleKey) : null;
+  if (companyType && !professionalTypes.includes(companyType)) {
+    return { error: 'Escolha um tipo profissional válido.' };
+  }
+  const cityId = answers.city_id || null;
+
+  // Campos essenciais do perfil. Profissionais já entram com role 'profissional'
+  // (não rebaixa admin/moderador, por isso o filtro por role atual).
+  const update: Record<string, any> = {
+    role_intent: isPro ? 'profissional' : 'particular',
+    role_choice_made_at: new Date().toISOString(),
+    city_id: cityId,
+  };
+
+  const { error: profileError } = await sb
     .from('profiles')
-    .update({
-      role_choice_made_at: new Date().toISOString(),
-      role_intent: target,
-    })
-    .eq('id', auth.user.id)
-    .select('id')
-    .maybeSingle();
+    .update(update)
+    .eq('id', uid);
 
-  if (error) {
-    return { error: 'Não foi possível salvar sua escolha. Tente novamente.' };
+  if (profileError) return { error: 'Não foi possível salvar. Tente novamente.' };
+
+  // onboarding_data é opcional (coluna pode não existir ainda) — falha aqui é ignorada.
+  await sb.from('profiles').update({ onboarding_data: { roleKey, ...answers } }).eq('id', uid);
+
+  // Promove a conta a PROFISSIONAL (sem rebaixar admin/moderador).
+  if (isPro) {
+    await sb.from('profiles').update({ role: 'profissional' }).eq('id', uid).eq('role', 'particular');
   }
 
-  if (!data) {
-    return { error: 'Seu perfil ainda não foi criado. Saia e entre novamente para continuar.' };
+  // Cria/atualiza a entidade profissional única da conta.
+  if (companyType) {
+    const { data: profile } = await sb.from('profiles').select('full_name').eq('id', uid).maybeSingle();
+    const { data: existingRows } = await sb.from('companies').select('id,slug,trade_name').eq('owner_id', uid)
+      .order('created_at', { ascending: true }).limit(1);
+    const existing = existingRows?.[0] ?? null;
+
+    const fallbackName = companyType === 'corretor_autonomo'
+      ? profile?.full_name || defaultTradeName[companyType]
+      : defaultTradeName[companyType];
+    const tradeName = answers.trade_name?.trim() || (companyType === 'corretor_autonomo' ? fallbackName : existing?.trade_name) || fallbackName;
+    const companyPatch = {
+      type: companyType,
+      trade_name: tradeName,
+      city_id: cityId,
+      creci: answers.creci?.trim() || null,
+      cnpj: answers.cnpj?.trim() || null,
+      status: 'ativo',
+    };
+
+    if (existing) {
+      const { error } = await sb.from('companies').update(companyPatch).eq('id', existing.id);
+      if (error) return { error: 'Não foi possível atualizar seu perfil profissional.' };
+      if (companyType !== 'imobiliaria') {
+        await sb.from('brokers').delete().eq('company_id', existing.id);
+      }
+    } else {
+      const { error } = await sb.from('companies').insert({
+        owner_id: uid,
+        slug: `${slugify(tradeName) || 'empresa'}-${uid.slice(0, 6)}`,
+        ...companyPatch,
+      });
+      if (error) return { error: 'Não foi possível criar seu perfil profissional.' };
+    }
   }
 
   revalidatePath('/painel');
-  redirect(target === 'particular' ? '/painel' : '/painel/empresa');
+  redirect('/painel');
 }

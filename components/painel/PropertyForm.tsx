@@ -15,6 +15,7 @@ type Opt = { id: string; name: string; slug?: string };
 type TypeOpt = { id: string; name: string; slug: string };
 type Feature = { id: string; name: string; slug?: string; category: string | null };
 type Defaults = { name?: string; whatsapp?: string; email?: string };
+type BrokerOpt = { id: string; name: string; email?: string; whatsapp?: string; phone?: string };
 type ContactMethod = 'whatsapp' | 'telefone' | 'formulario';
 
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
@@ -53,8 +54,9 @@ type FormData = {
   acceptsFinancing: boolean; acceptsMcmv: boolean; acceptsExchange: boolean; negotiable: boolean;
   videoUrl: string; tourUrl: string;
   shortDesc: string; fullDesc: string; amenities: string[]; nearby: string[];
-  advName: string; companyName: string; whatsapp: string; phone: string; email: string;
+  advName: string; companyName: string; whatsapp: string; phone: string;
   contactMethods: ContactMethod[]; contactPref: string; showPhone: boolean; leadEmail: string;
+  brokerId: string | null;
 };
 type Photo = { id: string; url?: string; file?: File; preview?: string; low?: boolean };
 
@@ -69,7 +71,8 @@ function blank(defaults?: Defaults): FormData {
     acceptsFinancing: false, acceptsMcmv: false, acceptsExchange: false, negotiable: true,
     videoUrl: '', tourUrl: '', shortDesc: '', fullDesc: '', amenities: [], nearby: [],
     advName: titleCaseWords(defaults?.name ?? ''), companyName: '', whatsapp: defaults?.whatsapp ?? '', phone: '',
-    email: defaults?.email ?? '', contactMethods: ['whatsapp'], contactPref: 'whatsapp', showPhone: true, leadEmail: '',
+    contactMethods: ['whatsapp'], contactPref: 'whatsapp', showPhone: true, leadEmail: defaults?.email ?? '',
+    brokerId: null,
   };
 }
 
@@ -104,8 +107,9 @@ function fromInitial(initial: any, defaults?: Defaults): FormData {
     amenities: [], nearby: [], // preenchido depois pela divisão de features
     advName: titleCaseWords(initial.contact_name ?? defaults?.name ?? ''), companyName: titleCaseWords(initial.contact_company ?? ''),
     whatsapp: initial.contact_whatsapp ?? defaults?.whatsapp ?? '', phone: initial.contact_phone ?? '',
-    email: initial.contact_email ?? defaults?.email ?? '',
-    contactMethods, contactPref: contactMethods[0] ?? 'whatsapp', showPhone: contactMethods.some((m) => m !== 'formulario'), leadEmail: initial.lead_email ?? '',
+    contactMethods, contactPref: contactMethods[0] ?? 'whatsapp', showPhone: contactMethods.some((m) => m !== 'formulario'),
+    leadEmail: initial.lead_email ?? initial.contact_email ?? defaults?.email ?? '',
+    brokerId: initial.broker_id ?? null,
   };
 }
 
@@ -132,7 +136,7 @@ function titleCaseWords(v: string) {
 }
 
 export function PropertyForm({
-  types, cities, features, initial, defaults, ownerType,
+  types, cities, features, initial, defaults, ownerType, brokers,
 }: {
   types: TypeOpt[];
   cities: (Opt & { slug: string })[];
@@ -140,6 +144,7 @@ export function PropertyForm({
   initial?: any;
   defaults?: Defaults;
   ownerType?: string;
+  brokers?: BrokerOpt[];
 }) {
   const router = useRouter();
   const isParticular = ownerType === 'particular';
@@ -216,7 +221,7 @@ export function PropertyForm({
     setErrors((e) => {
       const ne = { ...e }; delete ne[field as string];
       if (field === 'salePrice' || field === 'rentPrice') delete ne.price;
-      if (['whatsapp', 'phone', 'email', 'leadEmail', 'contactMethods'].includes(field as string)) {
+      if (['whatsapp', 'phone', 'leadEmail', 'contactMethods'].includes(field as string)) {
         delete ne.contact;
         delete ne.leadEmail;
       }
@@ -301,8 +306,7 @@ export function PropertyForm({
       if (data.contactMethods.includes('whatsapp') && !data.whatsapp) e.contact = 'Informe o WhatsApp para exibir esse contato.';
       if (data.contactMethods.includes('telefone') && !data.phone) e.contact = 'Informe o telefone para exibir esse contato.';
       if (data.contactMethods.includes('formulario') && !data.leadEmail) e.leadEmail = 'Informe o e-mail para receber os leads do formulário.';
-      if (data.email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(data.email)) e.email = 'E-mail inválido.';
-      if (data.leadEmail && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(data.leadEmail)) e.leadEmail = 'E-mail para leads inválido.';
+      if (data.leadEmail && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(data.leadEmail)) e.leadEmail = 'E-mail inválido.';
     }
     return e;
   }
@@ -413,8 +417,9 @@ export function PropertyForm({
       acceptsFinancing: data.acceptsFinancing, acceptsMcmv: data.acceptsMcmv, acceptsExchange: data.acceptsExchange, negotiable: data.negotiable,
       videoUrl: data.videoUrl, tourUrl: data.tourUrl,
       contactName: data.advName, contactCompany: data.companyName, contactWhatsapp: data.whatsapp,
-      contactPhone: data.phone, contactEmail: data.email, contactMethods: data.contactMethods,
+      contactPhone: data.phone, contactEmail: data.leadEmail, contactMethods: data.contactMethods,
       contactPref: data.contactPref, showPhone: data.showPhone, leadEmail: data.leadEmail,
+      brokerId: data.brokerId,
       negotiations: buildNegotiations(),
       featureIds: [...data.amenities, ...data.nearby],
       images, publish,
@@ -492,7 +497,7 @@ export function PropertyForm({
     { title: 'Preço', step: 5, value: previewPrice() },
     { title: 'Fotos', step: 6, value: photos.length ? `${photos.length} ${photos.length > 1 ? 'fotos' : 'foto'}` : 'Nenhuma foto' },
     { title: 'Descrição e diferenciais', step: 7, value: (data.fullDesc ? `${data.fullDesc.length} caracteres` : 'Sem descrição') + (data.amenities.length ? ` · ${data.amenities.length} diferenciais` : '') },
-    { title: 'Contato', step: 8, value: (data.advName || '—') + (data.whatsapp ? ` · ${data.whatsapp}` : data.email ? ` · ${data.email}` : '') },
+    { title: 'Contato', step: 8, value: (data.advName || '—') + (data.whatsapp ? ` · ${data.whatsapp}` : data.leadEmail ? ` · ${data.leadEmail}` : '') },
   ];
 
   // ---- shared classes ----
@@ -654,7 +659,15 @@ export function PropertyForm({
 
       {error && (
         <div className="mb-4 flex items-start gap-2 rounded-xl border border-danger/30 bg-danger/5 p-3 text-sm text-danger">
-          <AlertTriangle size={16} className="mt-0.5 shrink-0" />{error}
+          <AlertTriangle size={16} className="mt-0.5 shrink-0" />
+          <span>
+            {error}
+            {error.includes('plano profissional') && (
+              <Link href="/painel/planos" className="ml-1 font-semibold text-link underline">
+                Ver planos
+              </Link>
+            )}
+          </span>
         </div>
       )}
 
@@ -907,6 +920,25 @@ export function PropertyForm({
                 <label className="block"><Lbl hint="req">Nome para contato</Lbl><input className={inputCls} value={data.advName} onChange={(e) => up('advName', titleCaseWords(e.target.value))} placeholder="Seu nome ou da imobiliária" /><Err msg={errors.advName} /></label>
                 <label className="block"><Lbl hint="opt">Empresa</Lbl><input className={inputCls} value={data.companyName} onChange={(e) => up('companyName', titleCaseWords(e.target.value))} placeholder="Nome da imobiliária / construtora" /></label>
               </div>
+              {!!brokers?.length && (
+                <label className="block">
+                  <Lbl hint="opt">Atribuir a um corretor</Lbl>
+                  <select
+                    className={inputCls}
+                    value={data.brokerId ?? ''}
+                    onChange={(e) => {
+                      const b = brokers.find((x) => x.id === e.target.value);
+                      setData((d) => b
+                        ? { ...d, brokerId: b.id, advName: b.name || d.advName, whatsapp: b.whatsapp || d.whatsapp, phone: b.phone || d.phone, leadEmail: b.email || d.leadEmail }
+                        : { ...d, brokerId: null });
+                    }}
+                  >
+                    <option value="">Ninguém (eu mesmo)</option>
+                    {brokers.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
+                  </select>
+                  <span className="mt-1 block text-xs text-muted">Preenche o contato com os dados do corretor — você pode editar abaixo.</span>
+                </label>
+              )}
               <div>
                 <Lbl>Contato que aparece no anúncio</Lbl>
                 <ContactOptionGroup />
@@ -915,10 +947,7 @@ export function PropertyForm({
                 <label className="block"><Lbl hint={data.contactMethods.includes('whatsapp') ? 'req' : 'opt'}>WhatsApp</Lbl><input className={inputCls} value={data.whatsapp} onChange={(e) => up('whatsapp', fmtPhone(e.target.value))} placeholder="(77) 90000-0000" inputMode="tel" /></label>
                 <label className="block"><Lbl hint={data.contactMethods.includes('telefone') ? 'req' : 'opt'}>Telefone</Lbl><input className={inputCls} value={data.phone} onChange={(e) => up('phone', fmtLandline(e.target.value))} placeholder="(77) 0000-0000" inputMode="tel" /></label>
               </div>
-              <div className="grid gap-3.5 sm:grid-cols-2">
-                <label className="block"><Lbl>E-mail</Lbl><input className={inputCls} value={data.email} onChange={(e) => up('email', e.target.value)} placeholder="voce@email.com" inputMode="email" /><Err msg={errors.email} /></label>
-                <label className="block"><Lbl hint={data.contactMethods.includes('formulario') ? 'req' : 'opt'}>E-mail para receber leads</Lbl><input className={inputCls} value={data.leadEmail} onChange={(e) => up('leadEmail', e.target.value)} placeholder="Para onde enviamos os contatos recebidos" inputMode="email" /><Err msg={errors.leadEmail} /></label>
-              </div>
+              <label className="block"><Lbl hint={data.contactMethods.includes('formulario') ? 'req' : 'opt'}>E-mail para receber leads</Lbl><input className={inputCls} value={data.leadEmail} onChange={(e) => up('leadEmail', e.target.value)} placeholder="Para onde enviamos os contatos recebidos" inputMode="email" /><Err msg={errors.leadEmail} /></label>
               <Err msg={errors.contact} />
               <div className="flex gap-2.5 rounded-2xl border border-primary/20 bg-primary/5 p-3.5"><Info size={16} className="mt-0.5 shrink-0 text-primary" /><span className="text-[12.5px] leading-relaxed">As opções selecionadas definem quais botões e formulário aparecem na página do imóvel.</span></div>
             </div>

@@ -73,6 +73,11 @@ export function PropertyActions({ id, slug, status }: { id: string; slug: string
               Criar perfil profissional
             </Link>
           )}
+          {error.includes('plano profissional') && (
+            <Link href="/painel/planos" className="font-medium text-link">
+              Ver planos
+            </Link>
+          )}
         </div>
       )}
     </div>

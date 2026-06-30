@@ -25,10 +25,10 @@ export default async function PlanosPage() {
         <div className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-primary/30 bg-primary/10 p-4">
           <div className="flex items-center gap-3">
             <Building2 className="text-link" />
-            <p className="text-sm">Crie uma empresa para acessar os planos profissionais.</p>
+            <p className="text-sm">Crie um perfil profissional para acessar os planos.</p>
           </div>
           <Link href="/painel/empresa" className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-on-primary">
-            Criar perfil profissional
+            Atuar profissionalmente
           </Link>
         </div>
       )}

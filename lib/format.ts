@@ -12,11 +12,6 @@ export function slugify(text: string) {
     .replace(/(^-|-$)/g, '');
 }
 
-// Chave de comparação para nomes que não podem ser únicos globalmente.
-export function normalizeLocationName(text: string) {
-  return slugify(text).replace(/-/g, ' ');
-}
-
 // Plural simples em pt-BR (suficiente para nomes de tipos de imóvel).
 export function plural(word: string) {
   if (/ão$/.test(word)) return word.replace(/ão$/, 'ões');

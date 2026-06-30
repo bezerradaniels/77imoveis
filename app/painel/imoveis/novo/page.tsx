@@ -24,6 +24,7 @@ export default async function NovoImovelPage() {
       features={features as any}
       defaults={{ name: profile?.full_name ?? '', whatsapp: profile?.whatsapp ?? profile?.phone ?? '', email: profile?.email ?? '' }}
       ownerType={profile?.role ?? 'particular'}
+      brokers={(company?.brokers ?? []).map((b: any) => ({ id: b.id, name: b.name, email: b.email ?? '', whatsapp: b.whatsapp ?? '', phone: b.phone ?? '' }))}
     />
   );
 }

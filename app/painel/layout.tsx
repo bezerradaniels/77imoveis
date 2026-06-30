@@ -1,7 +1,10 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { Building2, CreditCard, Home, LogOut, MessageSquare, Plus, Shield, Store } from 'lucide-react';
+import { redirect } from 'next/navigation';
+import { Building2, CreditCard, Home, LogOut, MessageSquare, Plus, Shield, Store, UserCog, Users } from 'lucide-react';
 import { getProfile } from '@/lib/auth';
+import { getMyCompany, getMyCompanies } from '@/lib/data';
+import { CompanySwitcher } from '@/components/painel/CompanySwitcher';
 import { logout } from './actions';
 
 // Área logada (painel do anunciante): nunca deve ser indexada por buscadores.
@@ -10,13 +13,16 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false, nocache: true },
 };
 
-const sidebarItems = [
-  { href: '/painel/imoveis', label: 'Meus imóveis', icon: Home },
-  { href: '/painel/contatos', label: 'Contatos recebidos', icon: MessageSquare },
-  { href: '/painel/empresa', label: 'Perfil profissional', icon: Building2 },
-  { href: '/painel/vitrine', label: 'Minha vitrine', icon: Store },
-  { href: '/painel/planos', label: 'Planos e upgrade', icon: CreditCard },
-];
+const nav = {
+  properties: { href: '/painel/imoveis', label: 'Meus imóveis', icon: Home },
+  leads: { href: '/painel/contatos', label: 'Contatos recebidos', icon: MessageSquare },
+  company: { href: '/painel/empresa', label: 'Perfil profissional', icon: Building2 },
+  becomePro: { href: '/painel/empresa', label: 'Atuar profissionalmente', icon: Building2 },
+  brokers: { href: '/painel/corretores', label: 'Equipe de corretores', icon: Users },
+  storefront: { href: '/painel/vitrine', label: 'Minha vitrine', icon: Store },
+  plans: { href: '/painel/planos', label: 'Planos e upgrade', icon: CreditCard },
+  profile: { href: '/painel/perfil', label: 'Meu perfil', icon: UserCog },
+};
 
 const roleLabel: Record<string, string> = {
   particular: 'Particular',
@@ -27,8 +33,37 @@ const roleLabel: Record<string, string> = {
 
 export default async function PainelLayout({ children }: { children: React.ReactNode }) {
   const profile = await getProfile();
-  const showAdmin = ['admin', 'moderador'].includes(profile?.role ?? '');
+  if (profile?.role === 'admin') redirect('/admin');
+  const showAdmin = profile?.role === 'moderador';
   const nome = profile?.full_name?.split(' ')[0] ?? 'bem-vindo';
+
+  // Empresa ativa (cookie) + lista de empresas para o seletor.
+  const isPro = profile?.role === 'profissional';
+  const [company, companies] = await Promise.all([
+    isPro ? getMyCompany() : Promise.resolve(null),
+    isPro ? getMyCompanies() : Promise.resolve([]),
+  ]);
+  const showBrokers = company?.type === 'imobiliaria';
+  const isProfessional = profile?.role === 'profissional' && !!company;
+  const accountLabel =
+    company?.type === 'corretor_autonomo'
+      ? 'Corretor autônomo'
+      : company?.type === 'imobiliaria'
+        ? 'Imobiliária'
+        : company?.type === 'construtora'
+          ? 'Construtora'
+          : roleLabel[profile?.role ?? 'particular'];
+  const items = isProfessional
+    ? [
+        nav.properties,
+        nav.leads,
+        nav.company,
+        ...(showBrokers ? [nav.brokers] : []),
+        nav.storefront,
+        nav.plans,
+        nav.profile,
+      ]
+    : [nav.properties, nav.leads, nav.becomePro, nav.profile];
 
   return (
     <>
@@ -36,8 +71,12 @@ export default async function PainelLayout({ children }: { children: React.React
         <div className="flex h-full flex-col gap-5 px-4 py-6">
           <div>
             <p className="text-lg font-bold leading-tight">Olá, {nome}</p>
-            <p className="mt-1 text-sm font-medium text-slate-600">Conta {roleLabel[profile?.role ?? 'particular']}</p>
+            <p className="mt-1 text-sm font-medium text-slate-600">Conta {accountLabel}</p>
           </div>
+
+          {companies.length > 0 && (
+            <CompanySwitcher companies={companies} activeId={company?.id ?? null} />
+          )}
 
           <Link
             href="/painel/imoveis/novo"
@@ -47,7 +86,7 @@ export default async function PainelLayout({ children }: { children: React.React
           </Link>
 
           <nav className="space-y-1" aria-label="Navegação do painel">
-            {sidebarItems.map((item) => {
+            {items.map((item) => {
               const Icon = item.icon;
 
               return (

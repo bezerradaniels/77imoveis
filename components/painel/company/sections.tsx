@@ -1,11 +1,9 @@
 import { useState } from 'react';
 import { ImagePlus, Trash2, Search } from 'lucide-react';
 import { Input, Field } from '@/components/ui/Input';
-import { companyTypes } from '@/lib/constants';
 import { weekDays } from './useCompanyForm';
 
 type Opt = { id: string; name: string };
-export const selectCls = 'h-11 w-full rounded-lg border border-border bg-white px-3 text-sm';
 
 function phoneMask(value: string) {
   const d = value.replace(/\D/g, '').slice(0, 11);
@@ -40,14 +38,8 @@ export function TypeSection({ value, onChange }: { value: string; onChange: (v: 
     { value: 'imobiliaria', label: 'Imobiliária', desc: 'Empresa com vários imóveis' },
     { value: 'corretor_autonomo', label: 'Corretor autônomo', desc: 'Profissional individual' },
     { value: 'construtora', label: 'Construtora', desc: 'Construção e lançamentos' },
+    { value: 'incorporadora', label: 'Incorporadora', desc: 'Desenvolve empreendimentos' },
   ];
-
-  const isQuickType = quickTypes.some((t) => t.value === value);
-  const isOther = value !== '' && !isQuickType;
-
-  const otherTypes = companyTypes.filter(
-    (t) => !quickTypes.some((q) => q.value === t.value) && t.value !== 'outro'
-  );
 
   return (
     <div className="space-y-4 max-w-xl">
@@ -85,59 +77,7 @@ export function TypeSection({ value, onChange }: { value: string; onChange: (v: 
             </button>
           );
         })}
-
-        {/* Card for Outros */}
-        <button
-          type="button"
-          onClick={() => {
-            if (!isOther) {
-              onChange('outro');
-            }
-          }}
-          className={`flex w-full items-center justify-between rounded-xl border p-3 text-left transition-all ${
-            isOther || value === 'outro'
-              ? 'border-primary bg-primary/5 ring-1 ring-primary'
-              : 'border-border bg-white hover:bg-bg'
-          }`}
-        >
-          <div>
-            <p className="font-semibold text-sm text-text">Outros</p>
-            <p className="text-xs text-muted">Outro tipo de empresa</p>
-          </div>
-          <div
-            className={`h-5 w-5 rounded-full border flex items-center justify-center transition-all ${
-              isOther || value === 'outro'
-                ? 'border-primary bg-primary text-on-primary'
-                : 'border-muted bg-transparent'
-            }`}
-          >
-            {(isOther || value === 'outro') && (
-              <svg className="h-3 w-3 fill-current" viewBox="0 0 20 20">
-                <path d="M0 11l2-2 5 5L18 3l2 2L7 18z" />
-              </svg>
-            )}
-          </div>
-        </button>
       </div>
-
-      {/* Select list fallback displayed if "Outros" is checked */}
-      {(isOther || value === 'outro') && (
-        <div className="pt-2 animate-fadeIn space-y-1.5">
-          <label className="text-xs font-semibold text-muted">Selecione o tipo</label>
-          <select
-            className={selectCls}
-            value={value === 'outro' ? '' : value}
-            onChange={(e) => onChange(e.target.value || 'outro')}
-          >
-            <option value="">Selecione…</option>
-            {otherTypes.map((t) => (
-              <option key={t.value} value={t.value}>
-                {t.label}
-              </option>
-            ))}
-          </select>
-        </div>
-      )}
     </div>
   );
 }
@@ -176,7 +116,7 @@ export function DataSection({
             onChange={(e) => set('tradeName', e.target.value)}
             placeholder="Ex.: Mel Imob"
           />
-          <p className="mt-1 text-xs text-muted">Será usado como nome da empresa nos anúncios e no perfil público.</p>
+          <p className="mt-1 text-xs text-muted">Será usado nos anúncios e no perfil público.</p>
         </Field>
 
         <Field label="CRECI">
@@ -366,33 +306,59 @@ export function CitiesSection({
   );
 }
 
-function ImgPick({ label, st, setter, ratio }: any) {
+function ImgPick({ label, st, setter, ratio, hint }: any) {
+  const hasImage = st.file || st.url;
   return (
     <Field label={label}>
-      <label className={`relative flex ${ratio} cursor-pointer items-center justify-center overflow-hidden rounded-lg border border-dashed border-primary/60 bg-white text-xs text-muted transition hover:border-primary hover:bg-[#f0f9ff]`}>
-        {st.file || st.url ? (
-          <img src={st.file ? URL.createObjectURL(st.file) : st.url} alt="" className="h-full w-full object-cover" />
+      <label
+        className={`group relative flex ${ratio} cursor-pointer items-center justify-center overflow-hidden rounded-xl border-2 border-dashed text-muted transition ${
+          hasImage ? 'border-transparent' : 'border-primary/40 bg-[#f8fbfe] hover:border-primary hover:bg-[#eff8ff]'
+        }`}
+      >
+        {hasImage ? (
+          <>
+            <img src={st.file ? URL.createObjectURL(st.file) : st.url} alt="" className="h-full w-full object-cover" />
+            {/* Overlay no hover */}
+            <span className="absolute inset-0 flex items-center justify-center bg-slate-950/0 opacity-0 transition group-hover:bg-slate-950/40 group-hover:opacity-100">
+              <span className="inline-flex items-center gap-1.5 rounded-lg bg-white/95 px-3 py-1.5 text-xs font-bold text-slate-900 shadow">
+                <ImagePlus size={14} /> Trocar
+              </span>
+            </span>
+          </>
         ) : (
-          <span className="inline-flex items-center gap-1.5 rounded-md bg-primary px-2.5 py-1.5 text-xs font-bold text-on-primary">
-            <ImagePlus size={14} /> Enviar
+          <span className="flex flex-col items-center gap-2 px-3 text-center">
+            <span className="flex h-11 w-11 items-center justify-center rounded-full bg-primary/10 text-primary transition group-hover:bg-primary group-hover:text-on-primary">
+              <ImagePlus size={20} />
+            </span>
+            <span className="text-sm font-semibold text-text">Adicionar imagem</span>
+            {hint && <span className="text-[11px] leading-tight text-muted">{hint}</span>}
           </span>
         )}
-        {(st.file || st.url) && (
-          <span className="absolute bottom-2 right-2 rounded-md bg-slate-950/80 px-2 py-1 text-xs font-bold text-white">
-            Trocar
-          </span>
-        )}
-        <input type="file" accept="image/*" className="hidden" onChange={(e) => e.target.files?.[0] && setter({ url: st.url, file: e.target.files[0] })} />
+        <input
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={(e) => e.target.files?.[0] && setter({ url: st.url, file: e.target.files[0] })}
+        />
       </label>
+      {hasImage && (
+        <button
+          type="button"
+          onClick={() => setter({ url: '', file: undefined })}
+          className="mt-1.5 inline-flex items-center gap-1 text-xs font-semibold text-danger hover:underline"
+        >
+          <Trash2 size={13} /> Remover
+        </button>
+      )}
     </Field>
   );
 }
 
 export function ImagesSection({ logo, setLogo, cover, setCover }: any) {
   return (
-    <div className="grid gap-4 sm:grid-cols-[140px_1fr]">
-      <ImgPick label="Logo" st={logo} setter={setLogo} ratio="h-32 w-32" />
-      <ImgPick label="Capa" st={cover} setter={setCover} ratio="h-32 w-full" />
+    <div className="grid gap-4 sm:grid-cols-[160px_1fr]">
+      <ImgPick label="Logo" st={logo} setter={setLogo} ratio="h-40 w-40" hint="Quadrada, até 5 MB" />
+      <ImgPick label="Capa" st={cover} setter={setCover} ratio="h-40 w-full" hint="Paisagem (16:9), até 5 MB" />
     </div>
   );
 }
@@ -403,7 +369,7 @@ export function DescriptionSection({ value, onChange }: { value: string; onChang
     <Field
       label={
         <div className="flex items-center justify-between w-full">
-          <span>Sobre a empresa</span>
+      <span>Sobre o perfil</span>
           <span className="text-xs text-muted font-normal">{charCount}/600</span>
         </div>
       }
@@ -533,6 +499,15 @@ export function BrokersSection({ brokers, companyWhatsapp, addBroker, removeBrok
                   value={b.creci ?? ''}
                   onChange={(e) => updateBroker(i, { creci: e.target.value })}
                   placeholder="000000"
+                />
+              </Field>
+
+              <Field label="E-mail">
+                <Input
+                  type="email"
+                  value={b.email ?? ''}
+                  onChange={(e) => updateBroker(i, { email: e.target.value })}
+                  placeholder="corretor@email.com"
                 />
               </Field>
 

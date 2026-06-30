@@ -1,7 +1,7 @@
 'use client';
 import { useState, useTransition } from 'react';
-import { Check, X, Pause, Star } from 'lucide-react';
-import { adminSetPropertyStatus, adminTogglePropertyFeatured } from '@/app/admin/actions';
+import { Check, X, Pause, Star, Trash2 } from 'lucide-react';
+import { adminSetPropertyStatus, adminTogglePropertyFeatured, adminDeleteProperty } from '@/app/admin/actions';
 import { useRouter } from 'next/navigation';
 
 export function PropertyModeration({ id, status, featured }: { id: string; status: string; featured: boolean }) {
@@ -14,6 +14,11 @@ export function PropertyModeration({ id, status, featured }: { id: string; statu
     setMessage(r?.error || 'Atualizado.');
     router.refresh();
   });
+
+  const handleDelete = () => {
+    if (!confirm('Excluir este imóvel permanentemente?')) return;
+    run(() => adminDeleteProperty(id));
+  };
 
   const btn = 'inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium disabled:opacity-50';
   return (
@@ -36,6 +41,9 @@ export function PropertyModeration({ id, status, featured }: { id: string; statu
         )}
         <button disabled={pending} onClick={() => run(() => adminTogglePropertyFeatured(id, !featured))} className={`${btn} border border-border ${featured ? 'text-accent' : 'text-muted'}`}>
           <Star size={13} className={featured ? 'fill-accent' : ''} /> {featured ? 'Destaque' : 'Destacar'}
+        </button>
+        <button disabled={pending} onClick={handleDelete} className={`${btn} bg-danger/10 text-danger`}>
+          <Trash2 size={13} /> Excluir
         </button>
       </div>
       {message && <p className={message === 'Atualizado.' ? 'text-xs text-success' : 'text-xs text-danger'}>{message}</p>}

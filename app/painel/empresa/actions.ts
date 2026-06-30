@@ -1,7 +1,11 @@
 'use server';
+import { cookies } from 'next/headers';
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
+import { ACTIVE_COMPANY_COOKIE } from '@/lib/data';
 import { slugify } from '@/lib/format';
+
+const ALLOWED_COMPANY_TYPES = ['imobiliaria', 'corretor_autonomo', 'construtora', 'incorporadora'];
 
 export type CompanyInput = {
   id?: string;
@@ -23,7 +27,9 @@ export type CompanyInput = {
   cityIds: string[];
   specialtyIds: string[];
   businessHours: Record<string, string>;
-  brokers: { name: string; creci?: string; phone?: string; whatsapp?: string; photoUrl?: string }[];
+  // Opcional: os corretores são gerenciados em página própria (/painel/corretores).
+  // Só são alterados quando explicitamente enviados (ex.: pelo wizard de onboarding).
+  brokers?: { name: string; creci?: string; phone?: string; whatsapp?: string; photoUrl?: string }[];
 };
 
 async function uniqueSlug(sb: any, base: string, excludeId?: string) {
@@ -41,7 +47,8 @@ export async function saveCompany(input: CompanyInput): Promise<{ slug?: string;
   const sb = createClient();
   const { data: auth } = await sb.auth.getUser();
   if (!auth.user) return { error: 'Sessão expirada. Entre novamente.' };
-  if (!input.tradeName.trim() || !input.type) return { error: 'Informe o tipo e o nome da empresa.' };
+  if (!input.tradeName.trim() || !input.type) return { error: 'Informe o tipo e o nome do perfil.' };
+  if (!ALLOWED_COMPANY_TYPES.includes(input.type)) return { error: 'Escolha um tipo profissional válido.' };
 
   const base: Record<string, any> = {
     owner_id: auth.user.id,
@@ -64,6 +71,7 @@ export async function saveCompany(input: CompanyInput): Promise<{ slug?: string;
     status: 'ativo',
   };
 
+  // Com input.id → edita aquela empresa; sem id → cria uma NOVA (multi-empresa).
   let id = input.id;
   let slug: string;
   if (id) {
@@ -75,6 +83,8 @@ export async function saveCompany(input: CompanyInput): Promise<{ slug?: string;
     const { data, error } = await sb.from('companies').insert({ ...base, slug }).select('id,slug').single();
     if (error) return { error: 'Não foi possível criar a empresa.' };
     id = data!.id;
+    // Foca a empresa recém-criada no painel.
+    cookies().set(ACTIVE_COMPANY_COOKIE, id!, { path: '/', maxAge: 60 * 60 * 24 * 365, sameSite: 'lax' });
   }
 
   // Cidades de atuação (N:N).
@@ -89,24 +99,33 @@ export async function saveCompany(input: CompanyInput): Promise<{ slug?: string;
       input.specialtyIds.map((specialty_id) => ({ company_id: id, specialty_id })),
     );
 
-  // Corretores (substitui a lista completa a cada salvamento).
-  await sb.from('brokers').delete().eq('company_id', id);
-  if (input.brokers.length)
-    await sb.from('brokers').insert(
-      input.brokers.map((b) => ({
-        company_id: id,
-        name: b.name,
-        creci: b.creci || null,
-        phone: b.phone || null,
-        whatsapp: b.whatsapp || null,
-        photo_url: b.photoUrl || null,
-      })),
-    );
+  // Corretores avulsos existem apenas para imobiliárias nesta fase.
+  if (input.type !== 'imobiliaria') {
+    await sb.from('brokers').delete().eq('company_id', id);
+  } else if (input.brokers) {
+    await sb.from('brokers').delete().eq('company_id', id);
+    if (input.brokers.length)
+      await sb.from('brokers').insert(
+        input.brokers.map((b) => ({
+          company_id: id,
+          name: b.name,
+          creci: b.creci || null,
+          phone: b.phone || null,
+          whatsapp: b.whatsapp || null,
+          photo_url: b.photoUrl || null,
+        })),
+      );
+  }
+
+  await sb.from('profiles').update({
+    role_intent: 'profissional',
+    role_choice_made_at: new Date().toISOString(),
+  }).eq('id', auth.user.id);
 
   // Promove a conta a PROFISSIONAL (sem rebaixar admin/moderador).
   await sb.from('profiles').update({ role: 'profissional' }).eq('id', auth.user.id).eq('role', 'particular');
 
-  revalidatePath('/painel');
+  revalidatePath('/painel', 'layout');
   revalidatePath(`/empresa/${slug}`);
   return { slug };
 }
