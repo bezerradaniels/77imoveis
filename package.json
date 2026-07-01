@@ -11,7 +11,10 @@
     "typecheck": "tsc --noEmit --incremental false",
     "test": "vitest",
     "test:e2e": "playwright test",
-    "db:types": "supabase gen types typescript --linked > lib/supabase/types.ts"
+    "db:types": "supabase gen types typescript --linked > lib/supabase/types.ts",
+    "migrate:images:webp": "vite-node scripts/migrate-images-webp.ts",
+    "rollback:images:webp": "vite-node scripts/rollback-images-webp.ts",
+    "cleanup:old-images": "vite-node scripts/cleanup-old-images.ts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.5.0",

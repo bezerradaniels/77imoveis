@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { BadgeCheck, Pencil, Trash2, XCircle } from 'lucide-react';
 import { adminRemoveBroker, adminSetBrokerStatus, adminUpdateBroker } from '@/app/admin/actions';
 import { ANALYTICS_EVENTS, trackButtonClick, trackEvent } from '@/lib/analytics';
+import { cleanupUploadedImages, uploadImageFile } from '@/lib/images/client';
 
 type Broker = {
   id: string;
@@ -80,14 +81,39 @@ export function BrokerAdmin({ broker }: { broker: Broker }) {
           onSubmit={(e) => {
             e.preventDefault();
             const form = new FormData(e.currentTarget);
-            run(() => adminUpdateBroker(broker.id, {
-              name: String(form.get('name') || '').trim(),
-              email: String(form.get('email') || '').trim() || null,
-              creci: String(form.get('creci') || '').trim() || null,
-              phone: String(form.get('phone') || '').trim() || null,
-              whatsapp: String(form.get('whatsapp') || '').trim() || null,
-              photo_url: String(form.get('photo_url') || '').trim() || null,
-            } as any), 'adminBrokerEdit', { action_type: 'profile_update' });
+            start(async () => {
+              setMessage('');
+              let uploadedUrl = '';
+              try {
+                const file = form.get('photo_file');
+                let photoUrl = String(form.get('photo_url') || '').trim() || null;
+                if (file instanceof File && file.size > 0) {
+                  uploadedUrl = (await uploadImageFile(file, 'broker', broker.id)).url;
+                  photoUrl = uploadedUrl;
+                }
+                const r = await adminUpdateBroker(broker.id, {
+                  name: String(form.get('name') || '').trim(),
+                  email: String(form.get('email') || '').trim() || null,
+                  creci: String(form.get('creci') || '').trim() || null,
+                  phone: String(form.get('phone') || '').trim() || null,
+                  whatsapp: String(form.get('whatsapp') || '').trim() || null,
+                  photo_url: photoUrl,
+                } as any);
+                if (r.error) {
+                  await cleanupUploadedImages([uploadedUrl]);
+                  setMessage(r.error);
+                  return;
+                }
+                if (uploadedUrl) await cleanupUploadedImages([broker.photo_url]);
+                trackEvent(ANALYTICS_EVENTS.adminBrokerEdit, { source_component: 'BrokerAdmin', action_type: 'profile_update' });
+                setMessage('Atualizado.');
+                setEditing(false);
+                router.refresh();
+              } catch (err) {
+                await cleanupUploadedImages([uploadedUrl]);
+                setMessage(err instanceof Error ? err.message : 'Não foi possível salvar o corretor.');
+              }
+            });
           }}
         >
           <input name="name" required defaultValue={broker.name ?? ''} placeholder="Nome" className="rounded-md border border-border bg-surface px-2 py-1.5 text-sm" />
@@ -96,6 +122,7 @@ export function BrokerAdmin({ broker }: { broker: Broker }) {
           <input name="phone" defaultValue={broker.phone ?? ''} placeholder="Telefone" className="rounded-md border border-border bg-surface px-2 py-1.5 text-sm" />
           <input name="whatsapp" defaultValue={broker.whatsapp ?? ''} placeholder="WhatsApp" className="rounded-md border border-border bg-surface px-2 py-1.5 text-sm" />
           <input name="photo_url" defaultValue={broker.photo_url ?? ''} placeholder="Foto URL" className="rounded-md border border-border bg-surface px-2 py-1.5 text-sm" />
+          <input name="photo_file" type="file" accept="image/jpeg,image/png,image/webp,image/avif" className="rounded-md border border-border bg-surface px-2 py-1.5 text-sm" />
           <div className="flex gap-2 sm:col-span-2">
             <button disabled={pending} onClick={() => trackButtonClick({ button_id: 'admin_save_broker_button', button_text: 'Salvar', button_location: 'admin_broker_edit_form' })} className="rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-on-primary disabled:opacity-50">Salvar</button>
             <button type="button" disabled={pending} onClick={() => setEditing(false)} className="rounded-md border border-border px-3 py-1.5 text-sm">Cancelar</button>

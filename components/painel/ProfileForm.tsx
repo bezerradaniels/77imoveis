@@ -1,13 +1,10 @@
 'use client';
-import { useRef, useState, useTransition } from 'react';
+import { useEffect, useRef, useState, useTransition } from 'react';
 import Image from 'next/image';
 import { Camera, Loader2, User } from 'lucide-react';
-import { createClient } from '@/lib/supabase/client';
 import { updateProfile } from '@/app/painel/perfil/actions';
 import { ANALYTICS_EVENTS, trackButtonClick, trackEvent } from '@/lib/analytics';
-
-const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
-const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/avif'];
+import { cleanupUploadedImages, uploadImageFile, validateImageFile } from '@/lib/images/client';
 
 type City = { id: string; name: string };
 type Profile = {
@@ -29,36 +26,26 @@ export function ProfileForm({ profile, cities }: { profile: Profile; cities: Cit
   const [whatsapp, setWhatsapp] = useState(profile.whatsapp ?? '');
   const [cityId, setCityId] = useState(profile.city_id ?? '');
   const [avatarUrl, setAvatarUrl] = useState(profile.avatar_url ?? '');
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [avatarPreview, setAvatarPreview] = useState('');
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
   const [pending, start] = useTransition();
   const fileRef = useRef<HTMLInputElement>(null);
 
+  useEffect(() => () => {
+    if (avatarPreview) URL.revokeObjectURL(avatarPreview);
+  }, [avatarPreview]);
+
   async function onPickFile(file: File) {
     setError(null);
-    if (!ALLOWED_IMAGE_TYPES.includes(file.type)) return setError('Use imagens em JPG, PNG, WebP ou AVIF.');
-    if (file.size > MAX_IMAGE_SIZE) return setError('A foto precisa ter até 5 MB.');
-    setUploading(true);
     try {
-      const sb = createClient();
-      const path = `avatars/${crypto.randomUUID()}.${file.name.split('.').pop() || 'jpg'}`;
-      const { error: upErr } = await sb.storage.from('imoveis').upload(path, file);
-      if (upErr) throw upErr;
-      setAvatarUrl(sb.storage.from('imoveis').getPublicUrl(path).data.publicUrl);
-      trackEvent(ANALYTICS_EVENTS.dashboardPhotoUpload, {
-        section: 'profile_form',
-        source_component: 'ProfileForm',
-        success: true,
-      });
+      validateImageFile(file);
+      setAvatarFile(file);
+      setAvatarPreview(URL.createObjectURL(file));
     } catch (e: any) {
-      setError(
-        e?.message?.includes('Bucket')
-          ? 'Crie o bucket público "imoveis" no Supabase Storage para enviar fotos.'
-          : 'Não foi possível enviar a foto.',
-      );
-    } finally {
-      setUploading(false);
+      setError(e?.message || 'Use imagens em JPG, PNG, WebP ou AVIF.');
     }
   }
 
@@ -67,15 +54,39 @@ export function ProfileForm({ profile, cities }: { profile: Profile; cities: Cit
     setError(null);
     setSaved(false);
     start(async () => {
-      const res = await updateProfile({ fullName, email, phone, whatsapp, avatarUrl, cityId });
-      if ('error' in res) setError(res.error!);
-      else {
+      let uploadedUrl = '';
+      try {
+        setUploading(!!avatarFile);
+        const nextAvatarUrl = avatarFile ? (await uploadImageFile(avatarFile, 'avatar')).url : avatarUrl;
+        uploadedUrl = avatarFile ? nextAvatarUrl : '';
+        const res = await updateProfile({ fullName, email, phone, whatsapp, avatarUrl: nextAvatarUrl, cityId });
+        if ('error' in res) {
+          await cleanupUploadedImages([uploadedUrl]);
+          setError(res.error!);
+          return;
+        }
+        if (uploadedUrl) {
+          await cleanupUploadedImages([avatarUrl]);
+          setAvatarUrl(nextAvatarUrl);
+          setAvatarFile(null);
+          setAvatarPreview('');
+          trackEvent(ANALYTICS_EVENTS.dashboardPhotoUpload, {
+            section: 'profile_form',
+            source_component: 'ProfileForm',
+            success: true,
+          });
+        }
         trackEvent(ANALYTICS_EVENTS.profileUpdate, {
           section: 'profile_form',
           source_component: 'ProfileForm',
           success: true,
         });
         setSaved(true);
+      } catch (e: any) {
+        await cleanupUploadedImages([uploadedUrl]);
+        setError(e?.message?.includes('Bucket') ? 'Crie o bucket público "imoveis" no Supabase Storage para enviar fotos.' : e?.message || 'Não foi possível enviar a foto.');
+      } finally {
+        setUploading(false);
       }
     });
   }
@@ -85,7 +96,9 @@ export function ProfileForm({ profile, cities }: { profile: Profile; cities: Cit
       {/* Foto de perfil */}
       <div className="flex items-center gap-4">
         <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-full border border-border bg-surface">
-          {avatarUrl ? (
+          {avatarPreview ? (
+            <img src={avatarPreview} alt="Foto de perfil" className="h-full w-full object-cover" />
+          ) : avatarUrl ? (
             <Image src={avatarUrl} alt="Foto de perfil" fill className="object-cover" sizes="80px" />
           ) : (
             <span className="flex h-full w-full items-center justify-center text-muted">
@@ -110,11 +123,11 @@ export function ProfileForm({ profile, cities }: { profile: Profile; cities: Cit
             {uploading ? <Loader2 size={16} className="animate-spin" /> : <Camera size={16} />}
             {avatarUrl ? 'Trocar foto' : 'Enviar foto'}
           </button>
-          <p className="mt-1 text-xs text-muted">JPG, PNG ou WebP, até 5 MB.</p>
+          <p className="mt-1 text-xs text-muted">JPG, PNG, WebP ou AVIF, até 10 MB.</p>
           <input
             ref={fileRef}
             type="file"
-            accept="image/*"
+            accept="image/jpeg,image/png,image/webp,image/avif"
             className="hidden"
             onChange={(e) => {
               const f = e.target.files?.[0];

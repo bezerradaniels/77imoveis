@@ -9,7 +9,7 @@ import {
 import { cn } from '@/lib/cn';
 import { brl } from '@/lib/format';
 import { ANALYTICS_EVENTS, trackButtonClick, trackConversion, trackEvent } from '@/lib/analytics';
-import { createClient } from '@/lib/supabase/client';
+import { cleanupUploadedImages, uploadImageFile, validateImageFile } from '@/lib/images/client';
 import { saveProperty, loadNeighborhoods, type PropertyInput } from '@/app/painel/actions';
 
 type Opt = { id: string; name: string; slug?: string };
@@ -19,8 +19,6 @@ type Defaults = { name?: string; whatsapp?: string; email?: string };
 type BrokerOpt = { id: string; name: string; email?: string; whatsapp?: string; phone?: string };
 type ContactMethod = 'whatsapp' | 'telefone' | 'formulario';
 
-const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
-const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/avif'];
 const DRAFT_KEY = 'publicar_imovel_draft';
 
 const STEPS = [
@@ -179,6 +177,9 @@ export function PropertyForm({
   const [error, setError] = useState('');
   const [success, setSuccess] = useState<{ slug?: string; status?: string } | null>(null);
   const savedId = useRef<string | undefined>(initial?.id);
+  const savedImageUrls = useRef<string[]>(
+    [...(initial?.property_images ?? [])].sort((a: any, b: any) => a.sort - b.sort).map((i: any) => i.url),
+  );
   const drag = useRef<number | null>(null);
   const restored = useRef(false);
 
@@ -380,8 +381,12 @@ export function PropertyForm({
       });
     }
     selected.forEach((file) => {
-      if (!ALLOWED_IMAGE_TYPES.includes(file.type)) { setError('Use fotos em JPG, PNG, WebP ou AVIF.'); return; }
-      if (file.size > MAX_IMAGE_SIZE) { setError('Cada foto precisa ter até 5 MB.'); return; }
+      try {
+        validateImageFile(file);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Use fotos em JPG, PNG, WebP ou AVIF.');
+        return;
+      }
       const preview = URL.createObjectURL(file);
       const id = 'p' + Date.now() + Math.random().toString(36).slice(2, 6);
       const img = new Image();
@@ -435,23 +440,27 @@ export function PropertyForm({
   }
 
   // ---- persistence ----
-  async function uploadPhotos(): Promise<string[]> {
-    const sb = createClient();
+  async function uploadPhotos(): Promise<{ urls: string[]; uploadedUrls: string[] }> {
     const urls: string[] = [];
-    for (const p of photos) {
-      if (p.url) { urls.push(p.url); continue; }
-      if (!p.file) continue;
-      const path = `${crypto.randomUUID()}.${p.file.name.split('.').pop() || 'jpg'}`;
-      const { error: upErr } = await sb.storage.from('imoveis').upload(path, p.file, { cacheControl: '3600' });
-      if (upErr) throw upErr;
-      urls.push(sb.storage.from('imoveis').getPublicUrl(path).data.publicUrl);
-      trackEvent(ANALYTICS_EVENTS.dashboardPhotoUpload, {
-        ...analyticsBase(),
-        section: 'property_form',
-        success: true,
-      });
+    const uploadedUrls: string[] = [];
+    try {
+      for (const p of photos) {
+        if (p.url) { urls.push(p.url); continue; }
+        if (!p.file) continue;
+        const uploaded = await uploadImageFile(p.file, 'property', savedId.current);
+        urls.push(uploaded.url);
+        uploadedUrls.push(uploaded.url);
+        trackEvent(ANALYTICS_EVENTS.dashboardPhotoUpload, {
+          ...analyticsBase(),
+          section: 'property_form',
+          success: true,
+        });
+      }
+    } catch (err) {
+      await cleanupUploadedImages(uploadedUrls);
+      throw err;
     }
-    return urls;
+    return { urls, uploadedUrls };
   }
 
   function buildNegotiations(): PropertyInput['negotiations'] {
@@ -472,7 +481,7 @@ export function PropertyForm({
   async function persist(publish: boolean) {
     setError('');
     const wasNew = !savedId.current;
-    const images = await uploadPhotos();
+    const { urls: images, uploadedUrls } = await uploadPhotos();
     const input: PropertyInput = {
       id: savedId.current,
       title: data.title.trim() || 'Anúncio sem título',
@@ -498,7 +507,10 @@ export function PropertyForm({
       images, publish,
     };
     const r = await saveProperty(input);
-    if (r.error) throw new Error(r.error);
+    if (r.error) {
+      await cleanupUploadedImages(uploadedUrls);
+      throw new Error(r.error);
+    }
     savedId.current = r.id;
     const params = {
       ...analyticsBase(),
@@ -513,6 +525,9 @@ export function PropertyForm({
       trackConversion(ANALYTICS_EVENTS.propertyPublishComplete, params);
       trackEvent(ANALYTICS_EVENTS.dashboardPropertyPublish, params);
     }
+    await cleanupUploadedImages(savedImageUrls.current.filter((url) => !images.includes(url)));
+    savedImageUrls.current = images;
+    setPhotos(images.map((url) => ({ id: url, url })));
     return r;
   }
 
@@ -947,11 +962,11 @@ export function PropertyForm({
           {step === 6 && (
             <div className="flex flex-col gap-4">
               <label className="flex cursor-pointer flex-col items-center justify-center gap-2.5 rounded-2xl border-2 border-dashed border-primary/30 bg-primary/5 p-7 text-center transition hover:border-primary">
-                <input type="file" accept="image/*" multiple className="hidden" onChange={(e) => { onFiles(e.target.files); e.currentTarget.value = ''; }} />
+                <input type="file" accept="image/jpeg,image/png,image/webp,image/avif" multiple className="hidden" onChange={(e) => { onFiles(e.target.files); e.currentTarget.value = ''; }} />
                 <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary"><Upload size={22} /></span>
                 <span className="text-[14.5px] font-semibold">Arraste fotos aqui ou toque para enviar</span>
                 <span className="max-w-xs text-[12.5px] text-muted">Adicione fotos claras do imóvel. A primeira imagem será usada como capa do anúncio. Recomendamos pelo menos 5 fotos.</span>
-                <span className="mt-1 text-xs font-semibold text-primary">JPG, PNG ou WebP · até 5 MB cada</span>
+                <span className="mt-1 text-xs font-semibold text-primary">JPG, PNG, WebP ou AVIF · até 10 MB cada</span>
               </label>
               <Err msg={errors.photos} />
               {photos.length > 0 && (

@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { ArrowLeft, Check, Building2 } from 'lucide-react';
 import { getPlans, getMyCompany } from '@/lib/data';
+import { startPlanCheckout } from './actions';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Planos', robots: { index: false } };
@@ -52,9 +53,18 @@ export default async function PlanosPage() {
                 </li>
               ))}
             </ul>
-            <button disabled className="mt-5 h-10 w-full rounded-full border border-border text-sm font-medium text-muted">
-              Checkout em implantação
-            </button>
+            {Number(p.price) > 0 && company ? (
+              <form action={startPlanCheckout} className="mt-5">
+                <input type="hidden" name="planSlug" value={p.slug} />
+                <button className="h-10 w-full rounded-full bg-primary px-4 text-sm font-semibold text-on-primary hover:bg-primary-hover">
+                  Assinar com Asaas
+                </button>
+              </form>
+            ) : (
+              <button disabled className="mt-5 h-10 w-full rounded-full border border-border text-sm font-medium text-muted">
+                {company ? 'Plano atual/gratuito' : 'Crie seu perfil profissional'}
+              </button>
+            )}
           </article>
         ))}
       </div>

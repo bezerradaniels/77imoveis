@@ -1,9 +1,10 @@
 'use client';
 import { useState, type Dispatch, type SetStateAction } from 'react';
 import { useRouter } from 'next/navigation';
-import { createClient } from '@/lib/supabase/client';
 import { saveCompany, type CompanyInput } from '@/app/painel/empresa/actions';
 import { ANALYTICS_EVENTS, trackEvent } from '@/lib/analytics';
+import { cleanupUploadedImages, uploadImageFile } from '@/lib/images/client';
+import type { ImageUploadContext } from '@/lib/images/config';
 
 export const weekDays = [
   { key: 'seg', label: 'Segunda' },
@@ -17,8 +18,6 @@ export const weekDays = [
 
 type Broker = { name: string; creci?: string; phone?: string; whatsapp?: string; photoUrl?: string; photoFile?: File };
 type Img = { url: string; file?: File };
-const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
-const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/avif'];
 
 const digits = (v: string) => v.replace(/\D/g, '');
 
@@ -113,14 +112,8 @@ export function useCompanyForm(initial?: any, opts?: { manageBrokers?: boolean }
   const updateBroker = (idx: number, patch: Partial<Broker>) =>
     setBrokers((p) => p.map((b, i) => (i === idx ? { ...b, ...patch } : b)));
 
-  async function upload(file: File, prefix: string) {
-    if (!ALLOWED_IMAGE_TYPES.includes(file.type)) throw new Error('Use imagens em JPG, PNG, WebP ou AVIF.');
-    if (file.size > MAX_IMAGE_SIZE) throw new Error('Cada imagem precisa ter até 5 MB.');
-    const sb = createClient();
-    const path = `${prefix}/${crypto.randomUUID()}.${file.name.split('.').pop() || 'jpg'}`;
-    const { error } = await sb.storage.from('imoveis').upload(path, file);
-    if (error) throw error;
-    return sb.storage.from('imoveis').getPublicUrl(path).data.publicUrl;
+  async function upload(file: File, context: ImageUploadContext) {
+    return (await uploadImageFile(file, context, initial?.id)).url;
   }
 
   async function submit() {
@@ -136,20 +129,28 @@ export function useCompanyForm(initial?: any, opts?: { manageBrokers?: boolean }
     if (manageBrokers && brokers.some((b) => b.whatsapp && digits(b.whatsapp).length < 10))
       return setError('Informe um WhatsApp válido com DDD para os corretores ou deixe em branco.');
     setBusy(true);
+    const uploadedUrls: string[] = [];
+    const replacedUrls: string[] = [];
     try {
-      const logoUrl = logo.file ? await upload(logo.file, 'empresa') : logo.url;
-      const coverUrl = cover.file ? await upload(cover.file, 'empresa') : cover.url;
+      const logoUrl = logo.file ? await upload(logo.file, 'logo') : logo.url;
+      if (logo.file) { uploadedUrls.push(logoUrl); replacedUrls.push(logo.url); }
+      const coverUrl = cover.file ? await upload(cover.file, 'companyCover') : cover.url;
+      if (cover.file) { uploadedUrls.push(coverUrl); replacedUrls.push(cover.url); }
       const resolvedBrokers = manageBrokers && f.type === 'imobiliaria'
         ? await Promise.all(
             brokers
               .filter((b) => b.name.trim())
-              .map(async (b) => ({
-                name: b.name.trim(),
-                creci: b.creci,
-                phone: b.phone,
-                whatsapp: b.whatsapp,
-                photoUrl: b.photoFile ? await upload(b.photoFile, 'corretores') : b.photoUrl,
-              })),
+              .map(async (b) => {
+                const photoUrl = b.photoFile ? await upload(b.photoFile, 'broker') : b.photoUrl;
+                if (b.photoFile && photoUrl) { uploadedUrls.push(photoUrl); replacedUrls.push(b.photoUrl ?? ''); }
+                return {
+                  name: b.name.trim(),
+                  creci: b.creci,
+                  phone: b.phone,
+                  whatsapp: b.whatsapp,
+                  photoUrl,
+                };
+              }),
           )
         : undefined;
       const { cep, street, number, neighborhood, ...cleanF } = f;
@@ -166,10 +167,12 @@ export function useCompanyForm(initial?: any, opts?: { manageBrokers?: boolean }
       };
       const r = await saveCompany(input);
       if (r.error) {
+        await cleanupUploadedImages(uploadedUrls);
         setError(r.error);
         setBusy(false);
         return;
       }
+      await cleanupUploadedImages(replacedUrls);
       trackEvent(ANALYTICS_EVENTS.companyProfileUpdate, {
         company_type: f.type,
         form_mode: initial?.id ? 'edit' : 'create',
@@ -180,7 +183,8 @@ export function useCompanyForm(initial?: any, opts?: { manageBrokers?: boolean }
       router.push(`/empresa/${r.slug}`);
       router.refresh();
     } catch (e: any) {
-      setError(e?.message?.includes('Bucket') ? 'Bucket "imoveis" ausente no Storage.' : 'Erro ao salvar.');
+      await cleanupUploadedImages(uploadedUrls);
+      setError(e?.message?.includes('Bucket') ? 'Bucket "imoveis" ausente no Storage.' : e?.message || 'Erro ao salvar.');
       setBusy(false);
     }
   }

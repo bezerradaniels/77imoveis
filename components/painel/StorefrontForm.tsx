@@ -2,14 +2,12 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Loader2, ImagePlus, ExternalLink } from 'lucide-react';
-import { createClient } from '@/lib/supabase/client';
 import { saveStorefront, type StorefrontInput } from '@/app/painel/vitrine/actions';
 import { Input, Field } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
+import { cleanupUploadedImages, uploadImageFile } from '@/lib/images/client';
 
 const fmt = (s?: string) => (s ? new Date(s).toLocaleDateString('pt-BR') : '');
-const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
-const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/avif'];
 
 export function StorefrontForm({
   storefront,
@@ -33,40 +31,39 @@ export function StorefrontForm({
   const active = storefront?.status === 'ativo';
   const publicUrl = slug ? `/vitrine/${slug}` : '';
 
-  async function upload(file: File) {
-    if (!ALLOWED_IMAGE_TYPES.includes(file.type)) throw new Error('Use uma imagem JPG, PNG, WebP ou AVIF.');
-    if (file.size > MAX_IMAGE_SIZE) throw new Error('A imagem precisa ter até 5 MB.');
-
-    const sb = createClient();
-    const path = `vitrine/${crypto.randomUUID()}.${file.name.split('.').pop() || 'jpg'}`;
-    const { error } = await sb.storage.from('imoveis').upload(path, file);
-    if (error) throw error;
-    return sb.storage.from('imoveis').getPublicUrl(path).data.publicUrl;
-  }
-
   async function submit() {
     setError('');
     setBusy(true);
+    const uploadedUrls: string[] = [];
     try {
+      const logoUrl = logo.file ? (await uploadImageFile(logo.file, 'logo', slug || storefront?.id)).url : logo.url;
+      if (logo.file) uploadedUrls.push(logoUrl);
+      const coverUrl = cover.file ? (await uploadImageFile(cover.file, 'storefrontCover', slug || storefront?.id)).url : cover.url;
+      if (cover.file) uploadedUrls.push(coverUrl);
       const input: StorefrontInput = {
         slug,
         headline,
         about,
         accentColor: accent,
         showWhatsapp: showWa,
-        logoUrl: logo.file ? await upload(logo.file) : logo.url,
-        coverUrl: cover.file ? await upload(cover.file) : cover.url,
+        logoUrl,
+        coverUrl,
       };
       const r = await saveStorefront(input);
       if (r.error) {
+        await cleanupUploadedImages(uploadedUrls);
         setError(r.error);
         setBusy(false);
         return;
       }
+      await cleanupUploadedImages([logo.file ? logo.url : null, cover.file ? cover.url : null]);
+      setLogo({ url: logoUrl });
+      setCover({ url: coverUrl });
       if (r.slug) setSlug(r.slug);
       router.refresh();
       setBusy(false);
     } catch (err) {
+      await cleanupUploadedImages(uploadedUrls);
       setError(err instanceof Error ? err.message : 'Erro ao salvar.');
       setBusy(false);
     }
@@ -141,7 +138,7 @@ export function StorefrontForm({
               ) : (
                 <span className="flex flex-col items-center gap-1"><ImagePlus size={18} /> Enviar</span>
               )}
-              <input type="file" accept="image/*" className="hidden" onChange={(e) => e.target.files?.[0] && setter({ url: st.url, file: e.target.files[0] })} />
+              <input type="file" accept="image/jpeg,image/png,image/webp,image/avif" className="hidden" onChange={(e) => e.target.files?.[0] && setter({ url: st.url, file: e.target.files[0] })} />
             </label>
           </Field>
         ))}

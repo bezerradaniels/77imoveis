@@ -336,7 +336,7 @@ function ImgPick({ label, st, setter, ratio, hint }: any) {
         )}
         <input
           type="file"
-          accept="image/*"
+          accept="image/jpeg,image/png,image/webp,image/avif"
           className="hidden"
           onChange={(e) => e.target.files?.[0] && setter({ url: st.url, file: e.target.files[0] })}
         />
@@ -357,8 +357,8 @@ function ImgPick({ label, st, setter, ratio, hint }: any) {
 export function ImagesSection({ logo, setLogo, cover, setCover }: any) {
   return (
     <div className="grid gap-4 sm:grid-cols-[160px_1fr]">
-      <ImgPick label="Logo" st={logo} setter={setLogo} ratio="h-40 w-40" hint="Quadrada, até 5 MB" />
-      <ImgPick label="Capa" st={cover} setter={setCover} ratio="h-40 w-full" hint="Paisagem (16:9), até 5 MB" />
+      <ImgPick label="Logo" st={logo} setter={setLogo} ratio="h-40 w-40" hint="Quadrada, até 10 MB" />
+      <ImgPick label="Capa" st={cover} setter={setCover} ratio="h-40 w-full" hint="Paisagem (16:9), até 10 MB" />
     </div>
   );
 }

@@ -2,8 +2,9 @@
 import { useState, useTransition } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Play, Pause, Pencil, Trash2, Archive } from 'lucide-react';
+import { Play, Pause, Pencil, Trash2, Archive, Star } from 'lucide-react';
 import { setPropertyStatus, deleteProperty } from '@/app/painel/actions';
+import { startListingFeatureCheckout } from '@/app/painel/imoveis/actions';
 import { ANALYTICS_EVENTS, trackButtonClick, trackConversion, trackEvent } from '@/lib/analytics';
 
 // Botões de ação de um imóvel no painel (ativar/pausar/arquivar/editar/excluir).
@@ -67,6 +68,19 @@ export function PropertyActions({ id, slug, status }: { id: string; slug: string
         >
           <Pencil size={13} /> Editar
         </Link>
+        {status === 'ativo' && (
+          <form action={startListingFeatureCheckout}>
+            <input type="hidden" name="propertyId" value={id} />
+            <input type="hidden" name="productSlug" value="destaque_7" />
+            <button
+              type="submit"
+              onClick={() => trackButtonClick({ button_id: 'dashboard_property_feature_button', button_text: 'Destacar', button_location: 'dashboard_property_row' })}
+              className="inline-flex items-center gap-1 rounded-md bg-primary/10 px-2 py-1 text-xs font-medium text-primary hover:bg-primary/20"
+            >
+              <Star size={13} /> Destacar
+            </button>
+          </form>
+        )}
         {status !== 'arquivado' && (
           <button
             onClick={() => {
