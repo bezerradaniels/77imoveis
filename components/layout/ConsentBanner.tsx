@@ -16,6 +16,7 @@ export function ConsentBanner() {
   const respond = (value: 'accepted' | 'rejected') => {
     try {
       localStorage.setItem('lgpd-consent', value);
+      window.dispatchEvent(new Event('lgpd-consent'));
     } catch {}
     setShow(false);
   };
@@ -41,13 +42,13 @@ export function ConsentBanner() {
         <div className="flex w-full shrink-0 gap-2 sm:w-auto">
           <button
             onClick={() => respond('rejected')}
-            className="flex-1 rounded-full border border-border px-4 py-2 font-medium text-text sm:flex-none"
+            className="min-h-11 flex-1 rounded-full border border-border px-4 py-2 font-medium text-text sm:flex-none"
           >
             Recusar
           </button>
           <button
             onClick={() => respond('accepted')}
-            className="flex-1 rounded-full bg-primary px-4 py-2 font-medium text-on-primary sm:flex-none"
+            className="min-h-11 flex-1 rounded-full bg-primary px-4 py-2 font-medium text-on-primary sm:flex-none"
           >
             Aceitar
           </button>

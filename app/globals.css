@@ -9,12 +9,12 @@
   --border: #e7eae7;
   --text: #1d2722;
   --text-muted: #6b756f;
-  --primary: #0ea5e9;
-  --primary-hover: #38bdf8;
+  --primary: #0369a1;
+  --primary-hover: #075985;
   --on-primary: #ffffff;
-  --link: #0ea5e9;
-  --link-hover: #0284c7;
-  --accent: #0ea5e9;
+  --link: #0369a1;
+  --link-hover: #075985;
+  --accent: #0369a1;
   --success: #15803d;
   --warning: #b45309;
   --danger: #c0392b;
@@ -31,12 +31,12 @@
   --border: #2a352f;
   --text: #f1f5f3;
   --text-muted: #9aa6a0;
-  --primary: #0ea5e9;
-  --primary-hover: #38bdf8;
+  --primary: #38bdf8;
+  --primary-hover: #7dd3fc;
   --on-primary: #ffffff;
   --link: #38bdf8;
   --link-hover: #7dd3fc;
-  --accent: #0ea5e9;
+  --accent: #38bdf8;
   --subtle: #15201b;
   --header-grad: linear-gradient(90deg, #0c1a20 0%, #0f1714 46%, #17141a 100%);
 }
@@ -64,7 +64,7 @@ h1,
 h2,
 h3 {
   font-family: theme('fontFamily.heading');
-  letter-spacing: -0.025em;
+  letter-spacing: 0;
   font-kerning: normal;
   text-rendering: optimizeLegibility;
 }

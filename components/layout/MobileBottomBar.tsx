@@ -33,7 +33,7 @@ export function MobileBottomBar() {
               section: 'mobile_navigation',
               destination_url: href,
             })}
-            className={cn('flex flex-col items-center gap-0.5 py-2 text-[11px]', on ? 'text-link' : 'text-muted')}
+            className={cn('flex min-h-14 flex-col items-center justify-center gap-0.5 py-2 text-[11px]', on ? 'text-link' : 'text-muted')}
           >
             <Icon size={20} />
             {label}

@@ -15,11 +15,11 @@ export function AuthNav() {
     setLogged(hasAuthCookie());
   }, [pathname]);
 
-  if (logged === null) return <span className="h-8 w-16" aria-hidden />;
+  if (logged === null) return <span className="h-11 w-24" aria-hidden />;
 
   if (!logged)
     return (
-      <Link href="/entrar" className="text-sm font-bold text-text/75 transition-colors hover:text-link-hover">
+      <Link href="/entrar" className="inline-flex min-h-11 items-center text-sm font-bold text-text/75 transition-colors hover:text-link-hover">
         <span
           onClick={() => trackButtonClick({
             button_id: 'header_login_button',
@@ -44,7 +44,7 @@ export function AuthNav() {
         section: 'header',
         destination_url: '/painel',
       })}
-      className="inline-flex items-center gap-1.5 rounded-[10px] border border-primary bg-[#e0f2fe] px-3 py-2 text-sm font-bold text-primary hover:bg-[#bae6fd]"
+      className="inline-flex min-h-11 items-center gap-1.5 rounded-[10px] border border-primary bg-[#e0f2fe] px-3 py-2 text-sm font-bold text-primary hover:bg-[#bae6fd]"
     >
       <LayoutDashboard size={15} /> Painel
     </Link>

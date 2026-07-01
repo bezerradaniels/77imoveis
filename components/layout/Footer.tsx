@@ -1,5 +1,4 @@
-import { TrackedLink } from '@/components/analytics/TrackedLink';
-import { slugify } from '@/lib/format';
+import Link from 'next/link';
 
 const cidades = [
   ['Vitória da Conquista', 'vitoria-da-conquista'],
@@ -31,23 +30,18 @@ const institucional = [
 ];
 
 function Col({ title, links }: { title: string; links: string[][] }) {
-  const section = `footer_${slugify(title)}`;
   return (
     <div>
       <p className="mb-3.5 text-sm font-medium text-slate-950 dark:text-white">{title}</p>
       <div className="flex flex-col gap-2.5 text-sm">
         {links.map(([label, href]) => (
-          <TrackedLink
+          <Link
             key={href}
             href={href}
-            buttonId={`${section}_${slugify(label)}_link`}
-            buttonText={label}
-            buttonLocation="footer"
-            section={section}
-            className="font-medium text-slate-600 transition-colors hover:text-[#0ea5e9] dark:text-slate-300 dark:hover:text-[#0ea5e9]"
+            className="inline-flex min-h-11 items-center font-medium text-slate-600 transition-colors hover:text-link-hover dark:text-slate-300 dark:hover:text-link-hover"
           >
             {label}
-          </TrackedLink>
+          </Link>
         ))}
       </div>
     </div>
@@ -60,7 +54,7 @@ export function Footer() {
       <div className="mx-auto grid max-w-[1200px] gap-9 px-6 py-12 sm:grid-cols-2 lg:grid-cols-5">
         <div className="sm:col-span-2 lg:col-span-1">
           <div className="text-[22px] font-extrabold tracking-tight">
-            <span className="text-[#0ea5e9]">77</span><span className="text-slate-950 dark:text-white">imóveis</span>
+            <span className="text-link">77</span><span className="text-slate-950 dark:text-white">imóveis</span>
           </div>
           <p className="mt-3.5 max-w-[300px] text-sm font-medium leading-relaxed text-slate-600 dark:text-slate-400">
             O portal imobiliário do Oeste da Bahia. Imóveis, profissionais e empresas perto de você.

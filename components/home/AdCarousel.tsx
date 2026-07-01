@@ -83,7 +83,7 @@ export function AdCarousel({ ads }: { ads: HeroAd[] }) {
           type="button"
           aria-label="Anúncio anterior"
           onClick={() => go(idx - 1)}
-          className="absolute left-2.5 top-1/2 flex h-[38px] w-[38px] -translate-y-1/2 items-center justify-center rounded-full border border-border bg-white/95 text-[#13201b] shadow-[0_4px_14px_rgba(8,30,22,.18)] outline-none transition-colors hover:border-primary hover:text-primary focus-visible:ring-4 focus-visible:ring-primary/30"
+          className="absolute left-2 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-white/95 text-[#13201b] shadow-[0_4px_14px_rgba(8,30,22,.18)] outline-none transition-colors hover:border-primary hover:text-primary focus-visible:ring-4 focus-visible:ring-primary/30 sm:left-2.5"
         >
           <ChevronLeft size={18} />
         </button>
@@ -91,7 +91,7 @@ export function AdCarousel({ ads }: { ads: HeroAd[] }) {
           type="button"
           aria-label="Próximo anúncio"
           onClick={() => go(idx + 1)}
-          className="absolute right-2.5 top-1/2 flex h-[38px] w-[38px] -translate-y-1/2 items-center justify-center rounded-full border border-border bg-white/95 text-[#13201b] shadow-[0_4px_14px_rgba(8,30,22,.18)] outline-none transition-colors hover:border-primary hover:text-primary focus-visible:ring-4 focus-visible:ring-primary/30"
+          className="absolute right-2 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-white/95 text-[#13201b] shadow-[0_4px_14px_rgba(8,30,22,.18)] outline-none transition-colors hover:border-primary hover:text-primary focus-visible:ring-4 focus-visible:ring-primary/30 sm:right-2.5"
         >
           <ChevronRight size={18} />
         </button>
@@ -108,11 +108,15 @@ export function AdCarousel({ ads }: { ads: HeroAd[] }) {
               aria-selected={active}
               aria-label={`Ir para anúncio ${i + 1}`}
               onClick={() => go(i)}
-              className={cn(
-                'h-[7px] rounded-full transition-all outline-none focus-visible:ring-2 focus-visible:ring-primary/50',
-                active ? 'w-[22px] bg-primary' : 'w-[7px] bg-[#d3dad6]',
-              )}
-            />
+              className="flex h-8 w-8 items-center justify-center rounded-full outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+            >
+              <span
+                className={cn(
+                  'h-[7px] rounded-full transition-all',
+                  active ? 'w-[22px] bg-primary' : 'w-[7px] bg-[#d3dad6]',
+                )}
+              />
+            </button>
           );
         })}
       </div>

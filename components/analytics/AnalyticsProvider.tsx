@@ -1,7 +1,7 @@
 'use client';
 import Script from 'next/script';
 import { usePathname, useSearchParams } from 'next/navigation';
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { trackPageView } from '@/lib/analytics';
 
 const GA_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
@@ -10,6 +10,7 @@ const DEBUG = process.env.NEXT_PUBLIC_ANALYTICS_DEBUG === 'true';
 const ENABLED = process.env.NODE_ENV === 'production' || DEBUG;
 
 export function AnalyticsProvider() {
+  const [allowed, setAllowed] = useState(false);
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const path = useMemo(() => {
@@ -18,10 +19,25 @@ export function AnalyticsProvider() {
   }, [pathname, searchParams]);
 
   useEffect(() => {
-    trackPageView(path);
-  }, [path]);
+    const sync = () => {
+      try {
+        setAllowed(localStorage.getItem('lgpd-consent') === 'accepted');
+      } catch {
+        setAllowed(false);
+      }
+    };
 
-  if (!ENABLED) return null;
+    sync();
+    window.addEventListener('lgpd-consent', sync);
+    return () => window.removeEventListener('lgpd-consent', sync);
+  }, []);
+
+  useEffect(() => {
+    if (!allowed) return;
+    trackPageView(path);
+  }, [allowed, path]);
+
+  if (!ENABLED || !allowed) return null;
 
   if (GTM_ID) {
     return (
