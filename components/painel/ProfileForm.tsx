@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { Camera, Loader2, User } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { updateProfile } from '@/app/painel/perfil/actions';
+import { ANALYTICS_EVENTS, trackButtonClick, trackEvent } from '@/lib/analytics';
 
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
 const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/avif'];
@@ -45,6 +46,11 @@ export function ProfileForm({ profile, cities }: { profile: Profile; cities: Cit
       const { error: upErr } = await sb.storage.from('imoveis').upload(path, file);
       if (upErr) throw upErr;
       setAvatarUrl(sb.storage.from('imoveis').getPublicUrl(path).data.publicUrl);
+      trackEvent(ANALYTICS_EVENTS.dashboardPhotoUpload, {
+        section: 'profile_form',
+        source_component: 'ProfileForm',
+        success: true,
+      });
     } catch (e: any) {
       setError(
         e?.message?.includes('Bucket')
@@ -63,7 +69,14 @@ export function ProfileForm({ profile, cities }: { profile: Profile; cities: Cit
     start(async () => {
       const res = await updateProfile({ fullName, email, phone, whatsapp, avatarUrl, cityId });
       if ('error' in res) setError(res.error!);
-      else setSaved(true);
+      else {
+        trackEvent(ANALYTICS_EVENTS.profileUpdate, {
+          section: 'profile_form',
+          source_component: 'ProfileForm',
+          success: true,
+        });
+        setSaved(true);
+      }
     });
   }
 
@@ -83,7 +96,14 @@ export function ProfileForm({ profile, cities }: { profile: Profile; cities: Cit
         <div>
           <button
             type="button"
-            onClick={() => fileRef.current?.click()}
+            onClick={() => {
+              trackButtonClick({
+                button_id: 'profile_photo_upload_button',
+                button_text: avatarUrl ? 'Trocar foto' : 'Enviar foto',
+                button_location: 'profile_form',
+              });
+              fileRef.current?.click();
+            }}
             disabled={uploading}
             className="inline-flex items-center gap-2 rounded-lg border border-border bg-surface px-3 py-2 text-sm font-semibold transition hover:border-primary/40 disabled:opacity-50"
           >
@@ -145,6 +165,7 @@ export function ProfileForm({ profile, cities }: { profile: Profile; cities: Cit
 
       <button
         type="submit"
+        onClick={() => trackButtonClick({ button_id: 'profile_save_button', button_text: 'Salvar perfil', button_location: 'profile_form' })}
         disabled={pending || uploading}
         className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3 font-semibold text-on-primary transition hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-40 sm:w-auto"
       >

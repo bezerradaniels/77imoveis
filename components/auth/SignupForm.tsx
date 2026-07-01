@@ -3,6 +3,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { Eye, EyeOff, MailCheck } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
+import { ANALYTICS_EVENTS, trackButtonClick, trackConversion, trackEvent } from '@/lib/analytics';
 import { Input, Field } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 
@@ -26,6 +27,7 @@ export function SignupForm() {
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    trackEvent(ANALYTICS_EVENTS.signUpStart, { form_name: 'signup' });
     setError('');
     setLoading(true);
     const fd = new FormData(e.currentTarget);
@@ -50,6 +52,7 @@ export function SignupForm() {
         setLoading(false);
         return;
       }
+      trackConversion(ANALYTICS_EVENTS.signUp, { method: 'email', form_name: 'signup' });
       if (data.session && data.user) {
         // Conta já ativa: completa o telefone no profile (criado pelo trigger).
         await sb.from('profiles').update({ phone, whatsapp: phone }).eq('id', data.user.id);
@@ -134,7 +137,15 @@ export function SignupForm() {
       <p className="text-center text-sm text-muted">
         Já tem conta?{' '}
         <Link href="/entrar" className="font-bold text-link hover:text-link-hover">
-          Entrar
+          <span
+            onClick={() => trackButtonClick({
+              button_id: 'signup_login_link',
+              button_text: 'Entrar',
+              button_location: 'signup_form',
+            })}
+          >
+            Entrar
+          </span>
         </Link>
       </p>
     </form>

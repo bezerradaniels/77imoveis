@@ -3,6 +3,8 @@ import { redirect } from 'next/navigation';
 import { Building2, CreditCard, Home, MessageSquare, Shield, Store, UserCog, Users } from 'lucide-react';
 import { getProfile } from '@/lib/auth';
 import { getMyCompany } from '@/lib/data';
+import { TrackEventOnMount } from '@/components/analytics/TrackEventOnMount';
+import { ANALYTICS_EVENTS } from '@/lib/analytics';
 import { logout } from './actions';
 
 export const dynamic = 'force-dynamic';
@@ -63,6 +65,10 @@ export default async function PainelPage() {
 
   return (
     <main className="min-h-screen bg-slate-100 px-4 py-8 dark:bg-bg">
+      <TrackEventOnMount
+        eventName={ANALYTICS_EVENTS.dashboardView}
+        params={{ user_role: profile?.role ?? 'unknown', section: 'dashboard_home' }}
+      />
       <div className="mx-auto max-w-3xl">
         <div className="mb-6">
           <h1 className="text-2xl font-bold">Olá, {nome} 👋</h1>

@@ -3,6 +3,7 @@ import { useState, type Dispatch, type SetStateAction } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { saveCompany, type CompanyInput } from '@/app/painel/empresa/actions';
+import { ANALYTICS_EVENTS, trackEvent } from '@/lib/analytics';
 
 export const weekDays = [
   { key: 'seg', label: 'Segunda' },
@@ -169,6 +170,13 @@ export function useCompanyForm(initial?: any, opts?: { manageBrokers?: boolean }
         setBusy(false);
         return;
       }
+      trackEvent(ANALYTICS_EVENTS.companyProfileUpdate, {
+        company_type: f.type,
+        form_mode: initial?.id ? 'edit' : 'create',
+        section: 'company_form',
+        source_component: 'useCompanyForm',
+        success: true,
+      });
       router.push(`/empresa/${r.slug}`);
       router.refresh();
     } catch (e: any) {

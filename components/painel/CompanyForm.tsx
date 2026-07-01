@@ -1,6 +1,7 @@
 'use client';
 import { Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
+import { trackButtonClick } from '@/lib/analytics';
 import { useCompanyForm } from './company/useCompanyForm';
 import {
   TypeSection, DataSection, CitiesSection, ImagesSection, DescriptionSection,
@@ -78,7 +79,18 @@ export function CompanyForm({
 
       {c.error && <p className="text-sm text-danger">{c.error}</p>}
       <div className="flex justify-end">
-        <Button onClick={c.submit} disabled={c.busy} rounded="lg">
+        <Button
+          onClick={() => {
+            trackButtonClick({
+              button_id: initial?.id ? 'company_profile_save_button' : 'company_profile_create_button',
+              button_text: initial?.id ? 'Salvar perfil' : 'Criar perfil profissional',
+              button_location: 'company_form',
+            });
+            c.submit();
+          }}
+          disabled={c.busy}
+          rounded="lg"
+        >
           {c.busy && <Loader2 size={16} className="animate-spin" />}
           {c.busy ? 'Salvando…' : initial?.id ? 'Salvar perfil' : 'Criar perfil profissional'}
         </Button>

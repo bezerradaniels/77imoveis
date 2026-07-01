@@ -8,6 +8,7 @@ import { Dropdown } from '@/components/ui/Dropdown';
 import { Autocomplete } from '@/components/ui/Autocomplete';
 import { MultiSelect } from '@/components/ui/MultiSelect';
 import { cn } from '@/lib/cn';
+import { ANALYTICS_EVENTS, trackButtonClick, trackEvent } from '@/lib/analytics';
 
 const objetivoOpts: Option[] = [
   { value: 'venda', label: 'Comprar' },
@@ -81,6 +82,22 @@ export function HeroSearchForm({
       base = '/imoveis';
     }
     const qs = sp.toString();
+    trackEvent(ANALYTICS_EVENTS.searchPerformed, {
+      search_type: 'hero_search',
+      section: bare ? 'mobile_search_sheet' : 'home_hero',
+      city,
+      state: 'BA',
+      property_type: tipos.join(','),
+      negotiation: objetivo.join(','),
+      bedrooms: quartos.join(','),
+      has_neighborhood: !!bairro,
+    });
+    trackButtonClick({
+      button_id: bare ? 'mobile_search_button' : 'hero_search_button',
+      button_text: 'Buscar imóveis',
+      button_location: bare ? 'mobile_search_sheet' : 'home_hero',
+      section: 'search',
+    });
     router.push(qs ? `${base}?${qs}` : base);
   };
 

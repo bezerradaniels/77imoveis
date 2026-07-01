@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/cn';
 import { brl } from '@/lib/format';
+import { ANALYTICS_EVENTS, trackButtonClick, trackConversion, trackEvent } from '@/lib/analytics';
 import { createClient } from '@/lib/supabase/client';
 import { saveProperty, loadNeighborhoods, type PropertyInput } from '@/app/painel/actions';
 
@@ -182,6 +183,17 @@ export function PropertyForm({
   const restored = useRef(false);
 
   const isEdit = !!initial?.id;
+  const stepLabel = (n = step) => STEPS.find((s) => s.n === n)?.label ?? String(n);
+
+  const analyticsBase = () => ({
+    form_name: 'property_form',
+    user_role: ownerType || 'unknown',
+    property_type: typeName(data.propertyTypeId),
+    city: cityName(data.cityId),
+    state: 'BA',
+    negotiation: data.negotiation ?? '',
+    source_component: 'PropertyForm',
+  });
 
   // Restaura rascunho local (apenas ao criar um anúncio novo).
   useEffect(() => {
@@ -192,6 +204,28 @@ export function PropertyForm({
       if (raw) setData((d) => ({ ...d, ...JSON.parse(raw) }));
     } catch {}
   }, [isEdit]);
+
+  useEffect(() => {
+    trackEvent(isEdit ? ANALYTICS_EVENTS.propertyEditStart : ANALYTICS_EVENTS.propertyCreateStart, {
+      ...analyticsBase(),
+      step_name: stepLabel(1),
+      step_number: 1,
+      form_mode: isEdit ? 'edit' : 'create',
+    });
+    // Apenas na montagem do formulário.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    trackEvent(ANALYTICS_EVENTS.propertyCreateStepView, {
+      ...analyticsBase(),
+      step_name: stepLabel(),
+      step_number: step,
+      form_mode: isEdit ? 'edit' : 'create',
+    });
+    // step é o gatilho; os demais campos enriquecem o evento atual.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step]);
 
   // Autosave do rascunho local (texto; fotos vão só pro servidor ao salvar).
   useEffect(() => {
@@ -313,7 +347,21 @@ export function PropertyForm({
 
   function goNext() {
     const e = validate(step);
-    if (Object.keys(e).length) { setErrors(e); return; }
+    if (Object.keys(e).length) {
+      trackEvent(ANALYTICS_EVENTS.propertyCreateValidationError, {
+        ...analyticsBase(),
+        step_name: stepLabel(),
+        step_number: step,
+        error_type: Object.keys(e).join(','),
+      });
+      setErrors(e);
+      return;
+    }
+    trackEvent(ANALYTICS_EVENTS.propertyCreateStepComplete, {
+      ...analyticsBase(),
+      step_name: stepLabel(),
+      step_number: step,
+    });
     setStep((s) => Math.min(9, s + 1)); setErrors({});
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
@@ -322,7 +370,16 @@ export function PropertyForm({
 
   // ---- photos ----
   function onFiles(files: FileList | null) {
-    Array.from(files ?? []).forEach((file) => {
+    const selected = Array.from(files ?? []);
+    if (selected.length) {
+      trackButtonClick({
+        button_id: 'property_photo_upload_button',
+        button_text: 'Enviar fotos',
+        button_location: 'property_form_step_photos',
+        section: 'property_form',
+      });
+    }
+    selected.forEach((file) => {
       if (!ALLOWED_IMAGE_TYPES.includes(file.type)) { setError('Use fotos em JPG, PNG, WebP ou AVIF.'); return; }
       if (file.size > MAX_IMAGE_SIZE) { setError('Cada foto precisa ter até 5 MB.'); return; }
       const preview = URL.createObjectURL(file);
@@ -335,7 +392,14 @@ export function PropertyForm({
     setErrors((e) => { const ne = { ...e }; delete ne.photos; return ne; });
     setSavedAt(Date.now());
   }
-  const removePhoto = (id: string) => setPhotos((ps) => ps.filter((p) => p.id !== id));
+  const removePhoto = (id: string) => {
+    trackEvent(ANALYTICS_EVENTS.dashboardPhotoDelete, {
+      ...analyticsBase(),
+      section: 'property_form',
+      photo_count: photos.length,
+    });
+    setPhotos((ps) => ps.filter((p) => p.id !== id));
+  };
   const makeCover = (id: string) => setPhotos((ps) => { const i = ps.findIndex((p) => p.id === id); if (i <= 0) return ps; const c = [...ps]; const [x] = c.splice(i, 1); c.unshift(x); return c; });
   const reorder = (from: number, to: number) => setPhotos((ps) => { const c = [...ps]; const [x] = c.splice(from, 1); c.splice(to, 0, x); return c; });
 
@@ -381,6 +445,11 @@ export function PropertyForm({
       const { error: upErr } = await sb.storage.from('imoveis').upload(path, p.file, { cacheControl: '3600' });
       if (upErr) throw upErr;
       urls.push(sb.storage.from('imoveis').getPublicUrl(path).data.publicUrl);
+      trackEvent(ANALYTICS_EVENTS.dashboardPhotoUpload, {
+        ...analyticsBase(),
+        section: 'property_form',
+        success: true,
+      });
     }
     return urls;
   }
@@ -402,6 +471,7 @@ export function PropertyForm({
 
   async function persist(publish: boolean) {
     setError('');
+    const wasNew = !savedId.current;
     const images = await uploadPhotos();
     const input: PropertyInput = {
       id: savedId.current,
@@ -430,6 +500,19 @@ export function PropertyForm({
     const r = await saveProperty(input);
     if (r.error) throw new Error(r.error);
     savedId.current = r.id;
+    const params = {
+      ...analyticsBase(),
+      property_status: r.status,
+      publish,
+      success: true,
+      photo_count: images.length,
+    };
+    if (wasNew) trackConversion(ANALYTICS_EVENTS.propertyCreateComplete, params);
+    else trackEvent(ANALYTICS_EVENTS.propertyEditComplete, params);
+    if (publish) {
+      trackConversion(ANALYTICS_EVENTS.propertyPublishComplete, params);
+      trackEvent(ANALYTICS_EVENTS.dashboardPropertyPublish, params);
+    }
     return r;
   }
 
@@ -440,6 +523,11 @@ export function PropertyForm({
     }
     setBusy(true);
     try {
+      trackEvent(ANALYTICS_EVENTS.propertyCreateSubmit, {
+        ...analyticsBase(),
+        form_mode: isEdit ? 'edit' : 'create',
+        publish: false,
+      });
       await persist(false);
       try { localStorage.removeItem(DRAFT_KEY); } catch {}
       setSavedAt(Date.now());
@@ -455,6 +543,11 @@ export function PropertyForm({
     if (Object.keys(all).length) { setErrors(all); window.scrollTo({ top: 0, behavior: 'smooth' }); return; }
     setBusy(true);
     try {
+      trackEvent(ANALYTICS_EVENTS.propertyCreateSubmit, {
+        ...analyticsBase(),
+        form_mode: isEdit ? 'edit' : 'create',
+        publish: true,
+      });
       const r = await persist(true);
       try { localStorage.removeItem(DRAFT_KEY); } catch {}
       setSuccess({ slug: r.slug, status: r.status });

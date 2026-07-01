@@ -1,6 +1,8 @@
 import Link from 'next/link';
 import { Home, Building2, Users, MessageSquare, Clock, CheckCircle2, UserRoundCheck } from 'lucide-react';
 import { adminCounts } from '@/lib/data';
+import { TrackEventOnMount } from '@/components/analytics/TrackEventOnMount';
+import { ANALYTICS_EVENTS } from '@/lib/analytics';
 
 export const dynamic = 'force-dynamic';
 
@@ -18,6 +20,7 @@ export default async function AdminHome() {
 
   return (
     <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+      <TrackEventOnMount eventName={ANALYTICS_EVENTS.adminView} params={{ section: 'admin_home' }} />
       {cards.map((card) => (
         <Link key={card.label} href={card.href} className="rounded-xl border border-border bg-surface p-4 hover:bg-bg">
           <card.Icon size={20} className="text-link" />

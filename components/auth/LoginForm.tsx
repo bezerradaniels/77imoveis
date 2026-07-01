@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { Eye, EyeOff } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
+import { ANALYTICS_EVENTS, trackButtonClick, trackConversion, trackEvent } from '@/lib/analytics';
 import { Input, Field } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 
@@ -18,6 +19,7 @@ export function LoginForm() {
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    trackEvent(ANALYTICS_EVENTS.loginStart, { form_name: 'login' });
     setError('');
     setLoading(true);
     const fd = new FormData(e.currentTarget);
@@ -31,6 +33,7 @@ export function LoginForm() {
         setLoading(false);
         return;
       }
+      trackConversion(ANALYTICS_EVENTS.login, { method: 'email', form_name: 'login' });
       window.location.assign(next);
     } catch {
       setError('Login indisponível: configuração do servidor ausente.');
@@ -75,7 +78,15 @@ export function LoginForm() {
       <p className="text-center text-sm text-muted">
         Não tem conta?{' '}
         <Link href="/cadastro" className="font-bold text-link hover:text-link-hover">
-          Cadastre-se grátis
+          <span
+            onClick={() => trackButtonClick({
+              button_id: 'login_signup_link',
+              button_text: 'Cadastre-se grátis',
+              button_location: 'login_form',
+            })}
+          >
+            Cadastre-se grátis
+          </span>
         </Link>
       </p>
     </form>

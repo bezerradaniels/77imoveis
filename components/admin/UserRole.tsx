@@ -3,6 +3,7 @@ import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { Pencil, ShieldOff, ShieldCheck } from 'lucide-react';
 import { adminSetUserRole, adminSetUserActive, adminUpdateUser } from '@/app/admin/actions';
+import { ANALYTICS_EVENTS, trackButtonClick, trackEvent } from '@/lib/analytics';
 
 type UserRoleKey = 'particular' | 'profissional' | 'admin' | 'moderador';
 
@@ -28,12 +29,13 @@ export function UserRole({
   const [pending, start] = useTransition();
   const [editing, setEditing] = useState(false);
   const [message, setMessage] = useState('');
-  const run = (fn: () => Promise<{ ok?: true; error?: string }>) =>
+  const run = (fn: () => Promise<{ ok?: true; error?: string }>, eventName?: keyof typeof ANALYTICS_EVENTS, params?: Record<string, string | boolean>) =>
     start(async () => {
       setMessage('');
       const r = await fn();
       setMessage(r?.error || 'Atualizado.');
       if (!r?.error) {
+        if (eventName) trackEvent(ANALYTICS_EVENTS[eventName], { source_component: 'UserRole', ...params });
         setEditing(false);
         router.refresh();
       }
@@ -46,18 +48,24 @@ export function UserRole({
         <select
           defaultValue={role}
           disabled={pending}
-          onChange={(e) => run(() => adminSetUserRole(id, e.target.value as UserRoleKey))}
+          onChange={(e) => run(() => adminSetUserRole(id, e.target.value as UserRoleKey), 'adminUserEdit', { action_type: 'role_change', user_role: e.target.value })}
           className="rounded-md border border-border bg-surface px-2 py-1 text-sm disabled:opacity-50"
         >
           {roles.map((r) => <option key={r.v} value={r.v}>{r.l}</option>)}
         </select>
-        <button disabled={pending} onClick={() => setEditing(true)} className={`${btn} border border-border text-muted`}>
+        <button disabled={pending} onClick={() => {
+          trackButtonClick({ button_id: 'admin_edit_user_button', button_text: 'Editar', button_location: 'admin_user_row' });
+          setEditing(true);
+        }} className={`${btn} border border-border text-muted`}>
           <Pencil size={13} /> Editar
         </button>
         {isActive ? (
           <button
             disabled={pending}
-            onClick={() => { if (confirm('Desativar este usuário? O acesso ao painel será bloqueado, mas os dados relacionados serão preservados.')) run(() => adminSetUserActive(id, false)); }}
+            onClick={() => { if (confirm('Desativar este usuário? O acesso ao painel será bloqueado, mas os dados relacionados serão preservados.')) {
+              trackButtonClick({ button_id: 'admin_delete_user_button', button_text: 'Desativar', button_location: 'admin_user_row' });
+              run(() => adminSetUserActive(id, false), 'adminUserDelete', { active: false });
+            } }}
             className={`${btn} bg-danger/10 text-danger`}
           >
             <ShieldOff size={13} /> Desativar
@@ -65,7 +73,7 @@ export function UserRole({
         ) : (
           <button
             disabled={pending}
-            onClick={() => run(() => adminSetUserActive(id, true))}
+            onClick={() => run(() => adminSetUserActive(id, true), 'adminUserEdit', { active: true })}
             className={`${btn} bg-success/15 text-success`}
           >
             <ShieldCheck size={13} /> Reativar
@@ -83,7 +91,7 @@ export function UserRole({
               email: String(form.get('email') || '').trim() || null,
               phone: String(form.get('phone') || '').trim() || null,
               whatsapp: String(form.get('whatsapp') || '').trim() || null,
-            }));
+            }), 'adminUserEdit', { action_type: 'profile_update' });
           }}
         >
           <input name="full_name" defaultValue={user.full_name ?? ''} placeholder="Nome" className="rounded-md border border-border bg-surface px-2 py-1.5 text-sm" />
@@ -91,7 +99,7 @@ export function UserRole({
           <input name="phone" defaultValue={user.phone ?? ''} placeholder="Telefone" className="rounded-md border border-border bg-surface px-2 py-1.5 text-sm" />
           <input name="whatsapp" defaultValue={user.whatsapp ?? ''} placeholder="WhatsApp" className="rounded-md border border-border bg-surface px-2 py-1.5 text-sm" />
           <div className="flex gap-2 sm:col-span-2">
-            <button disabled={pending} className="rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-on-primary disabled:opacity-50">Salvar</button>
+            <button disabled={pending} onClick={() => trackButtonClick({ button_id: 'admin_save_user_button', button_text: 'Salvar', button_location: 'admin_user_edit_form' })} className="rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-on-primary disabled:opacity-50">Salvar</button>
             <button type="button" disabled={pending} onClick={() => setEditing(false)} className="rounded-md border border-border px-3 py-1.5 text-sm">Cancelar</button>
           </div>
         </form>

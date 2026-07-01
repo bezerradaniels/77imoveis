@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Play, Pause, Pencil, Trash2, Archive } from 'lucide-react';
 import { setPropertyStatus, deleteProperty } from '@/app/painel/actions';
+import { ANALYTICS_EVENTS, trackButtonClick, trackConversion, trackEvent } from '@/lib/analytics';
 
 // Botões de ação de um imóvel no painel (ativar/pausar/arquivar/editar/excluir).
 export function PropertyActions({ id, slug, status }: { id: string; slug: string; status: string }) {
@@ -11,12 +12,21 @@ export function PropertyActions({ id, slug, status }: { id: string; slug: string
   const [pending, start] = useTransition();
   const [error, setError] = useState('');
 
-  const run = (fn: () => Promise<{ error?: string }>) =>
+  const run = (
+    fn: () => Promise<{ error?: string }>,
+    eventName?: keyof typeof ANALYTICS_EVENTS,
+    params?: Record<string, string | number | boolean | null | undefined>,
+    afterSuccess?: () => void,
+  ) =>
     start(async () => {
       setError('');
       const r = await fn();
       if (r?.error) setError(r.error);
-      else router.refresh();
+      else {
+        if (eventName) trackEvent(ANALYTICS_EVENTS[eventName], { property_status: status, ...params });
+        afterSuccess?.();
+        router.refresh();
+      }
     });
 
   return (
@@ -24,7 +34,15 @@ export function PropertyActions({ id, slug, status }: { id: string; slug: string
       <div className="flex flex-wrap items-center gap-1.5">
         {status !== 'ativo' ? (
           <button
-            onClick={() => run(() => setPropertyStatus(id, 'ativo'))}
+            onClick={() => {
+              trackButtonClick({ button_id: 'dashboard_property_publish_button', button_text: 'Ativar', button_location: 'dashboard_property_row' });
+              run(
+                () => setPropertyStatus(id, 'ativo'),
+                'dashboardPropertyPublish',
+                { new_status: 'ativo' },
+                () => trackConversion(ANALYTICS_EVENTS.propertyPublishComplete, { property_status: 'ativo', source_component: 'PropertyActions' }),
+              );
+            }}
             disabled={pending}
             className="inline-flex items-center gap-1 rounded-md bg-success/10 px-2 py-1 text-xs font-medium text-success hover:bg-success/20"
           >
@@ -32,7 +50,10 @@ export function PropertyActions({ id, slug, status }: { id: string; slug: string
           </button>
         ) : (
           <button
-            onClick={() => run(() => setPropertyStatus(id, 'pausado'))}
+            onClick={() => {
+              trackButtonClick({ button_id: 'dashboard_property_unpublish_button', button_text: 'Pausar', button_location: 'dashboard_property_row' });
+              run(() => setPropertyStatus(id, 'pausado'), 'dashboardPropertyUnpublish', { new_status: 'pausado' });
+            }}
             disabled={pending}
             className="inline-flex items-center gap-1 rounded-md bg-warning/10 px-2 py-1 text-xs font-medium text-warning hover:bg-warning/20"
           >
@@ -41,13 +62,17 @@ export function PropertyActions({ id, slug, status }: { id: string; slug: string
         )}
         <Link
           href={`/painel/imoveis/${id}`}
+          onClick={() => trackButtonClick({ button_id: 'dashboard_property_edit_button', button_text: 'Editar', button_location: 'dashboard_property_row' })}
           className="inline-flex items-center gap-1 rounded-md border border-border px-2 py-1 text-xs hover:bg-bg"
         >
           <Pencil size={13} /> Editar
         </Link>
         {status !== 'arquivado' && (
           <button
-            onClick={() => run(() => setPropertyStatus(id, 'arquivado'))}
+            onClick={() => {
+              trackButtonClick({ button_id: 'dashboard_property_archive_button', button_text: 'Arquivar', button_location: 'dashboard_property_row' });
+              run(() => setPropertyStatus(id, 'arquivado'), 'propertyStatusChange', { new_status: 'arquivado' });
+            }}
             disabled={pending}
             className="inline-flex items-center gap-1 rounded-md border border-border px-2 py-1 text-xs hover:bg-bg"
           >
@@ -57,7 +82,10 @@ export function PropertyActions({ id, slug, status }: { id: string; slug: string
         <button
           onClick={() => {
             if (confirm('Remover este anúncio? Ele sairá do site público, mas os dados históricos serão preservados.'))
-              run(() => deleteProperty(id));
+              {
+                trackButtonClick({ button_id: 'dashboard_property_delete_button', button_text: 'Remover', button_location: 'dashboard_property_row' });
+                run(() => deleteProperty(id), 'propertyDeleteComplete', { new_status: 'arquivado' });
+              }
           }}
           disabled={pending}
           className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs text-danger hover:bg-danger/10"

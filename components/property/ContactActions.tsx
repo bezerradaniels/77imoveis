@@ -1,9 +1,39 @@
 'use client';
 import { MessageCircle, Phone } from 'lucide-react';
 import { trackContactClick } from '@/lib/leads';
+import { ANALYTICS_EVENTS, trackButtonClick, trackConversion, trackEvent } from '@/lib/analytics';
 
 function track(slug: string, channel: 'whatsapp' | 'telefone' | 'ligacao', contactValue?: string | null) {
   void trackContactClick({ slug, channel, contactValue });
+  trackEvent(ANALYTICS_EVENTS.contactAttempt, {
+    channel,
+    property_slug: slug,
+    source_component: 'property_contact_actions',
+  });
+  if (channel === 'whatsapp') {
+    trackConversion(ANALYTICS_EVENTS.contactWhatsappClick, {
+      channel,
+      property_slug: slug,
+      source_component: 'property_contact_actions',
+    });
+    trackButtonClick({
+      button_id: 'property_detail_whatsapp_button',
+      button_text: 'Conversar no WhatsApp',
+      button_location: 'property_contact_card',
+    });
+  }
+  if (channel === 'telefone') {
+    trackConversion(ANALYTICS_EVENTS.phoneClick, {
+      channel,
+      property_slug: slug,
+      source_component: 'property_contact_actions',
+    });
+    trackButtonClick({
+      button_id: 'property_detail_phone_button',
+      button_text: 'Telefone',
+      button_location: 'property_contact_card',
+    });
+  }
 }
 
 // Ações de contato do imóvel: WhatsApp e/ou telefone, conforme escolha do anunciante.

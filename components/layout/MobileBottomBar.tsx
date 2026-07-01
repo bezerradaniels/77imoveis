@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Home, Search, PlusCircle, User } from 'lucide-react';
 import { cn } from '@/lib/cn';
+import { trackButtonClick } from '@/lib/analytics';
 
 const items = [
   { href: '/', label: 'Início', Icon: Home, active: (p: string) => p === '/' },
@@ -25,6 +26,13 @@ export function MobileBottomBar() {
           <Link
             key={href}
             href={href}
+            onClick={() => trackButtonClick({
+              button_id: `mobile_bottom_${label.toLowerCase()}_button`,
+              button_text: label,
+              button_location: 'mobile_bottom_bar',
+              section: 'mobile_navigation',
+              destination_url: href,
+            })}
             className={cn('flex flex-col items-center gap-0.5 py-2 text-[11px]', on ? 'text-link' : 'text-muted')}
           >
             <Icon size={20} />

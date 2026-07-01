@@ -5,6 +5,7 @@ import { SlidersHorizontal, ChevronDown, Check, X } from 'lucide-react';
 import { Dropdown } from '@/components/ui/Dropdown';
 import { Autocomplete } from '@/components/ui/Autocomplete';
 import { cn } from '@/lib/cn';
+import { ANALYTICS_EVENTS, trackButtonClick, trackEvent } from '@/lib/analytics';
 
 const modalidades = [
   { value: 'venda', label: 'Comprar' },
@@ -61,6 +62,13 @@ export function FilterBar({
     const next = new URLSearchParams(params.toString());
     value ? next.set(key, value) : next.delete(key);
     next.delete('pagina');
+    trackEvent(ANALYTICS_EVENTS.filterApplied, {
+      filter_name: key,
+      filter_value: value || 'removed',
+      section: 'listing_filters',
+      source_component: 'FilterBar',
+      active_filters: activeCount,
+    });
     router.push(`${pathname}?${next.toString()}`);
   };
 
@@ -86,12 +94,34 @@ export function FilterBar({
     (acceptsExchange ? 1 : 0) +
     ['min', 'max', 'bairro', 'cidade', 'tipo'].filter((k) => params.get(k)).length;
 
-  const clearAll = () => router.push(pathname);
+  const clearAll = () => {
+    trackButtonClick({
+      button_id: 'listing_filters_clear_button',
+      button_text: 'Limpar',
+      button_location: 'listing_filters',
+      section: 'filters',
+    });
+    trackEvent(ANALYTICS_EVENTS.filterApplied, {
+      filter_name: 'clear_all',
+      filter_value: 'all',
+      section: 'listing_filters',
+      source_component: 'FilterBar',
+    });
+    router.push(pathname);
+  };
 
   return (
     <>
       <button
-        onClick={() => setOpen((v) => !v)}
+        onClick={() => {
+          trackButtonClick({
+            button_id: 'mobile_listing_filters_toggle',
+            button_text: 'Filtros',
+            button_location: 'listing_filters_mobile',
+            section: 'filters',
+          });
+          setOpen((v) => !v);
+        }}
         className="flex w-full items-center justify-between rounded-xl border border-border bg-surface px-3 py-2 text-sm lg:hidden"
       >
         <span className="inline-flex items-center gap-2">

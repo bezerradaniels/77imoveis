@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { ThemeToggle } from './ThemeToggle';
 import { AuthNav } from './AuthNav';
+import { TrackedLink } from '@/components/analytics/TrackedLink';
 
 const menu = [
   { href: '/imoveis?modalidade=venda', label: 'Venda' },
@@ -19,20 +20,32 @@ export function Header() {
           </Link>
           <div className="hidden items-center gap-5 md:flex">
             {menu.map((item) => (
-              <Link key={item.href} href={item.href} className="text-sm font-bold text-text/75 transition-colors hover:text-link-hover">
+              <TrackedLink
+                key={item.href}
+                href={item.href}
+                buttonId={`header_${item.label.toLowerCase()}_link`}
+                buttonText={item.label}
+                buttonLocation="header_nav"
+                section="header"
+                className="text-sm font-bold text-text/75 transition-colors hover:text-link-hover"
+              >
                 {item.label}
-              </Link>
+              </TrackedLink>
             ))}
           </div>
         </div>
 
         <nav className="flex items-center gap-3 sm:gap-4">
-          <Link
+          <TrackedLink
             href="/anunciar"
+            buttonId="header_add_property_button"
+            buttonText="Anunciar imóvel"
+            buttonLocation="header"
+            section="header"
             className="hidden rounded-[10px] bg-primary px-3 py-2 text-sm font-bold text-on-primary shadow-[0_10px_22px_-14px_rgba(14,165,233,.45)] transition-colors hover:bg-primary-hover md:inline-flex"
           >
             Anunciar imóvel
-          </Link>
+          </TrackedLink>
           <AuthNav />
           <ThemeToggle />
         </nav>

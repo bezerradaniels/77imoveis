@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import { MessageCircle, X } from 'lucide-react';
 import { priceLabel } from '@/lib/format';
+import { ANALYTICS_EVENTS, trackButtonClick, trackConversion } from '@/lib/analytics';
 import { ContactCard, negoLabel, type ContactCardProps } from './ContactCard';
 
 // Mobile: CTA flutuante (barra inferior + FAB do WhatsApp) que abre um bottom
@@ -29,6 +30,18 @@ export function MobileContactBar(props: ContactCardProps) {
           target="_blank"
           rel="noopener noreferrer"
           aria-label="Conversar no WhatsApp"
+          onClick={() => {
+            trackConversion(ANALYTICS_EVENTS.contactWhatsappClick, {
+              channel: 'whatsapp',
+              property_slug: props.slug,
+              source_component: 'mobile_contact_fab',
+            });
+            trackButtonClick({
+              button_id: 'property_mobile_whatsapp_fab',
+              button_text: 'Conversar no WhatsApp',
+              button_location: 'property_mobile_fab',
+            });
+          }}
           className="fixed bottom-[88px] right-4 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-[#1FA855] text-on-primary shadow-[0_12px_26px_-10px_rgba(31,168,85,0.8)] lg:hidden"
         >
           <MessageCircle size={26} />
@@ -52,7 +65,14 @@ export function MobileContactBar(props: ContactCardProps) {
           )}
         </div>
         <button
-          onClick={() => setOpen(true)}
+          onClick={() => {
+            trackButtonClick({
+              button_id: 'property_mobile_contact_sheet_button',
+              button_text: 'Falar com anunciante',
+              button_location: 'property_mobile_contact_bar',
+            });
+            setOpen(true);
+          }}
           className="h-12 shrink-0 rounded-xl bg-primary px-5 text-sm font-bold text-on-primary transition hover:bg-primary-hover"
         >
           Falar com anunciante

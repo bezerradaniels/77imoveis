@@ -13,6 +13,8 @@ import { AmenitiesCard } from '@/components/property/AmenitiesCard';
 import { NegotiationCard } from '@/components/property/NegotiationCard';
 import { RelatedProperties } from '@/components/property/RelatedProperties';
 import { JsonLd } from '@/components/seo/JsonLd';
+import { TrackEventOnMount } from '@/components/analytics/TrackEventOnMount';
+import { ANALYTICS_EVENTS } from '@/lib/analytics';
 import { realEstateListingLd, breadcrumbLd } from '@/lib/seo/jsonld';
 import { pageMetadata, regionalize, swapRegion, REGION } from '@/lib/seo/meta';
 
@@ -160,6 +162,18 @@ export default async function ImovelPage({ params }: { params: { slug: string } 
 
   return (
     <main className="pb-28 lg:pb-12">
+      <TrackEventOnMount
+        eventName={ANALYTICS_EVENTS.propertyView}
+        params={{
+          property_slug: p.slug,
+          property_type: p.property_types?.name,
+          property_status: p.status,
+          city: p.cities?.name,
+          state: p.cities?.state ?? 'BA',
+          negotiation: p.negotiation,
+          source_component: 'property_detail_page',
+        }}
+      />
       <JsonLd
         data={realEstateListingLd({
           title: p.title,

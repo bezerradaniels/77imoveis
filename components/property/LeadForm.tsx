@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import { CheckCircle2 } from 'lucide-react';
 import { submitLead } from '@/lib/leads';
+import { ANALYTICS_EVENTS, trackButtonClick, trackConversion, trackEvent } from '@/lib/analytics';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 
@@ -25,6 +26,17 @@ export function LeadForm({ slug, title }: { slug: string; title: string }) {
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    trackEvent(ANALYTICS_EVENTS.contactAttempt, {
+      channel: 'formulario',
+      form_name: 'property_lead',
+      property_slug: slug,
+      source_component: 'property_lead_form',
+    });
+    trackButtonClick({
+      button_id: 'property_detail_lead_submit_button',
+      button_text: 'Enviar mensagem',
+      button_location: 'property_lead_form',
+    });
     setError('');
     setLoading(true);
     const fd = new FormData(e.currentTarget);
@@ -42,6 +54,12 @@ export function LeadForm({ slug, title }: { slug: string; title: string }) {
       setLoading(false);
       return;
     }
+    trackConversion(ANALYTICS_EVENTS.leadGenerate, {
+      form_name: 'property_lead',
+      property_slug: slug,
+      success: true,
+      source_component: 'property_lead_form',
+    });
     setSent(true);
   }
 

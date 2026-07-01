@@ -7,6 +7,9 @@ import { getCompanyBySlug } from '@/lib/data';
 import { companyTypeLabel } from '@/lib/constants';
 import { PropertyCard } from '@/components/property/PropertyCard';
 import { JsonLd } from '@/components/seo/JsonLd';
+import { TrackEventOnMount } from '@/components/analytics/TrackEventOnMount';
+import { TrackedExternalLink } from '@/components/analytics/TrackedExternalLink';
+import { ANALYTICS_EVENTS } from '@/lib/analytics';
 import { realEstateAgentLd, breadcrumbLd } from '@/lib/seo/jsonld';
 import { pageMetadata, swapRegion, REGION } from '@/lib/seo/meta';
 
@@ -45,6 +48,16 @@ export default async function EmpresaPublicaPage({ params }: { params: { slug: s
 
   return (
     <main className="mx-auto max-w-5xl px-4 py-6">
+      <TrackEventOnMount
+        eventName={c.type === 'corretor_autonomo' ? ANALYTICS_EVENTS.brokerView : ANALYTICS_EVENTS.companyView}
+        params={{
+          company_slug: c.slug,
+          company_type: c.type,
+          city: c.cities?.name,
+          state: 'BA',
+          source_component: 'company_profile_page',
+        }}
+      />
       <JsonLd
         data={realEstateAgentLd({
           name: c.trade_name,
@@ -110,19 +123,35 @@ export default async function EmpresaPublicaPage({ params }: { params: { slug: s
         </div>
         <div className="flex flex-wrap gap-2">
           {wa(c.whatsapp || c.phone) && (
-            <a href={wa(c.whatsapp || c.phone)!} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-full bg-[#1FA855] px-4 py-2 text-sm font-semibold text-on-primary">
+            <TrackedExternalLink
+              href={wa(c.whatsapp || c.phone)!}
+              target="_blank"
+              rel="noopener noreferrer"
+              buttonId="company_profile_whatsapp_button"
+              buttonText="WhatsApp"
+              buttonLocation="company_profile_header"
+              eventName={ANALYTICS_EVENTS.contactAttempt}
+              conversionEventName={ANALYTICS_EVENTS.contactWhatsappClick}
+              eventParams={{
+                channel: 'whatsapp',
+                company_slug: c.slug,
+                company_type: c.type,
+                source_component: 'company_profile_page',
+              }}
+              className="inline-flex items-center gap-2 rounded-full bg-[#1FA855] px-4 py-2 text-sm font-semibold text-on-primary"
+            >
               <MessageCircle size={16} /> WhatsApp
-            </a>
+            </TrackedExternalLink>
           )}
           {c.website && (
-            <a href={c.website} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-full border border-border px-3 py-2 text-sm">
+            <TrackedExternalLink href={c.website} target="_blank" rel="noopener noreferrer" buttonId="company_profile_website_button" buttonText="Site" buttonLocation="company_profile_header" className="inline-flex items-center gap-2 rounded-full border border-border px-3 py-2 text-sm">
               <Globe size={16} /> Site
-            </a>
+            </TrackedExternalLink>
           )}
           {c.instagram && (
-            <a href={`https://instagram.com/${c.instagram.replace('@', '')}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-full border border-border px-3 py-2 text-sm">
+            <TrackedExternalLink href={`https://instagram.com/${c.instagram.replace('@', '')}`} target="_blank" rel="noopener noreferrer" buttonId="company_profile_instagram_button" buttonText="Instagram" buttonLocation="company_profile_header" className="inline-flex items-center gap-2 rounded-full border border-border px-3 py-2 text-sm">
               <Instagram size={16} />
-            </a>
+            </TrackedExternalLink>
           )}
         </div>
       </header>

@@ -1,9 +1,11 @@
 import type { Metadata } from 'next';
+import { Suspense } from 'react';
 import './globals.css';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { ConsentBanner } from '@/components/layout/ConsentBanner';
 import { MobileBottomBar } from '@/components/layout/MobileBottomBar';
+import { AnalyticsProvider } from '@/components/analytics/AnalyticsProvider';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { websiteLd, organizationLd } from '@/lib/seo/jsonld';
 import { SITE_URL, SITE_NAME, REGION, DEFAULT_OG_IMAGE } from '@/lib/seo/meta';
@@ -81,6 +83,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Footer />
         <ConsentBanner />
         <MobileBottomBar />
+        <Suspense fallback={null}>
+          <AnalyticsProvider />
+        </Suspense>
       </body>
     </html>
   );
