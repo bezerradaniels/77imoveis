@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase/server';
 import type { Database } from '@/lib/supabase/types';
 import { getListingPublishGate, getNeighborhoods, ACTIVE_COMPANY_COOKIE } from '@/lib/data';
 import { slugify } from '@/lib/format';
+import { propertyInputSchema, firstZodError } from '@/lib/validation';
 
 type PropertyInsert = Database['public']['Tables']['properties']['Insert'];
 type PropertyUpdate = Database['public']['Tables']['properties']['Update'];
@@ -115,7 +116,9 @@ export async function saveProperty(input: PropertyInput): Promise<{ id?: string;
   const sb = createClient();
   const { data: auth } = await sb.auth.getUser();
   if (!auth.user) return { error: 'Sessão expirada. Entre novamente.' };
-  if (!input.negotiations.length) return { error: 'Escolha ao menos uma modalidade (venda, aluguel…).' };
+
+  const parsed = propertyInputSchema.safeParse(input);
+  if (!parsed.success) return { error: firstZodError(parsed.error, 'Revise os campos do anúncio.') };
 
   if (input.neighborhoodId) {
     const { data: neighborhood } = await sb

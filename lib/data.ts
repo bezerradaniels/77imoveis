@@ -412,17 +412,27 @@ export async function getFeaturesAll() {
 }
 
 // Imóvel do dono para edição (todas as relações editáveis).
+// Restrito ao dono (ou admin/moderador) — evita que qualquer usuário logado
+// leia dados de imóveis de terceiros trocando o id na URL do painel.
 export async function getPropertyForEdit(id: string) {
   if (!hasEnv()) return null;
-  const { data } = await createServerClient()
+  const uid = await authUserId();
+  if (!uid) return null;
+  const client = createServerClient();
+  const { data: profile } = await client.from('profiles').select('role').eq('id', uid).maybeSingle();
+  const isAdmin = ['admin', 'moderador'].includes((profile as any)?.role);
+
+  let query = client
     .from('properties')
     .select(
       '*,property_negotiations(negotiation,price,price_visibility,is_primary),' +
         'property_features(feature_id),property_images(url,sort,is_cover),' +
         'companies(brokers(id,name,email,whatsapp,phone))',
     )
-    .eq('id', id)
-    .maybeSingle();
+    .eq('id', id);
+  if (!isAdmin) query = query.eq('owner_id', uid);
+
+  const { data } = await query.maybeSingle();
   return data;
 }
 

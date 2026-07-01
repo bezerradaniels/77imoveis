@@ -2,6 +2,7 @@
 import { headers } from 'next/headers';
 import { createClient } from '@/lib/supabase/server';
 import { getPropertyContactRef } from '@/lib/data';
+import { isRateLimited } from '@/lib/rateLimit';
 
 export type LeadInput = {
   slug: string;
@@ -25,6 +26,13 @@ export async function submitLead(form: LeadInput): Promise<{ ok?: true; error?: 
   if (form.website) return { ok: true };
   if (!form.name?.trim() || !form.phone?.trim()) return { error: 'Informe seu nome e telefone.' };
 
+  const h = headers();
+  const ip = (h.get('x-forwarded-for') || '').split(',')[0].trim() || null;
+
+  // Anti-spam 3: limite de envios por IP (5 a cada 5 minutos).
+  if (isRateLimited(`lead:${ip ?? 'sem-ip'}`, 5, 5 * 60 * 1000))
+    return { error: 'Muitos envios seguidos. Aguarde alguns minutos e tente de novo.' };
+
   // Anti-spam 2: Turnstile (só valida se as chaves estiverem configuradas).
   const secret = process.env.TURNSTILE_SECRET_KEY;
   if (secret && !(await verifyTurnstile(form.token, secret)))
@@ -32,9 +40,6 @@ export async function submitLead(form: LeadInput): Promise<{ ok?: true; error?: 
 
   const ref = await getPropertyContactRef(form.slug);
   if (!ref) return { error: 'Anúncio não encontrado.' };
-
-  const h = headers();
-  const ip = (h.get('x-forwarded-for') || '').split(',')[0].trim() || null;
 
   const { error } = await createClient().from('leads').insert({
     property_id: ref.id,
@@ -54,11 +59,13 @@ export async function submitLead(form: LeadInput): Promise<{ ok?: true; error?: 
 
 // Registra cliques em WhatsApp/telefone como leads leves, sem bloquear o CTA.
 export async function trackContactClick(form: ContactClickInput): Promise<{ ok?: true; error?: string }> {
-  const ref = await getPropertyContactRef(form.slug);
-  if (!ref) return { error: 'Anúncio não encontrado.' };
-
   const h = headers();
   const ip = (h.get('x-forwarded-for') || '').split(',')[0].trim() || null;
+  if (isRateLimited(`click:${ip ?? 'sem-ip'}`, 20, 5 * 60 * 1000))
+    return { error: 'Muitos cliques seguidos. Aguarde um instante.' };
+
+  const ref = await getPropertyContactRef(form.slug);
+  if (!ref) return { error: 'Anúncio não encontrado.' };
   const label = form.channel === 'whatsapp' ? 'Clique no WhatsApp' : 'Clique no telefone';
 
   const { error } = await createClient().from('leads').insert({

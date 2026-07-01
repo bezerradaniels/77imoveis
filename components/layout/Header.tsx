@@ -1,4 +1,3 @@
-import Link from 'next/link';
 import { ThemeToggle } from './ThemeToggle';
 import { AuthNav } from './AuthNav';
 import { TrackedLink } from '@/components/analytics/TrackedLink';
@@ -14,10 +13,17 @@ export function Header() {
     <header className="fixed inset-x-0 top-0 z-50 border-b border-black/5" style={{ backgroundImage: 'var(--header-grad)' }}>
       <div className="mx-auto flex max-w-[1200px] items-center justify-between gap-4 px-6 py-4">
         <div className="flex items-center gap-6">
-          <Link href="/" className="text-2xl font-extrabold tracking-tight">
+          <TrackedLink
+            href="/"
+            buttonId="header_logo_link"
+            buttonText="77imóveis"
+            buttonLocation="header"
+            section="header"
+            className="text-2xl font-extrabold tracking-tight"
+          >
             <span className="text-link">77</span>
             <span className="text-text">imóveis</span>
-          </Link>
+          </TrackedLink>
           <div className="hidden items-center gap-5 md:flex">
             {menu.map((item) => (
               <TrackedLink

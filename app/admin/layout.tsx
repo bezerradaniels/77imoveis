@@ -1,7 +1,9 @@
-import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import { LayoutDashboard, Home, Building2, Users, MapPin, CreditCard, Image, Store, UserCog, LogOut } from 'lucide-react';
+import { LayoutDashboard, Home, Building2, Users, MapPin, CreditCard, Image, Store, UserCog } from 'lucide-react';
 import { getProfile } from '@/lib/auth';
+import { TrackedLink } from '@/components/analytics/TrackedLink';
+import { LogoutButton } from '@/components/layout/LogoutButton';
+import { slugify } from '@/lib/format';
 import { logout } from '@/app/painel/actions';
 
 export const dynamic = 'force-dynamic';
@@ -37,25 +39,23 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
           <nav className="flex-1 space-y-1 overflow-y-auto" aria-label="Navegação admin">
             {nav.map(({ href, label, icon: Icon }) => (
-              <Link
+              <TrackedLink
                 key={href}
                 href={href}
+                buttonId={`admin_nav_${slugify(label)}`}
+                buttonText={label}
+                buttonLocation="admin_sidebar"
+                section="admin_nav"
                 className="flex items-center gap-3 rounded-[10px] px-3 py-2 text-sm font-semibold text-slate-900 transition hover:bg-white/65"
               >
                 <Icon size={18} className="text-primary" />
                 {label}
-              </Link>
+              </TrackedLink>
             ))}
           </nav>
 
           <form action={logout}>
-            <button
-              type="submit"
-              className="flex w-full items-center gap-3 rounded-[10px] px-3 py-2 text-left text-sm font-semibold text-slate-900 transition hover:bg-white/65"
-            >
-              <LogOut size={18} className="text-primary" />
-              Sair
-            </button>
+            <LogoutButton />
           </form>
         </div>
       </aside>
@@ -65,14 +65,18 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         {/* Nav móvel — tabs com scroll horizontal */}
         <nav className="no-scrollbar flex gap-1 overflow-x-auto border-b border-slate-300 bg-slate-200 px-3 py-2 lg:hidden">
           {nav.map(({ href, label, icon: Icon }) => (
-            <Link
+            <TrackedLink
               key={href}
               href={href}
+              buttonId={`admin_mobile_nav_${slugify(label)}`}
+              buttonText={label}
+              buttonLocation="admin_mobile_nav"
+              section="admin_nav"
               className="inline-flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-white/60"
             >
               <Icon size={14} />
               {label}
-            </Link>
+            </TrackedLink>
           ))}
         </nav>
 

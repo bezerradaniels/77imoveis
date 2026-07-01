@@ -15,7 +15,7 @@ const addMonths = (date: Date, months: number) => {
 
 function validateToken(request: Request) {
   const expected = process.env.ASAAS_WEBHOOK_TOKEN;
-  if (!expected) return true;
+  if (!expected) return false; // sem token configurado: nega por padrão (fail closed)
   return request.headers.get('asaas-access-token') === expected;
 }
 

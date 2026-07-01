@@ -1,0 +1,76 @@
+{
+  "exportFormatVersion": 2,
+  "exportTime": "2026-07-01T00:00:00Z",
+  "containerVersion": {
+    "path": "accounts/6275723713/containers/209987893/versions/0",
+    "accountId": "6275723713",
+    "containerId": "209987893",
+    "containerVersionId": "0",
+    "container": {
+      "path": "accounts/6275723713/containers/209987893",
+      "accountId": "6275723713",
+      "containerId": "209987893",
+      "name": "77Imoveis",
+      "publicId": "GTM-T72Z5ZBB",
+      "usageContext": ["WEB"]
+    },
+    "trigger": [
+      {
+        "accountId": "6275723713",
+        "containerId": "209987893",
+        "triggerId": "201",
+        "name": "CE - Todos os eventos do site (GA4)",
+        "type": "CUSTOM_EVENT",
+        "customEventFilter": [
+          {
+            "type": "MATCH_REGEX",
+            "parameter": [
+              { "type": "TEMPLATE", "key": "arg0", "value": "{{_event}}" },
+              { "type": "TEMPLATE", "key": "arg1", "value": "^(admin_broker_delete|admin_broker_edit|admin_company_delete|admin_company_edit|admin_property_delete|admin_property_edit|admin_user_delete|admin_user_edit|admin_view|broker_view|button_click|company_profile_update|company_view|contact_attempt|contact_whatsapp_click|cta_click|dashboard_photo_delete|dashboard_photo_upload|dashboard_property_publish|dashboard_property_unpublish|dashboard_view|email_click|filter_applied|lead_generate|login|login_start|logout|phone_click|profile_update|property_create_complete|property_create_start|property_create_step_complete|property_create_step_view|property_create_submit|property_create_validation_error|property_delete_complete|property_edit_complete|property_edit_start|property_publish_complete|property_status_change|property_view|search_performed|sign_up|sign_up_start|page_view)$" }
+            ]
+          }
+        ]
+      }
+    ],
+    "variable": [
+      { "accountId": "6275723713", "containerId": "209987893", "variableId": "101", "name": "DLV - button_id", "type": "v", "parameter": [ { "type": "INTEGER", "key": "dataLayerVersion", "value": "2" }, { "type": "BOOLEAN", "key": "setDefaultValue", "value": "false" }, { "type": "TEMPLATE", "key": "name", "value": "button_id" } ] },
+      { "accountId": "6275723713", "containerId": "209987893", "variableId": "102", "name": "DLV - button_text", "type": "v", "parameter": [ { "type": "INTEGER", "key": "dataLayerVersion", "value": "2" }, { "type": "BOOLEAN", "key": "setDefaultValue", "value": "false" }, { "type": "TEMPLATE", "key": "name", "value": "button_text" } ] },
+      { "accountId": "6275723713", "containerId": "209987893", "variableId": "103", "name": "DLV - button_location", "type": "v", "parameter": [ { "type": "INTEGER", "key": "dataLayerVersion", "value": "2" }, { "type": "BOOLEAN", "key": "setDefaultValue", "value": "false" }, { "type": "TEMPLATE", "key": "name", "value": "button_location" } ] },
+      { "accountId": "6275723713", "containerId": "209987893", "variableId": "104", "name": "DLV - section", "type": "v", "parameter": [ { "type": "INTEGER", "key": "dataLayerVersion", "value": "2" }, { "type": "BOOLEAN", "key": "setDefaultValue", "value": "false" }, { "type": "TEMPLATE", "key": "name", "value": "section" } ] },
+      { "accountId": "6275723713", "containerId": "209987893", "variableId": "105", "name": "DLV - destination_url", "type": "v", "parameter": [ { "type": "INTEGER", "key": "dataLayerVersion", "value": "2" }, { "type": "BOOLEAN", "key": "setDefaultValue", "value": "false" }, { "type": "TEMPLATE", "key": "name", "value": "destination_url" } ] },
+      { "accountId": "6275723713", "containerId": "209987893", "variableId": "106", "name": "DLV - source_component", "type": "v", "parameter": [ { "type": "INTEGER", "key": "dataLayerVersion", "value": "2" }, { "type": "BOOLEAN", "key": "setDefaultValue", "value": "false" }, { "type": "TEMPLATE", "key": "name", "value": "source_component" } ] },
+      { "accountId": "6275723713", "containerId": "209987893", "variableId": "107", "name": "DLV - channel", "type": "v", "parameter": [ { "type": "INTEGER", "key": "dataLayerVersion", "value": "2" }, { "type": "BOOLEAN", "key": "setDefaultValue", "value": "false" }, { "type": "TEMPLATE", "key": "name", "value": "channel" } ] },
+      { "accountId": "6275723713", "containerId": "209987893", "variableId": "108", "name": "DLV - property_slug", "type": "v", "parameter": [ { "type": "INTEGER", "key": "dataLayerVersion", "value": "2" }, { "type": "BOOLEAN", "key": "setDefaultValue", "value": "false" }, { "type": "TEMPLATE", "key": "name", "value": "property_slug" } ] },
+      { "accountId": "6275723713", "containerId": "209987893", "variableId": "109", "name": "DLV - form_name", "type": "v", "parameter": [ { "type": "INTEGER", "key": "dataLayerVersion", "value": "2" }, { "type": "BOOLEAN", "key": "setDefaultValue", "value": "false" }, { "type": "TEMPLATE", "key": "name", "value": "form_name" } ] },
+      { "accountId": "6275723713", "containerId": "209987893", "variableId": "110", "name": "DLV - form_mode", "type": "v", "parameter": [ { "type": "INTEGER", "key": "dataLayerVersion", "value": "2" }, { "type": "BOOLEAN", "key": "setDefaultValue", "value": "false" }, { "type": "TEMPLATE", "key": "name", "value": "form_mode" } ] },
+      { "accountId": "6275723713", "containerId": "209987893", "variableId": "111", "name": "DLV - step_name", "type": "v", "parameter": [ { "type": "INTEGER", "key": "dataLayerVersion", "value": "2" }, { "type": "BOOLEAN", "key": "setDefaultValue", "value": "false" }, { "type": "TEMPLATE", "key": "name", "value": "step_name" } ] },
+      { "accountId": "6275723713", "containerId": "209987893", "variableId": "112", "name": "DLV - step_number", "type": "v", "parameter": [ { "type": "INTEGER", "key": "dataLayerVersion", "value": "2" }, { "type": "BOOLEAN", "key": "setDefaultValue", "value": "false" }, { "type": "TEMPLATE", "key": "name", "value": "step_number" } ] },
+      { "accountId": "6275723713", "containerId": "209987893", "variableId": "113", "name": "DLV - error_type", "type": "v", "parameter": [ { "type": "INTEGER", "key": "dataLayerVersion", "value": "2" }, { "type": "BOOLEAN", "key": "setDefaultValue", "value": "false" }, { "type": "TEMPLATE", "key": "name", "value": "error_type" } ] },
+      { "accountId": "6275723713", "containerId": "209987893", "variableId": "114", "name": "DLV - property_type", "type": "v", "parameter": [ { "type": "INTEGER", "key": "dataLayerVersion", "value": "2" }, { "type": "BOOLEAN", "key": "setDefaultValue", "value": "false" }, { "type": "TEMPLATE", "key": "name", "value": "property_type" } ] },
+      { "accountId": "6275723713", "containerId": "209987893", "variableId": "115", "name": "DLV - city", "type": "v", "parameter": [ { "type": "INTEGER", "key": "dataLayerVersion", "value": "2" }, { "type": "BOOLEAN", "key": "setDefaultValue", "value": "false" }, { "type": "TEMPLATE", "key": "name", "value": "city" } ] },
+      { "accountId": "6275723713", "containerId": "209987893", "variableId": "116", "name": "DLV - state", "type": "v", "parameter": [ { "type": "INTEGER", "key": "dataLayerVersion", "value": "2" }, { "type": "BOOLEAN", "key": "setDefaultValue", "value": "false" }, { "type": "TEMPLATE", "key": "name", "value": "state" } ] },
+      { "accountId": "6275723713", "containerId": "209987893", "variableId": "117", "name": "DLV - negotiation", "type": "v", "parameter": [ { "type": "INTEGER", "key": "dataLayerVersion", "value": "2" }, { "type": "BOOLEAN", "key": "setDefaultValue", "value": "false" }, { "type": "TEMPLATE", "key": "name", "value": "negotiation" } ] },
+      { "accountId": "6275723713", "containerId": "209987893", "variableId": "118", "name": "DLV - publish", "type": "v", "parameter": [ { "type": "INTEGER", "key": "dataLayerVersion", "value": "2" }, { "type": "BOOLEAN", "key": "setDefaultValue", "value": "false" }, { "type": "TEMPLATE", "key": "name", "value": "publish" } ] },
+      { "accountId": "6275723713", "containerId": "209987893", "variableId": "119", "name": "DLV - success", "type": "v", "parameter": [ { "type": "INTEGER", "key": "dataLayerVersion", "value": "2" }, { "type": "BOOLEAN", "key": "setDefaultValue", "value": "false" }, { "type": "TEMPLATE", "key": "name", "value": "success" } ] },
+      { "accountId": "6275723713", "containerId": "209987893", "variableId": "120", "name": "DLV - photo_count", "type": "v", "parameter": [ { "type": "INTEGER", "key": "dataLayerVersion", "value": "2" }, { "type": "BOOLEAN", "key": "setDefaultValue", "value": "false" }, { "type": "TEMPLATE", "key": "name", "value": "photo_count" } ] },
+      { "accountId": "6275723713", "containerId": "209987893", "variableId": "121", "name": "DLV - action_type", "type": "v", "parameter": [ { "type": "INTEGER", "key": "dataLayerVersion", "value": "2" }, { "type": "BOOLEAN", "key": "setDefaultValue", "value": "false" }, { "type": "TEMPLATE", "key": "name", "value": "action_type" } ] },
+      { "accountId": "6275723713", "containerId": "209987893", "variableId": "122", "name": "DLV - user_role", "type": "v", "parameter": [ { "type": "INTEGER", "key": "dataLayerVersion", "value": "2" }, { "type": "BOOLEAN", "key": "setDefaultValue", "value": "false" }, { "type": "TEMPLATE", "key": "name", "value": "user_role" } ] },
+      { "accountId": "6275723713", "containerId": "209987893", "variableId": "123", "name": "DLV - property_status", "type": "v", "parameter": [ { "type": "INTEGER", "key": "dataLayerVersion", "value": "2" }, { "type": "BOOLEAN", "key": "setDefaultValue", "value": "false" }, { "type": "TEMPLATE", "key": "name", "value": "property_status" } ] },
+      { "accountId": "6275723713", "containerId": "209987893", "variableId": "124", "name": "DLV - new_status", "type": "v", "parameter": [ { "type": "INTEGER", "key": "dataLayerVersion", "value": "2" }, { "type": "BOOLEAN", "key": "setDefaultValue", "value": "false" }, { "type": "TEMPLATE", "key": "name", "value": "new_status" } ] },
+      { "accountId": "6275723713", "containerId": "209987893", "variableId": "125", "name": "DLV - filter_name", "type": "v", "parameter": [ { "type": "INTEGER", "key": "dataLayerVersion", "value": "2" }, { "type": "BOOLEAN", "key": "setDefaultValue", "value": "false" }, { "type": "TEMPLATE", "key": "name", "value": "filter_name" } ] },
+      { "accountId": "6275723713", "containerId": "209987893", "variableId": "126", "name": "DLV - filter_value", "type": "v", "parameter": [ { "type": "INTEGER", "key": "dataLayerVersion", "value": "2" }, { "type": "BOOLEAN", "key": "setDefaultValue", "value": "false" }, { "type": "TEMPLATE", "key": "name", "value": "filter_value" } ] },
+      { "accountId": "6275723713", "containerId": "209987893", "variableId": "127", "name": "DLV - active_filters", "type": "v", "parameter": [ { "type": "INTEGER", "key": "dataLayerVersion", "value": "2" }, { "type": "BOOLEAN", "key": "setDefaultValue", "value": "false" }, { "type": "TEMPLATE", "key": "name", "value": "active_filters" } ] },
+      { "accountId": "6275723713", "containerId": "209987893", "variableId": "128", "name": "DLV - search_type", "type": "v", "parameter": [ { "type": "INTEGER", "key": "dataLayerVersion", "value": "2" }, { "type": "BOOLEAN", "key": "setDefaultValue", "value": "false" }, { "type": "TEMPLATE", "key": "name", "value": "search_type" } ] },
+      { "accountId": "6275723713", "containerId": "209987893", "variableId": "129", "name": "DLV - bedrooms", "type": "v", "parameter": [ { "type": "INTEGER", "key": "dataLayerVersion", "value": "2" }, { "type": "BOOLEAN", "key": "setDefaultValue", "value": "false" }, { "type": "TEMPLATE", "key": "name", "value": "bedrooms" } ] },
+      { "accountId": "6275723713", "containerId": "209987893", "variableId": "130", "name": "DLV - has_neighborhood", "type": "v", "parameter": [ { "type": "INTEGER", "key": "dataLayerVersion", "value": "2" }, { "type": "BOOLEAN", "key": "setDefaultValue", "value": "false" }, { "type": "TEMPLATE", "key": "name", "value": "has_neighborhood" } ] },
+      { "accountId": "6275723713", "containerId": "209987893", "variableId": "131", "name": "DLV - verified", "type": "v", "parameter": [ { "type": "INTEGER", "key": "dataLayerVersion", "value": "2" }, { "type": "BOOLEAN", "key": "setDefaultValue", "value": "false" }, { "type": "TEMPLATE", "key": "name", "value": "verified" } ] },
+      { "accountId": "6275723713", "containerId": "209987893", "variableId": "132", "name": "DLV - featured", "type": "v", "parameter": [ { "type": "INTEGER", "key": "dataLayerVersion", "value": "2" }, { "type": "BOOLEAN", "key": "setDefaultValue", "value": "false" }, { "type": "TEMPLATE", "key": "name", "value": "featured" } ] },
+      { "accountId": "6275723713", "containerId": "209987893", "variableId": "133", "name": "DLV - active", "type": "v", "parameter": [ { "type": "INTEGER", "key": "dataLayerVersion", "value": "2" }, { "type": "BOOLEAN", "key": "setDefaultValue", "value": "false" }, { "type": "TEMPLATE", "key": "name", "value": "active" } ] },
+      { "accountId": "6275723713", "containerId": "209987893", "variableId": "134", "name": "DLV - page_path", "type": "v", "parameter": [ { "type": "INTEGER", "key": "dataLayerVersion", "value": "2" }, { "type": "BOOLEAN", "key": "setDefaultValue", "value": "false" }, { "type": "TEMPLATE", "key": "name", "value": "page_path" } ] },
+      { "accountId": "6275723713", "containerId": "209987893", "variableId": "135", "name": "DLV - page_title", "type": "v", "parameter": [ { "type": "INTEGER", "key": "dataLayerVersion", "value": "2" }, { "type": "BOOLEAN", "key": "setDefaultValue", "value": "false" }, { "type": "TEMPLATE", "key": "name", "value": "page_title" } ] },
+      { "accountId": "6275723713", "containerId": "209987893", "variableId": "136", "name": "DLV - conversion", "type": "v", "parameter": [ { "type": "INTEGER", "key": "dataLayerVersion", "value": "2" }, { "type": "BOOLEAN", "key": "setDefaultValue", "value": "false" }, { "type": "TEMPLATE", "key": "name", "value": "conversion" } ] },
+      { "accountId": "6275723713", "containerId": "209987893", "variableId": "137", "name": "DLV - method", "type": "v", "parameter": [ { "type": "INTEGER", "key": "dataLayerVersion", "value": "2" }, { "type": "BOOLEAN", "key": "setDefaultValue", "value": "false" }, { "type": "TEMPLATE", "key": "name", "value": "method" } ] },
+      { "accountId": "6275723713", "containerId": "209987893", "variableId": "138", "name": "DLV - company_type", "type": "v", "parameter": [ { "type": "INTEGER", "key": "dataLayerVersion", "value": "2" }, { "type": "BOOLEAN", "key": "setDefaultValue", "value": "false" }, { "type": "TEMPLATE", "key": "name", "value": "company_type" } ] }
+    ]
+  }
+}

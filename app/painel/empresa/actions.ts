@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
 import { ACTIVE_COMPANY_COOKIE } from '@/lib/data';
 import { slugify } from '@/lib/format';
+import { companyInputSchema, firstZodError } from '@/lib/validation';
 import type { Database } from '@/lib/supabase/types';
 
 type CompanyInsert = Database['public']['Tables']['companies']['Insert'];
@@ -52,7 +53,10 @@ export async function saveCompany(input: CompanyInput): Promise<{ slug?: string;
   const sb = createClient();
   const { data: auth } = await sb.auth.getUser();
   if (!auth.user) return { error: 'Sessão expirada. Entre novamente.' };
-  if (!input.tradeName.trim() || !input.type) return { error: 'Informe o tipo e o nome do perfil.' };
+
+  const parsed = companyInputSchema.safeParse(input);
+  if (!parsed.success) return { error: firstZodError(parsed.error, 'Revise os campos do perfil.') };
+
   const companyType = input.type as CompanyType;
   if (!ALLOWED_COMPANY_TYPES.includes(companyType)) return { error: 'Escolha um tipo profissional válido.' };
 

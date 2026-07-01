@@ -1,10 +1,12 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import { Building2, CreditCard, Home, LogOut, MessageSquare, Plus, Shield, Store, UserCog, Users } from 'lucide-react';
+import { Building2, CreditCard, Home, MessageSquare, Plus, Shield, Store, UserCog, Users } from 'lucide-react';
 import { getProfile } from '@/lib/auth';
 import { getMyCompany, getMyCompanies } from '@/lib/data';
 import { CompanySwitcher } from '@/components/painel/CompanySwitcher';
+import { TrackedLink } from '@/components/analytics/TrackedLink';
+import { LogoutButton } from '@/components/layout/LogoutButton';
+import { slugify } from '@/lib/format';
 import { logout } from './actions';
 
 // Área logada (painel do anunciante): nunca deve ser indexada por buscadores.
@@ -78,47 +80,53 @@ export default async function PainelLayout({ children }: { children: React.React
             <CompanySwitcher companies={companies} activeId={company?.id ?? null} />
           )}
 
-          <Link
+          <TrackedLink
             href="/painel/imoveis/novo"
+            buttonId="dashboard_add_property_button"
+            buttonText="Novo anúncio"
+            buttonLocation="painel_sidebar"
+            section="painel_nav"
             className="inline-flex items-center justify-center gap-2 rounded-[10px] border border-primary bg-[#e0f2fe] px-3 py-2 text-sm font-bold text-primary hover:bg-[#bae6fd]"
           >
             <Plus size={16} /> Novo anúncio
-          </Link>
+          </TrackedLink>
 
           <nav className="space-y-1" aria-label="Navegação do painel">
             {items.map((item) => {
               const Icon = item.icon;
 
               return (
-                <Link
+                <TrackedLink
                   key={item.href}
                   href={item.href}
+                  buttonId={`dashboard_nav_${slugify(item.label)}`}
+                  buttonText={item.label}
+                  buttonLocation="painel_sidebar"
+                  section="painel_nav"
                   className="flex items-center gap-3 rounded-[10px] px-3 py-2 text-sm font-semibold text-slate-900 transition hover:bg-white/65"
                 >
                   <Icon size={18} className="text-primary" />
                   {item.label}
-                </Link>
+                </TrackedLink>
               );
             })}
             {showAdmin && (
-              <Link
+              <TrackedLink
                 href="/admin"
+                buttonId="dashboard_nav_administracao"
+                buttonText="Administração"
+                buttonLocation="painel_sidebar"
+                section="painel_nav"
                 className="flex items-center gap-3 rounded-[10px] px-3 py-2 text-sm font-semibold text-slate-900 transition hover:bg-white/65"
               >
                 <Shield size={18} className="text-primary" />
                 Administração
-              </Link>
+              </TrackedLink>
             )}
           </nav>
 
           <form action={logout} className="mt-auto">
-            <button
-              type="submit"
-              className="flex w-full items-center gap-3 rounded-[10px] px-3 py-2 text-left text-sm font-semibold text-slate-900 transition hover:bg-white/65"
-            >
-              <LogOut size={18} className="text-primary" />
-              Sair
-            </button>
+            <LogoutButton />
           </form>
         </div>
       </aside>

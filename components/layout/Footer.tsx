@@ -1,4 +1,5 @@
-import Link from 'next/link';
+import { TrackedLink } from '@/components/analytics/TrackedLink';
+import { slugify } from '@/lib/format';
 
 const cidades = [
   ['Vitória da Conquista', 'vitoria-da-conquista'],
@@ -30,14 +31,23 @@ const institucional = [
 ];
 
 function Col({ title, links }: { title: string; links: string[][] }) {
+  const section = `footer_${slugify(title)}`;
   return (
     <div>
       <p className="mb-3.5 text-sm font-medium text-slate-950 dark:text-white">{title}</p>
       <div className="flex flex-col gap-2.5 text-sm">
         {links.map(([label, href]) => (
-          <Link key={href} href={href} className="font-medium text-slate-600 transition-colors hover:text-[#0ea5e9] dark:text-slate-300 dark:hover:text-[#0ea5e9]">
+          <TrackedLink
+            key={href}
+            href={href}
+            buttonId={`${section}_${slugify(label)}_link`}
+            buttonText={label}
+            buttonLocation="footer"
+            section={section}
+            className="font-medium text-slate-600 transition-colors hover:text-[#0ea5e9] dark:text-slate-300 dark:hover:text-[#0ea5e9]"
+          >
             {label}
-          </Link>
+          </TrackedLink>
         ))}
       </div>
     </div>

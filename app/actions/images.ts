@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server';
 import { IMAGE_BUCKET, isImageUploadContext } from '@/lib/images/config';
 import { deleteStorageImages } from '@/lib/images/deleteStorageImage';
 import { uploadOptimizedImageToSupabase } from '@/lib/images/uploadOptimizedImage';
+import { filterOwnedImagePaths } from '@/lib/images/authorizeDelete';
 
 function isUploadFile(value: unknown): value is File {
   return typeof File !== 'undefined' && value instanceof File;
@@ -58,6 +59,13 @@ export async function deleteUploadedImages(refs: string[]) {
   const sb = createClient();
   const { data: auth } = await sb.auth.getUser();
   if (!auth.user) return { error: 'Sessão expirada. Entre novamente.' };
-  const { error } = await deleteStorageImages(sb, refs.slice(0, 100), IMAGE_BUCKET);
+
+  const { data: profile } = await sb.from('profiles').select('role').eq('id', auth.user.id).maybeSingle();
+  const isAdmin = ['admin', 'moderador'].includes((profile as any)?.role);
+
+  const allowed = await filterOwnedImagePaths(sb, auth.user.id, isAdmin, refs.slice(0, 100));
+  if (!allowed.length) return { ok: true };
+
+  const { error } = await deleteStorageImages(sb, allowed, IMAGE_BUCKET);
   return error ? { error: 'Não foi possível limpar imagens antigas.' } : { ok: true };
 }
