@@ -21,7 +21,7 @@ export default async function AdminUsuarios({ searchParams }: { searchParams: { 
           {roleOpts.map(([v, l]) => <option key={v || 'all'} value={v}>{l}</option>)}
         </select>
         <select name="status" defaultValue={searchParams.status ?? ''} className="h-10 rounded-lg border border-border bg-surface px-3 text-sm">
-          <option value="">Todos status</option>
+          <option value="">Status visíveis</option>
           <option value="active">Ativos</option>
           <option value="blocked">Desativados</option>
         </select>

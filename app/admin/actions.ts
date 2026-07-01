@@ -102,13 +102,13 @@ export async function adminUpdateCompany(id: string, patch: Partial<Database['pu
     is_verified: patch.is_verified,
     is_featured: patch.is_featured,
   };
-  const { error } = await admin.sb.from('companies').update(safePatch).eq('id', id);
+  const { data, error } = await admin.sb.from('companies').update(safePatch).eq('id', id).select('id,slug').maybeSingle();
   revalidatePath('/admin/empresas');
   revalidatePath('/imobiliarias');
   revalidatePath('/corretores');
   revalidatePath('/profissionais');
   if (error) return { error: `Falha ao atualizar: ${error.message}` };
-  const { data } = await admin.sb.from('companies').select('slug').eq('id', id).maybeSingle();
+  if (!data) return { error: 'Nenhuma empresa foi atualizada.' };
   if (data?.slug) revalidatePath(`/empresa/${data.slug}`);
   await logAdminAction(admin.sb, admin.adminId, 'company.update', 'company', id, patch as Record<string, unknown>);
   return { ok: true };
@@ -294,9 +294,10 @@ export async function adminDeleteProperty(id: string): Promise<R> {
 export async function adminSetUserActive(id: string, active: boolean): Promise<R> {
   const admin = await ensureAdmin();
   if (!admin) return { error: 'Sem permissão.' };
-  const { error } = await admin.sb.from('profiles').update({ is_active: active }).eq('id', id);
+  const { data, error } = await admin.sb.from('profiles').update({ is_active: active }).eq('id', id).select('id').maybeSingle();
   revalidatePath('/admin/usuarios');
   if (error) return { error: `Falha ao atualizar: ${error.message}` };
+  if (!data) return { error: 'Nenhum usuário foi atualizado.' };
   await logAdminAction(admin.sb, admin.adminId, active ? 'user.enable' : 'user.disable', 'profile', id, { is_active: active });
   return { ok: true };
 }
@@ -319,11 +320,12 @@ export async function adminUpdateBroker(id: string, patch: Partial<Database['pub
     rejected_at: (patch as any).rejected_at,
     disabled_at: (patch as any).disabled_at,
   };
-  const { error } = await admin.sb.from('brokers').update(safePatch as any).eq('id', id);
+  const { data, error } = await admin.sb.from('brokers').update(safePatch as any).eq('id', id).select('id').maybeSingle();
   revalidatePath('/admin/corretores');
   revalidatePath('/corretores');
   revalidatePath('/profissionais/corretor_autonomo');
   if (error) return { error: `Falha ao atualizar corretor: ${error.message}` };
+  if (!data) return { error: 'Nenhum corretor foi atualizado.' };
   await logAdminAction(admin.sb, admin.adminId, 'broker.update', 'broker', id, safePatch);
   return { ok: true };
 }

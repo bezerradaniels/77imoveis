@@ -756,6 +756,7 @@ export async function adminListCompanies(filters: { status?: string; cityId?: st
     .order('created_at', { ascending: false })
     .limit(200);
   if (filters.status) q = q.eq('status', filters.status);
+  else q = q.neq('status', 'removido');
   if (filters.cityId) q = q.eq('city_id', filters.cityId);
   const text = filters.text?.replace(/[%,]/g, ' ').trim();
   if (text) q = q.or(`trade_name.ilike.%${text}%,legal_name.ilike.%${text}%,email.ilike.%${text}%`);
@@ -773,6 +774,7 @@ export async function adminListUsers(filters: { role?: string; status?: string; 
   if (filters.role && ['particular', 'profissional', 'admin', 'moderador'].includes(filters.role)) q = q.eq('role', filters.role as any);
   if (filters.status === 'active') q = q.eq('is_active', true);
   if (filters.status === 'blocked') q = q.eq('is_active', false);
+  if (!filters.status) q = q.eq('is_active', true);
   const text = filters.text?.replace(/[%,]/g, ' ').trim();
   if (text) q = q.or(`full_name.ilike.%${text}%,email.ilike.%${text}%,phone.ilike.%${text}%`);
   const { data } = await q;
@@ -787,6 +789,7 @@ export async function adminListBrokers(filters: { status?: string; companyId?: s
     .order('created_at', { ascending: false })
     .limit(200);
   if (filters.status) q = q.eq('status' as any, filters.status);
+  else q = q.neq('status' as any, 'removido');
   if (filters.companyId) q = q.eq('company_id', filters.companyId);
   if (filters.cityId) q = q.eq('companies.city_id', filters.cityId);
   const text = filters.text?.replace(/[%,]/g, ' ').trim();
