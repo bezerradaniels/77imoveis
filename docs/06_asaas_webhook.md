@@ -2,6 +2,9 @@
 
 Guia para registrar e testar o webhook de pagamentos do Asaas.
 
+> **Status do registro (produção):** Webhook `77imoveis Pagamentos Producao` criado e **Ativado** em 02/07/2026 no painel https://www.asaas.com → Integrações → Webhooks.
+> Versão da API `v3`, tipo de envio `Sequencial`, fila de sincronização ativa, e-mail de falhas `daniel.ddsb@gmail.com`.
+
 ## 1. URL do Webhook
 
 **Produção:**
@@ -14,30 +17,32 @@ https://77imoveis.com.br/functions/v1/handle-asaas-webhook
 https://<seu-tunnel>.ngrok.io/functions/v1/handle-asaas-webhook
 ```
 
-## 2. ⚠️ Atenção ao Token
-
-**IMPORTANTE:** O token no `.env.local` começa com `whsec_`, que é o formato do Stripe, **não do Asaas**. Isso pode estar incorreto.
-
-Ao registrar o webhook no Asaas, você receberá um **token de autenticação diferente** (gerado pelo Asaas). Substitua o valor em `.env.local` e nas secrets do Supabase pelo token real do Asaas.
-
-A validação é feita no header `asaas-access-token` (enviado pelo Asaas em cada webhook).
-
 ## 2. Registrar no Painel do Asaas
 
 1. Acesse https://app.asaas.com (ou sandbox em https://app-sandbox.asaas.com)
-2. Vá para **Configurações → Webhooks**
-3. Clique em **Novo Webhook**
+2. Vá para **Integrações → Webhooks** (menu Configurações da conta → aba Integração → Webhooks)
+3. Clique em **Adicionar Webhook**
 4. Preencha:
+   - **Nome:** identificação livre (ex.: `77imoveis Pagamentos Producao`)
    - **URL:** Cole a URL acima
-   - **Token de autenticação:** Será gerado pelo Asaas (copie e salve em `.env.local`)
+   - **E-mail:** endereço para notificação em caso de falhas
+   - **Versão da API:** `v3`
+   - **Token de autenticação:** Use o valor de `ASAAS_WEBHOOK_TOKEN` do `.env.local` / Supabase Secrets.
+     Esse token é enviado pelo Asaas no header **`asaas-access-token`** de toda requisição.
+   - **Tipo de envio:** `Sequencial` (garante ordem correta das transições de status)
+   - **Este Webhook ficará ativo?** e **Fila de sincronização ativada?** → ambos **ligados**
+     (se a fila ficar desativada, o webhook aparece como "Interrompido" e não entrega eventos)
 5. Selecione os eventos:
    - ✅ `PAYMENT_RECEIVED`
    - ✅ `PAYMENT_CONFIRMED`
    - ✅ `PAYMENT_DELETED`
-   - ✅ `PAYMENT_CANCELLED`
    - ✅ `PAYMENT_REFUNDED`
    - ✅ `PAYMENT_CHARGEBACK_REQUESTED`
 6. Clique em **Salvar**
+
+> ⚠️ **Correção:** o evento `PAYMENT_CANCELLED` **não existe no Asaas** e por isso não pode ser
+> selecionado. Cancelamentos chegam como `PAYMENT_DELETED` (já incluído acima e mapeado para
+> `cancelado`). São **5 eventos**, não 6.
 
 ## 3. Eventos Processados
 
@@ -64,16 +69,18 @@ O webhook processa **três tipos de referência externa**:
 |---|---|
 | `PAYMENT_RECEIVED`, `PAYMENT_CONFIRMED` | `pago` |
 | `PAYMENT_REFUNDED`, `PAYMENT_CHARGEBACK_REQUESTED` | `estornado` |
-| `PAYMENT_DELETED`, `PAYMENT_CANCELLED` | `cancelado` |
-| `OVERDUE` | `falhou` |
+| `PAYMENT_DELETED` | `cancelado` |
+| `PAYMENT_OVERDUE` | `falhou` |
 | Outros | `pendente` |
+
+> `PAYMENT_CANCELLED` foi removido da tabela por não ser um evento válido do Asaas.
 
 ## 5. Testar o Webhook
 
 ### 5.1 Via Painel do Asaas
-1. Acesse **Configurações → Webhooks**
+1. Acesse **Integrações → Webhooks**
 2. Clique no webhook criado
-3. Clique em **Testar**
+3. Verifique as entregas na aba **Logs de Webhooks**
 4. Verifique os logs em **Supabase → Functions → Logs**
 
 ### 5.2 Via cURL (manual)
@@ -91,6 +98,10 @@ curl -X POST https://77imoveis.com.br/functions/v1/handle-asaas-webhook \
   }'
 ```
 
+> ⚠️ **Correção:** o Asaas envia o token no header **`asaas-access-token`** (não `Webhook-Token`).
+> A Edge Function `handle-asaas-webhook` **deve validar esse header** — caso contrário os eventos
+> reais do Asaas retornam 401 e a fila é pausada automaticamente após 15 tentativas.
+
 ## 6. Fluxo Completo de Pagamento
 
 ```
@@ -106,10 +117,10 @@ curl -X POST https://77imoveis.com.br/functions/v1/handle-asaas-webhook \
    ↓
 4. Usuário paga (Pix, boleto ou cartão)
    ↓
-5. Asaas envia webhook PAYMENT_RECEIVED
+5. Asaas envia webhook PAYMENT_RECEIVED (header asaas-access-token)
    ↓
 6. Edge Function handle-asaas-webhook:
-   - Valida token
+   - Valida token (asaas-access-token)
    - Atualiza payments.status = 'pago'
    - Atualiza subscriptions.status = 'ativa'
    - Define current_period_end
@@ -119,30 +130,17 @@ curl -X POST https://77imoveis.com.br/functions/v1/handle-asaas-webhook \
 
 ## 7. Troubleshooting
 
-### ⚠️ Erro 401 "Unauthorized" (fila pausada)
-**Esta é a causa mais comum de falha!**
-
-- ❌ Token inválido ou expirado
-- ❌ Header errado (deve ser `asaas-access-token`, não `webhook-token`)
-- ❌ Token do Stripe (começa com `whsec_`) ao invés do Asaas
-
-**Solução:**
-1. Acesse painel do Asaas → **Configurações → Webhooks**
-2. Verifique o token gerado (será exibido apenas uma vez)
-3. Copie e substitua em `.env.local`: `ASAAS_WEBHOOK_TOKEN=<token-novo>`
-4. Atualize as secrets no Supabase
-5. Clique em **Reprocessar** ou **Testar** novamente
-
-**Cuidado:** Após 15 tentativas com 401, o Asaas pausa a fila automaticamente. Pode precisar ativar manualmente no painel.
-
 ### Webhook não dispara
 - Verifique se a URL está correta e acessível
+- Confirme que o webhook está **Ativado** e a **fila de sincronização** está ativa (status ≠ "Interrompido")
 - Teste via cURL manualmente
 - Verifique logs do Supabase: **Supabase → Functions → handle-asaas-webhook**
 
 ### Erro 401 "Unauthorized"
 - Token inválido ou não enviado
-- Verifique `ASAAS_WEBHOOK_TOKEN` no `.env.local` ou Supabase Secrets
+- Confirme que a função lê o header **`asaas-access-token`** (nome exato usado pelo Asaas)
+- Verifique `ASAAS_WEBHOOK_TOKEN` no `.env.local` ou Supabase Secrets e que o valor bate com o
+  configurado no painel do Asaas
 
 ### Pagamento não ativa assinatura
 - Verifique se `externalReference` está correto
