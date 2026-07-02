@@ -9,12 +9,17 @@ Guia para registrar e testar o webhook de pagamentos do Asaas.
 
 **Produção:**
 ```
-https://77imoveis.com.br/functions/v1/handle-asaas-webhook
+https://77imoveis.com.br/api/webhooks/asaas
+```
+
+**Desenvolvimento (localhost):**
+```
+http://localhost:3000/api/webhooks/asaas
 ```
 
 **Desenvolvimento (via ngrok ou tunnel):**
 ```
-https://<seu-tunnel>.ngrok.io/functions/v1/handle-asaas-webhook
+https://<seu-tunnel>.ngrok.io/api/webhooks/asaas
 ```
 
 ## 2. Registrar no Painel do Asaas
@@ -85,21 +90,24 @@ O webhook processa **três tipos de referência externa**:
 
 ### 5.2 Via cURL (manual)
 ```bash
-curl -X POST https://77imoveis.com.br/functions/v1/handle-asaas-webhook \
+curl -X POST https://77imoveis.com.br/api/webhooks/asaas \
   -H "Content-Type: application/json" \
   -H "asaas-access-token: $ASAAS_WEBHOOK_TOKEN" \
   -d '{
     "event": "PAYMENT_RECEIVED",
     "id": "pay_123456",
-    "subscription": "sub_123456",
-    "externalReference": "plan:company-id:plan-id:timestamp",
-    "status": "RECEIVED",
-    "value": 39.90
+    "payment": {
+      "id": "pay_123456",
+      "subscription": "sub_123456",
+      "externalReference": "plan:company-id:plan-id:timestamp",
+      "status": "RECEIVED",
+      "value": 39.90
+    }
   }'
 ```
 
-> ⚠️ **Correção:** o Asaas envia o token no header **`asaas-access-token`** (não `Webhook-Token`).
-> A Edge Function `handle-asaas-webhook` **deve validar esse header** — caso contrário os eventos
+> ⚠️ **Validação:** o Asaas envia o token no header **`asaas-access-token`** (não `Webhook-Token`).
+> A rota API `app/api/webhooks/asaas/route.ts` **valida esse header** — caso contrário os eventos
 > reais do Asaas retornam 401 e a fila é pausada automaticamente após 15 tentativas.
 
 ## 6. Fluxo Completo de Pagamento
@@ -131,10 +139,10 @@ curl -X POST https://77imoveis.com.br/functions/v1/handle-asaas-webhook \
 ## 7. Troubleshooting
 
 ### Webhook não dispara
-- Verifique se a URL está correta e acessível
+- Verifique se a URL está correta e acessível (`https://77imoveis.com.br/api/webhooks/asaas`)
 - Confirme que o webhook está **Ativado** e a **fila de sincronização** está ativa (status ≠ "Interrompido")
 - Teste via cURL manualmente
-- Verifique logs do Supabase: **Supabase → Functions → handle-asaas-webhook**
+- Verifique logs no Hostinger (aplicação Node.js) ou console local (`npm run dev`)
 
 ### Erro 401 "Unauthorized"
 - Token inválido ou não enviado
@@ -163,12 +171,12 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=<chave-anonima>
 
 ## 8. Variáveis de Ambiente
 
-Adicionar no Supabase → Project Settings → Secrets:
+Configuradas em `.env.local` (desenvolvimento) e Hostinger (produção):
 
 ```
-ASAAS_WEBHOOK_TOKEN = (valor de .env.local)
-ASAAS_API_KEY = (chave pública Asaas)
+ASAAS_WEBHOOK_TOKEN = (token gerado no painel Asaas)
+ASAAS_API_KEY = (chave de API do Asaas)
 ASAAS_ENV = production (ou sandbox)
 ```
 
-O webhook acessa `Deno.env.get()`, não `.env`, então as secrets precisam estar no Supabase.
+No Hostinger, adicionar via painel de Variáveis de Ambiente da aplicação Node.js.
