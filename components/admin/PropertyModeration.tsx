@@ -57,9 +57,11 @@ export function PropertyModeration({ id, status, featured }: { id: string; statu
         }} className={`${btn} border border-border ${featured ? 'text-accent' : 'text-muted'}`}>
           <Star size={13} className={featured ? 'fill-accent' : ''} /> {featured ? 'Destaque' : 'Destacar'}
         </button>
-        <button disabled={pending} onClick={handleDelete} className={`${btn} bg-danger/10 text-danger`}>
-          <Trash2 size={13} /> Remover
-        </button>
+        {status !== 'arquivado' && (
+          <button disabled={pending} onClick={handleDelete} className={`${btn} bg-danger/10 text-danger`}>
+            <Trash2 size={13} /> Remover
+          </button>
+        )}
       </div>
       {message && <p className={message === 'Atualizado.' ? 'text-xs text-success' : 'text-xs text-danger'}>{message}</p>}
     </div>

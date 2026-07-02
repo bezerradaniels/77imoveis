@@ -34,13 +34,17 @@ export function ScrollRail({ children, className, count }: Props) {
     const onScroll = () => {
       if (!frame) frame = requestAnimationFrame(update);
     };
+    const onResize = () => {
+      if (!frame) frame = requestAnimationFrame(update);
+    };
 
-    update();
+    // Sem chamada síncrona no mount: o índice ativo já começa em 0, que é
+    // a posição inicial correta do rail — evita reflow forçado durante o LCP.
     rail.addEventListener('scroll', onScroll, { passive: true });
-    window.addEventListener('resize', update);
+    window.addEventListener('resize', onResize);
     return () => {
       rail.removeEventListener('scroll', onScroll);
-      window.removeEventListener('resize', update);
+      window.removeEventListener('resize', onResize);
       if (frame) cancelAnimationFrame(frame);
     };
   }, [count]);
