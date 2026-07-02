@@ -44,7 +44,7 @@ export function AuthNav() {
         section: 'header',
         destination_url: '/painel',
       })}
-      className="inline-flex min-h-11 items-center gap-1.5 rounded-[10px] border border-primary bg-[#e0f2fe] px-3 py-2 text-sm font-bold text-primary hover:bg-[#bae6fd]"
+      className="inline-flex min-h-11 items-center gap-1.5 rounded-[10px] border border-primary bg-primary-soft px-3 py-2 text-sm font-bold text-primary hover:bg-primary-soft-hover"
     >
       <LayoutDashboard size={15} /> Painel
     </Link>

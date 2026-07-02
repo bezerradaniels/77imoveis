@@ -55,7 +55,7 @@ export function ContactActions({
           target="_blank"
           rel="noopener noreferrer"
           onClick={() => track(slug, 'whatsapp', phone)}
-          className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#1FA855] px-4 text-[15px] font-bold text-on-primary transition hover:opacity-90"
+          className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-whatsapp px-4 text-[15px] font-bold text-on-primary transition hover:opacity-90"
         >
           <MessageCircle size={20} /> Conversar no WhatsApp
         </a>

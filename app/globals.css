@@ -18,6 +18,10 @@
   --success: #15803d;
   --warning: #b45309;
   --danger: #c0392b;
+  --whatsapp: #1fa855;
+  /* fundo suave da cor primária (chips e CTAs secundários) */
+  --primary-soft: #e0f2fe;
+  --primary-soft-hover: #bae6fd;
   --radius: 0.75rem;
   /* neutro claro para faixas/realces */
   --subtle: #f6f8f7;
@@ -38,6 +42,8 @@
   --link-hover: #7dd3fc;
   --accent: #38bdf8;
   --subtle: #15201b;
+  --primary-soft: rgba(56, 189, 248, 0.15);
+  --primary-soft-hover: rgba(56, 189, 248, 0.25);
   --header-grad: linear-gradient(90deg, #0c1a20 0%, #0f1714 46%, #17141a 100%);
 }
 

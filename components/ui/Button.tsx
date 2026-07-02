@@ -15,7 +15,7 @@ export function Button({ variant = 'primary', rounded = 'full', className, ...pr
         variant === 'primary' && 'bg-primary text-on-primary hover:bg-primary-hover',
         variant === 'outline' && 'border border-border text-text hover:bg-surface',
         variant === 'ghost' && 'text-muted hover:text-text',
-        variant === 'whatsapp' && 'bg-[#1FA855] text-on-primary hover:opacity-90',
+        variant === 'whatsapp' && 'bg-whatsapp text-on-primary hover:opacity-90',
         className,
       )}
       {...props}

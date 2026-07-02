@@ -138,7 +138,7 @@ export default async function EmpresaPublicaPage({ params }: { params: { slug: s
                 company_type: c.type,
                 source_component: 'company_profile_page',
               }}
-              className="inline-flex items-center gap-2 rounded-full bg-[#1FA855] px-4 py-2 text-sm font-semibold text-on-primary"
+              className="inline-flex items-center gap-2 rounded-full bg-whatsapp px-4 py-2 text-sm font-semibold text-on-primary"
             >
               <MessageCircle size={16} /> WhatsApp
             </TrackedExternalLink>

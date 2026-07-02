@@ -42,7 +42,7 @@ export function MobileContactBar(props: ContactCardProps) {
               button_location: 'property_mobile_fab',
             });
           }}
-          className="fixed bottom-[88px] right-4 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-[#1FA855] text-on-primary shadow-[0_12px_26px_-10px_rgba(31,168,85,0.8)] lg:hidden"
+          className="fixed bottom-[88px] right-4 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-whatsapp text-on-primary shadow-[0_12px_26px_-10px_rgba(31,168,85,0.8)] lg:hidden"
         >
           <MessageCircle size={26} />
         </a>

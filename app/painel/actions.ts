@@ -328,9 +328,20 @@ export async function setPropertyStatus(
 }
 
 export async function deleteProperty(id: string): Promise<Result> {
-  const { error } = await createClient().from('properties').update({ status: 'arquivado', is_featured: false }).eq('id', id);
+  const sb = createClient();
+  const { data: auth } = await sb.auth.getUser();
+  if (!auth.user) return { error: 'Sessão expirada. Entre novamente.' };
+
+  // .select confirma que uma linha foi atualizada — sem isso, a RLS bloquearia
+  // silenciosamente (0 linhas) e o usuário veria um falso sucesso.
+  const { data, error } = await sb
+    .from('properties')
+    .update({ status: 'arquivado', is_featured: false })
+    .eq('id', id)
+    .select('id');
   revalidatePath('/painel/imoveis');
   revalidatePath('/imoveis');
   revalidatePath('/');
-  return error ? { error: 'Não foi possível remover o anúncio.' } : { ok: true };
+  if (error || !data?.length) return { error: 'Não foi possível remover o anúncio.' };
+  return { ok: true };
 }

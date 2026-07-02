@@ -149,7 +149,7 @@ export default async function HomePage() {
                 href={c.href}
                 className="flex w-[210px] shrink-0 snap-start flex-col gap-3 rounded-2xl border border-border bg-surface p-5 outline-none transition-all hover:-translate-y-1 hover:border-primary/40 hover:shadow-[0_18px_34px_-22px_rgba(8,30,22,.45)] focus-visible:ring-2 focus-visible:ring-primary md:w-auto"
               >
-                <span className="flex h-11 w-11 items-center justify-center rounded-[13px] bg-[#e0f2fe] dark:bg-primary/15">
+                <span className="flex h-11 w-11 items-center justify-center rounded-[13px] bg-primary-soft">
                   <c.Icon size={22} className="text-link" />
                 </span>
                 <span>
@@ -175,7 +175,7 @@ export default async function HomePage() {
                 href={p.href}
                 className="flex w-[250px] shrink-0 snap-start flex-col gap-3 rounded-2xl border border-border bg-surface p-5 outline-none transition-all hover:-translate-y-1 hover:border-primary/40 hover:shadow-[0_18px_34px_-22px_rgba(8,30,22,.45)] focus-visible:ring-2 focus-visible:ring-primary md:w-auto"
               >
-                <span className="flex h-12 w-12 items-center justify-center rounded-[14px] bg-[#e0f2fe] dark:bg-primary/15">
+                <span className="flex h-12 w-12 items-center justify-center rounded-[14px] bg-primary-soft">
                   <p.Icon size={24} className="text-link" />
                 </span>
                 <span className="text-[15px] font-bold text-text">{p.label}</span>
@@ -224,12 +224,12 @@ export default async function HomePage() {
           </p>
           <div className="flex flex-wrap gap-2">
             {cities.map((c) => (
-              <Link key={c.slug} href={`/${c.slug}`} className="rounded-full bg-[#e0f2fe] px-3.5 py-1.5 text-[12.5px] font-semibold text-link transition-colors hover:bg-[#bae6fd] hover:text-link-hover dark:bg-primary/15">
+              <Link key={c.slug} href={`/${c.slug}`} className="rounded-full bg-primary-soft px-3.5 py-1.5 text-[12.5px] font-semibold text-link transition-colors hover:bg-primary-soft-hover hover:text-link-hover">
                 Imóveis em {c.name}
               </Link>
             ))}
             {seoChips.map((chip) => (
-              <Link key={chip.label} href={chip.href} className="rounded-full bg-[#e0f2fe] px-3.5 py-1.5 text-[12.5px] font-semibold text-link transition-colors hover:bg-[#bae6fd] hover:text-link-hover dark:bg-primary/15">
+              <Link key={chip.label} href={chip.href} className="rounded-full bg-primary-soft px-3.5 py-1.5 text-[12.5px] font-semibold text-link transition-colors hover:bg-primary-soft-hover hover:text-link-hover">
                 {chip.label}
               </Link>
             ))}

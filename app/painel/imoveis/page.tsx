@@ -30,7 +30,7 @@ export default async function MeusImoveisPage() {
         <h1 className="text-2xl font-bold">Meus imóveis</h1>
         <Link
           href="/painel/imoveis/novo"
-          className="inline-flex items-center gap-2 rounded-lg border border-primary bg-[#e0f2fe] px-3 py-1.5 text-sm font-semibold text-primary hover:bg-[#bae6fd]"
+          className="inline-flex items-center gap-2 rounded-lg border border-primary bg-primary-soft px-3 py-1.5 text-sm font-semibold text-primary hover:bg-primary-soft-hover"
         >
           <Plus size={18} /> Novo
         </Link>
@@ -77,7 +77,7 @@ export default async function MeusImoveisPage() {
           <p className="text-muted">Você ainda não tem anúncios.</p>
           <Link
             href="/painel/imoveis/novo"
-            className="mt-4 inline-flex items-center gap-2 rounded-lg border border-primary bg-[#e0f2fe] px-3 py-1.5 text-sm font-semibold text-primary hover:bg-[#bae6fd]"
+            className="mt-4 inline-flex items-center gap-2 rounded-lg border border-primary bg-primary-soft px-3 py-1.5 text-sm font-semibold text-primary hover:bg-primary-soft-hover"
           >
             <Plus size={18} /> Criar meu primeiro anúncio
           </Link>

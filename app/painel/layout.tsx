@@ -5,6 +5,7 @@ import { getProfile } from '@/lib/auth';
 import { getMyCompany, getMyCompanies } from '@/lib/data';
 import { CompanySwitcher } from '@/components/painel/CompanySwitcher';
 import { TrackedLink } from '@/components/analytics/TrackedLink';
+import { SidebarLink } from '@/components/layout/SidebarLink';
 import { LogoutButton } from '@/components/layout/LogoutButton';
 import { slugify } from '@/lib/format';
 import { logout } from './actions';
@@ -86,7 +87,7 @@ export default async function PainelLayout({ children }: { children: React.React
             buttonText="Novo anúncio"
             buttonLocation="painel_sidebar"
             section="painel_nav"
-            className="inline-flex items-center justify-center gap-2 rounded-[10px] border border-primary bg-[#e0f2fe] px-3 py-2 text-sm font-bold text-primary hover:bg-[#bae6fd]"
+            className="inline-flex items-center justify-center gap-2 rounded-[10px] border border-primary bg-primary-soft px-3 py-2 text-sm font-bold text-primary hover:bg-primary-soft-hover"
           >
             <Plus size={16} /> Novo anúncio
           </TrackedLink>
@@ -96,7 +97,7 @@ export default async function PainelLayout({ children }: { children: React.React
               const Icon = item.icon;
 
               return (
-                <TrackedLink
+                <SidebarLink
                   key={item.href}
                   href={item.href}
                   buttonId={`dashboard_nav_${slugify(item.label)}`}
@@ -107,11 +108,11 @@ export default async function PainelLayout({ children }: { children: React.React
                 >
                   <Icon size={18} className="text-primary" />
                   {item.label}
-                </TrackedLink>
+                </SidebarLink>
               );
             })}
             {showAdmin && (
-              <TrackedLink
+              <SidebarLink
                 href="/admin"
                 buttonId="dashboard_nav_administracao"
                 buttonText="Administração"
@@ -121,7 +122,7 @@ export default async function PainelLayout({ children }: { children: React.React
               >
                 <Shield size={18} className="text-primary" />
                 Administração
-              </TrackedLink>
+              </SidebarLink>
             )}
           </nav>
 
