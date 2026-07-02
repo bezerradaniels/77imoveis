@@ -70,16 +70,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="flex min-h-screen flex-col font-sans antialiased pb-16 pt-[77px] md:pb-0">
         <script dangerouslySetInnerHTML={{ __html: themeInit }} />
-        {process.env.NEXT_PUBLIC_GTM_ID && (
-          <noscript>
-            <iframe
-              src={`https://www.googletagmanager.com/ns.html?id=${process.env.NEXT_PUBLIC_GTM_ID}`}
-              height="0"
-              width="0"
-              style={{ display: 'none', visibility: 'hidden' }}
-            />
-          </noscript>
-        )}
         <JsonLd data={websiteLd()} />
         <JsonLd data={organizationLd()} />
         <Header />
