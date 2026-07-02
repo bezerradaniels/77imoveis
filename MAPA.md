@@ -31,6 +31,7 @@ lib/                      → lógica e dados (sem visual)
   cn.ts                  → junta classes de estilo
   supabase/              → conexão com o banco
 database/                → scripts SQL do banco (01 a 06)
+supabase/functions/      → Edge Functions (ex.: send-lead-email, dispara e-mail via Resend)
 docs/                    → documentação do projeto
 ```
 

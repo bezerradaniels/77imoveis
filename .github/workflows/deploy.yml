@@ -1,15 +1,89 @@
-name: (Desativado) Deploy manual
+name: Deploy (build no CI + envio p/ Hostinger)
 
-# A publicacao agora e feita pela Hostinger (Aplicativo Node.js conectado ao GitHub).
-# Este workflow NAO roda automaticamente e nao envia nada por FTP.
-# Mantido apenas como referencia. Pode ser apagado sem problema.
+# Estratégia: buildar aqui no GitHub Actions e enviar SÓ o resultado pronto
+# (Next.js standalone) para a Hostinger via FTP. Assim a Hostinger NÃO
+# reconstrói mais a cada push — o deploy vira um restart de segundos, sem a
+# janela de 503 que acontecia durante o `next build` no servidor.
+#
+# IMPORTANTE (configuração de uma vez só, no repositório → Settings → Secrets
+# and variables → Actions):
+#   Secrets de build (as NEXT_PUBLIC_* são "assadas" no bundle no momento do
+#   build, por isso precisam existir AQUI, não só na Hostinger):
+#     - NEXT_PUBLIC_SUPABASE_URL
+#     - NEXT_PUBLIC_SUPABASE_ANON_KEY
+#     - NEXT_PUBLIC_SITE_URL
+#     - NEXT_PUBLIC_GTM_ID          (se usar)
+#     - NEXT_PUBLIC_MAPTILER_KEY    (se usar)
+#     - NEXT_PUBLIC_TURNSTILE_SITE_KEY (se usar — veja o nome real no código)
+#   Secrets de FTP (deploy):
+#     - HOSTINGER_FTP_HOST
+#     - HOSTINGER_FTP_USER
+#     - HOSTINGER_FTP_PASS
+#   Variável (não secreta) com a pasta de destino do app na Hostinger:
+#     - vars.HOSTINGER_DEPLOY_DIR  ex.: /domains/77imoveis.com.br/app/
+#       (o caminho exato aparece no hPanel do app Node.js; deve terminar em /)
+#
+# Do lado da Hostinger (uma vez):
+#   - DESCONECTAR o deploy automático via GitHub do app Node.js (senão ela
+#     ainda tenta buildar no push e volta a dar 503).
+#   - Startup file do app = server.js   (o servidor do modo standalone)
+#     Comando de start = `node server.js`  (NÃO `npm start`/`next start`).
+#   - Manter as variáveis de runtime no painel (SUPABASE_SERVICE_ROLE_KEY,
+#     ASAAS_*, TURNSTILE_SECRET_KEY, etc.) — essas são lidas em execução.
 
 on:
-  workflow_dispatch: {}   # so roda se voce clicar manualmente em Actions > Run workflow
+  push:
+    branches: [main]
+  workflow_dispatch: {}
+
+concurrency:
+  group: deploy-main
+  cancel-in-progress: true
 
 jobs:
-  info:
+  build-and-deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Aviso
-        run: echo "O deploy do 77Imoveis e feito pela Hostinger (app Node.js + GitHub)."
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          # Mesma major de Node do app na Hostinger (sharp é nativo; versões
+          # diferentes podem dar erro em execução). Hostinger = 22.x.
+          node-version: 22
+          cache: npm
+
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Build (Next.js standalone)
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          NEXT_PUBLIC_SITE_URL: ${{ secrets.NEXT_PUBLIC_SITE_URL }}
+          NEXT_PUBLIC_GTM_ID: ${{ secrets.NEXT_PUBLIC_GTM_ID }}
+          NEXT_PUBLIC_MAPTILER_KEY: ${{ secrets.NEXT_PUBLIC_MAPTILER_KEY }}
+        run: npm run build
+
+      - name: Montar o pacote de deploy
+        # O modo standalone gera um servidor mínimo em .next/standalone, mas os
+        # assets estáticos e a pasta public NÃO entram sozinhos — precisam ser
+        # copiados para dentro dele (comportamento oficial do Next).
+        run: |
+          mkdir -p deploy
+          cp -r .next/standalone/. deploy/
+          mkdir -p deploy/.next/static
+          cp -r .next/static/. deploy/.next/static/
+          if [ -d public ]; then cp -r public deploy/public; fi
+
+      - name: Enviar para a Hostinger (FTP)
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.HOSTINGER_FTP_HOST }}
+          username: ${{ secrets.HOSTINGER_FTP_USER }}
+          password: ${{ secrets.HOSTINGER_FTP_PASS }}
+          local-dir: ./deploy/
+          server-dir: ${{ vars.HOSTINGER_DEPLOY_DIR }}
+          # Não apaga node_modules/.next remotos que não mudaram → deploy rápido.
+          # (remove --dry-run só depois de validar o primeiro envio.)
+          # dry-run: true
