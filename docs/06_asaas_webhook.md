@@ -14,6 +14,14 @@ https://77imoveis.com.br/functions/v1/handle-asaas-webhook
 https://<seu-tunnel>.ngrok.io/functions/v1/handle-asaas-webhook
 ```
 
+## 2. ⚠️ Atenção ao Token
+
+**IMPORTANTE:** O token no `.env.local` começa com `whsec_`, que é o formato do Stripe, **não do Asaas**. Isso pode estar incorreto.
+
+Ao registrar o webhook no Asaas, você receberá um **token de autenticação diferente** (gerado pelo Asaas). Substitua o valor em `.env.local` e nas secrets do Supabase pelo token real do Asaas.
+
+A validação é feita no header `asaas-access-token` (enviado pelo Asaas em cada webhook).
+
 ## 2. Registrar no Painel do Asaas
 
 1. Acesse https://app.asaas.com (ou sandbox em https://app-sandbox.asaas.com)
@@ -21,7 +29,7 @@ https://<seu-tunnel>.ngrok.io/functions/v1/handle-asaas-webhook
 3. Clique em **Novo Webhook**
 4. Preencha:
    - **URL:** Cole a URL acima
-   - **Token de autenticação:** Use o valor de `ASAAS_WEBHOOK_TOKEN` do `.env.local`
+   - **Token de autenticação:** Será gerado pelo Asaas (copie e salve em `.env.local`)
 5. Selecione os eventos:
    - ✅ `PAYMENT_RECEIVED`
    - ✅ `PAYMENT_CONFIRMED`
@@ -72,7 +80,7 @@ O webhook processa **três tipos de referência externa**:
 ```bash
 curl -X POST https://77imoveis.com.br/functions/v1/handle-asaas-webhook \
   -H "Content-Type: application/json" \
-  -H "Webhook-Token: $(echo $ASAAS_WEBHOOK_TOKEN)" \
+  -H "asaas-access-token: $ASAAS_WEBHOOK_TOKEN" \
   -d '{
     "event": "PAYMENT_RECEIVED",
     "id": "pay_123456",
@@ -110,6 +118,22 @@ curl -X POST https://77imoveis.com.br/functions/v1/handle-asaas-webhook \
 ```
 
 ## 7. Troubleshooting
+
+### ⚠️ Erro 401 "Unauthorized" (fila pausada)
+**Esta é a causa mais comum de falha!**
+
+- ❌ Token inválido ou expirado
+- ❌ Header errado (deve ser `asaas-access-token`, não `webhook-token`)
+- ❌ Token do Stripe (começa com `whsec_`) ao invés do Asaas
+
+**Solução:**
+1. Acesse painel do Asaas → **Configurações → Webhooks**
+2. Verifique o token gerado (será exibido apenas uma vez)
+3. Copie e substitua em `.env.local`: `ASAAS_WEBHOOK_TOKEN=<token-novo>`
+4. Atualize as secrets no Supabase
+5. Clique em **Reprocessar** ou **Testar** novamente
+
+**Cuidado:** Após 15 tentativas com 401, o Asaas pausa a fila automaticamente. Pode precisar ativar manualmente no painel.
 
 ### Webhook não dispara
 - Verifique se a URL está correta e acessível

@@ -179,8 +179,9 @@ Deno.serve(async (req) => {
     return new Response('Method not allowed', { status: 405 });
   }
 
-  const token = req.headers.get('webhook-token') || req.headers.get('Webhook-Token');
+  const token = req.headers.get('asaas-access-token');
   if (token !== asaasWebhookToken) {
+    console.error(`Token inválido. Esperado: ${asaasWebhookToken?.slice(0, 10)}..., Recebido: ${token?.slice(0, 10)}...`);
     return new Response('Unauthorized', { status: 401 });
   }
 
