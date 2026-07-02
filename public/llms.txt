@@ -1,0 +1,44 @@
+# 77Imóveis — Portal Imobiliário Regional
+
+77Imóveis é um portal imobiliário especializado em propriedades do DDD 77 (oeste/sudoeste da Bahia).
+Conectamos proprietários, corretores e imobiliárias com compradores e locatários através de um catálogo
+completo, filtros avançados e ferramentas de negociação.
+
+## Páginas principais
+
+https://77imoveis.com.br/
+https://77imoveis.com.br/planos-e-precos
+https://77imoveis.com.br/corretores
+https://77imoveis.com.br/imobiliarias
+https://77imoveis.com.br/profissionais/corretor_autonomo
+https://77imoveis.com.br/profissionais/imobiliaria
+https://77imoveis.com.br/profissionais/construtora
+https://77imoveis.com.br/profissionais/incorporadora
+
+## Buscar imóveis por cidade
+
+https://77imoveis.com.br/vitoria-da-conquista/venda
+https://77imoveis.com.br/jequie/aluguel
+https://77imoveis.com.br/itabuna/temporada
+https://77imoveis.com.br/ilheus/venda
+https://77imoveis.com.br/salvador/aluguel
+
+## Painel do usuário
+
+https://77imoveis.com.br/painel
+https://77imoveis.com.br/painel/planos
+https://77imoveis.com.br/painel/imoveis
+https://77imoveis.com.br/painel/vitrine
+https://77imoveis.com.br/painel/contatos
+
+## Autenticação
+
+https://77imoveis.com.br/cadastro
+https://77imoveis.com.br/entrar
+https://77imoveis.com.br/esqueci-senha
+
+## Informações
+
+https://77imoveis.com.br/privacidade
+https://77imoveis.com.br/termos
+https://77imoveis.com.br/contato
