@@ -57,7 +57,7 @@ export default async function PainelPage() {
     ...(isProfessional
       ? [
           { href: '/painel/vitrine', icon: Store, label: 'Minha vitrine', description: 'Página própria com seus imóveis' },
-          { href: '/painel/planos', icon: CreditCard, label: 'Planos e upgrade', description: 'Limites, destaques e recursos profissionais' },
+          { href: '/painel/planos', icon: CreditCard, label: 'Assinatura e planos', description: 'Plano atual, limites e cobrança' },
         ]
       : []),
     { href: '/painel/perfil', icon: UserCog, label: 'Meu perfil', description: 'Nome, foto, contatos e cidade' },

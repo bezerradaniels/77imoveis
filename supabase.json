@@ -1,0 +1,17 @@
+{
+  "version": "1.0.0",
+  "project": "77imoveis",
+  "functions": [
+    {
+      "slug": "handle-asaas-webhook",
+      "path": "supabase/functions/handle-asaas-webhook",
+      "entryPoint": "index.ts",
+      "verify_jwt": false,
+      "environment": [
+        "ASAAS_WEBHOOK_TOKEN",
+        "SUPABASE_URL",
+        "SUPABASE_SERVICE_ROLE_KEY"
+      ]
+    }
+  ]
+}

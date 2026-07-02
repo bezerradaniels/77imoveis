@@ -30,17 +30,38 @@ Cada empresa pode ativar uma **Vitrine**: uma página exclusiva com link própri
 
 **Fluxo:** empresa monta a vitrine no painel (marca + textos) → escolhe o período → paga (Pix/boleto/cartão) → webhook confirma → `storefronts.status='ativo'` e `expires_at` definido → vitrine no ar. Job diário marca como `expirado` quando vence.
 
-## 2. Planos (sugestão — ajustável no admin)
+## 2. Planos (catálogo atual)
 
-| Plano | Público | Imóveis ativos | Destaques/mês | Preço/mês |
-|---|---|---|---|---|
-| Particular | B2C | 1 | 0 | Grátis |
-| Profissional Free | B2B | 10 | 0 | Grátis |
-| Profissional 30 | B2B | 30 | 2 | R$ 99,90 |
-| Profissional 80 | B2B | 80 | 5 | R$ 199,90 |
-| Imobiliária Ilimitada | B2B | ilimitado | 12 | R$ 399,90 |
+Planos mensais fixos, com opção anual com desconto. Corretores autônomos têm uma régua mais barata; imobiliárias, construtoras e empresas usam os planos B2B.
 
-Destaque avulso (sugestão): 7 dias R$ 19,90 · 15 dias R$ 34,90 · 30 dias R$ 59,90.
+| Plano | Público | Imóveis ativos | Destaques inclusos | Mensal | Anual |
+|---|---|---:|---:|---:|---:|
+| Particular Gratuito | proprietário | 1 | 0 | Grátis | - |
+| Corretor Essencial | corretor autônomo | 10 | 0/mês | R$ 19,90 | R$ 190,80 |
+| Corretor Pro | corretor autônomo | 30 | 2/mês | R$ 39,90 | R$ 382,80 |
+| Corretor Max | corretor autônomo | 80 | 5/mês | R$ 69,90 | R$ 670,80 |
+| Empresa Start | B2B | 50 | 0/mês | R$ 79,90 | R$ 766,80 |
+| Empresa Pro | B2B | 150 | 10/mês | R$ 149,90 | R$ 1.438,80 |
+| Empresa Líder | B2B | 400 | 20/mês | R$ 249,90 | R$ 2.398,80 |
+
+Compras avulsas:
+
+| Produto | Duração | Valor |
+|---|---:|---:|
+| Destaque simples | 7 dias | R$ 9,90 |
+| Destaque forte | 15 dias | R$ 19,90 |
+| Super destaque | 30 dias | R$ 34,90 |
+| Topo cidade + tipo | 7 dias | R$ 49,90 |
+| Topo cidade + tipo | 15 dias | R$ 89,90 |
+| Topo cidade + tipo | 30 dias | R$ 149,90 |
+| Vitrine avulsa | 30 dias | R$ 49,90 |
+| Vitrine avulsa | 90 dias | R$ 119,90 |
+| Vitrine avulsa | 1 ano | R$ 399,90 |
+| Banner cidade | 7 dias | R$ 74,90 |
+| Banner cidade | 30 dias | R$ 249,90 |
+| Banner home/regional | 7 dias | R$ 199,90 |
+| Banner home/regional | 30 dias | R$ 649,90 |
+| Banner romaria/temporada | 30 dias | R$ 299,90 |
 
 > Regra: ao tentar ativar acima do limite do plano, o app oferece upgrade. Para `particular` no 2º imóvel: *"Gostaria de migrar para um plano profissional (B2B)?"*.
 

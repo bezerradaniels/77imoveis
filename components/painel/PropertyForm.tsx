@@ -1139,10 +1139,13 @@ export function PropertyForm({
             <div className="text-lg font-bold">Quer anunciar mais imóveis?</div>
             <p className="my-3 text-[13.5px] leading-relaxed text-muted">Proprietários particulares mantêm 1 imóvel ativo gratuitamente. Para anunciar vários imóveis, ter destaque e perfil de empresa, conheça os planos profissionais.</p>
             <div className="mb-4 flex flex-col gap-2.5">
-              <div className="flex items-center justify-between rounded-xl border border-border p-3.5"><div><div className="text-sm font-bold">Profissional</div><div className="text-xs text-muted">Até 50 imóveis · 5 destaques/mês</div></div><div className="text-[15px] font-bold text-primary">R$ 99<span className="text-[11px] font-medium text-muted">/mês</span></div></div>
-              <div className="flex items-center justify-between rounded-xl border border-primary/30 bg-primary/5 p-3.5"><div><div className="text-sm font-bold">Imobiliária <span className="ml-1 rounded-md bg-primary px-1.5 py-0.5 text-[10px] text-on-primary">Popular</span></div><div className="text-xs text-muted">Imóveis ilimitados · perfil verificado</div></div><div className="text-[15px] font-bold text-primary">R$ 249<span className="text-[11px] font-medium text-muted">/mês</span></div></div>
+              <div className="flex items-center justify-between rounded-xl border border-border p-3.5"><div><div className="text-sm font-bold">Corretor Essencial</div><div className="text-xs text-muted">Até 10 imóveis · perfil profissional</div></div><div className="text-[15px] font-bold text-primary">R$ 19,90<span className="text-[11px] font-medium text-muted">/mês</span></div></div>
+              <div className="flex items-center justify-between rounded-xl border border-primary/30 bg-primary/5 p-3.5"><div><div className="text-sm font-bold">Empresa Start <span className="ml-1 rounded-md bg-primary px-1.5 py-0.5 text-[10px] text-on-primary">Novo</span></div><div className="text-xs text-muted">Até 50 imóveis · vitrine da empresa</div></div><div className="text-[15px] font-bold text-primary">R$ 79,90<span className="text-[11px] font-medium text-muted">/mês</span></div></div>
             </div>
-            <button type="button" onClick={() => setPlanModal(false)} className="h-[46px] w-full rounded-xl bg-primary text-[14.5px] font-semibold text-on-primary">Continuar com plano gratuito</button>
+            <div className="grid gap-2">
+              <Link href="/painel/planos" className="flex h-[46px] items-center justify-center rounded-xl bg-primary text-[14.5px] font-semibold text-on-primary">Ver planos e assinar</Link>
+              <button type="button" onClick={() => setPlanModal(false)} className="h-[42px] w-full rounded-xl border border-border text-[13.5px] font-semibold text-muted">Continuar com plano gratuito</button>
+            </div>
           </div>
         </div>
       )}

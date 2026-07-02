@@ -24,6 +24,7 @@ const profissionais = [
 
 const institucional = [
   ['Anunciar grátis', '/anunciar'],
+  ['Planos e preços', '/planos-e-precos'],
   ['Contato', '/contato'],
   ['Privacidade', '/privacidade'],
   ['Termos de uso', '/termos'],

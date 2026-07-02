@@ -208,7 +208,7 @@ export default async function HomePage() {
             <Link href="/anunciar" className="flex items-center justify-center gap-2 rounded-xl bg-white px-7 py-3.5 text-[15px] font-extrabold text-link shadow-[0_14px_30px_-12px_rgba(0,0,0,.22)] transition-transform hover:-translate-y-0.5 hover:text-link-hover">
               <PlusCircle size={18} /> Anunciar grátis
             </Link>
-            <Link href="/anunciar" className="flex items-center justify-center gap-2 rounded-xl border border-white/45 bg-white/10 px-7 py-3.5 text-[15px] font-bold text-on-primary transition-colors hover:bg-white/20">
+            <Link href="/planos-e-precos" className="flex items-center justify-center gap-2 rounded-xl border border-white/45 bg-white/10 px-7 py-3.5 text-[15px] font-bold text-on-primary transition-colors hover:bg-white/20">
               Ver planos para empresas
             </Link>
           </div>

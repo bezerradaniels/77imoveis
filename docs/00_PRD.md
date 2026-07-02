@@ -23,8 +23,8 @@ Na região do DDD 77 não existe um portal regional forte. Anúncios estão espa
 ## 4. Regras de negócio centrais
 
 1. **Particular**: 1 conta gratuita, **1 imóvel ativo**. Ao tentar publicar/ativar um 2º imóvel, o sistema exibe: *"Gostaria de migrar para um plano profissional (B2B)?"* (regra garantida no banco pelo trigger `enforce_particular_limit`).
-2. **Profissional Free**: até **10 imóveis ativos** gratuitos.
-3. **Planos pagos**: aumentam o limite de imóveis ativos e incluem destaques e selos.
+2. **Profissional**: corretor autônomo, imobiliária ou construtora usa plano mensal/anual para ampliar limite de imóveis e recursos.
+3. **Planos pagos**: têm régua mais barata para corretores autônomos, planos B2B para empresas e opção anual com desconto.
 4. **Destaque de imóvel**: pagamento **avulso** (7/15/30 dias) para subir o anúncio.
 5. **Empresa em destaque**: visibilidade premium no diretório (paga).
 6. Todo imóvel tem **botão de WhatsApp + formulário de contato**; os leads são entregues ao anunciante **e** registrados internamente.

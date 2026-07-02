@@ -5,6 +5,7 @@ import { AuthNav } from './AuthNav';
 const menu = [
   { href: '/imoveis?modalidade=venda', label: 'Venda' },
   { href: '/imoveis?modalidade=aluguel', label: 'Aluguel' },
+  { href: '/planos-e-precos', label: 'Planos' },
 ];
 
 // Cabeçalho do site (handoff): logo, "Anuncie", tema e entrar — com degradê sutil.

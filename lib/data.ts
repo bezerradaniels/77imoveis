@@ -653,6 +653,47 @@ export async function getPlans() {
   return data ?? [];
 }
 
+export async function getMyBillingOverview() {
+  if (!hasEnv()) {
+    return { company: null, subscription: null, activeProperties: 0, latestPayment: null };
+  }
+
+  const company = await getMyCompany();
+  if (!company) return { company: null, subscription: null, activeProperties: 0, latestPayment: null };
+
+  const sb = createServerClient();
+  const companyId = (company as any).id;
+  const [subscription, properties, payment] = await Promise.all([
+    sb
+      .from('subscriptions')
+      .select('id,status,current_period_start,current_period_end,cancel_at_period_end,created_at,plans(name,slug,price,interval,max_active_listings,included_featured)')
+      .eq('company_id', companyId)
+      .in('status', ['ativa', 'trial', 'pendente', 'inadimplente'])
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle(),
+    sb
+      .from('properties')
+      .select('id', { count: 'exact', head: true })
+      .eq('company_id', companyId)
+      .eq('status', 'ativo'),
+    sb
+      .from('payments')
+      .select('id,status,amount,invoice_url,boleto_url,created_at')
+      .eq('company_id', companyId)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle(),
+  ]);
+
+  return {
+    company,
+    subscription: subscription.data,
+    activeProperties: properties.count ?? 0,
+    latestPayment: payment.data,
+  };
+}
+
 // Vitrine pública (só ativa, via RLS) + imóveis ativos da empresa.
 export async function getStorefrontBySlug(slug: string) {
   if (!hasEnv()) return null;

@@ -29,18 +29,39 @@ export const oneTimeProducts = {
     days: 7,
     kind: 'listing_feature',
   },
-  vitrine_simples_30: {
-    name: 'Vitrine personalizada simples',
+  topo_cidade_tipo_15: {
+    name: 'Topo da cidade + tipo',
+    description: 'Prioridade no topo da busca por cidade e tipo durante 15 dias',
+    amount: 89.9,
+    days: 15,
+    kind: 'listing_feature',
+  },
+  topo_cidade_tipo_30: {
+    name: 'Topo da cidade + tipo',
+    description: 'Prioridade no topo da busca por cidade e tipo durante 30 dias',
+    amount: 149.9,
+    days: 30,
+    kind: 'listing_feature',
+  },
+  vitrine_30: {
+    name: 'Vitrine avulsa',
     description: 'Vitrine personalizada por 30 dias',
-    amount: 24.9,
+    amount: 49.9,
     days: 30,
     kind: 'storefront',
   },
-  vitrine_premium_30: {
-    name: 'Vitrine premium personalizada',
-    description: 'Vitrine premium personalizada por 30 dias',
-    amount: 49.9,
-    days: 30,
+  vitrine_90: {
+    name: 'Vitrine avulsa',
+    description: 'Vitrine personalizada por 90 dias',
+    amount: 119.9,
+    days: 90,
+    kind: 'storefront',
+  },
+  vitrine_365: {
+    name: 'Vitrine avulsa',
+    description: 'Vitrine personalizada por 1 ano',
+    amount: 399.9,
+    days: 365,
     kind: 'storefront',
   },
   banner_cidade_7: {
@@ -50,11 +71,25 @@ export const oneTimeProducts = {
     days: 7,
     kind: 'banner',
   },
+  banner_cidade_30: {
+    name: 'Banner cidade',
+    description: 'Anúncio publicitário por cidade durante 30 dias',
+    amount: 249.9,
+    days: 30,
+    kind: 'banner',
+  },
   banner_home_7: {
     name: 'Banner regional/home',
     description: 'Anúncio publicitário regional na home por 7 dias',
     amount: 199.9,
     days: 7,
+    kind: 'banner',
+  },
+  banner_home_30: {
+    name: 'Banner regional/home',
+    description: 'Anúncio publicitário regional na home por 30 dias',
+    amount: 649.9,
+    days: 30,
     kind: 'banner',
   },
   banner_romaria_30: {

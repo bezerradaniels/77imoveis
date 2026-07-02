@@ -1,10 +1,12 @@
 'use server';
 
 import { redirect } from 'next/navigation';
+import { cookies } from 'next/headers';
 import { createClient } from '@/lib/supabase/server';
 import { createServiceClient } from '@/lib/supabase/service';
 import { createAsaasCustomer, createAsaasSubscription, listAsaasSubscriptionPayments } from '@/lib/payments/asaas';
 import { COMPANY_TRIAL_DAYS } from '@/lib/payments/catalog';
+import { ACTIVE_COMPANY_COOKIE } from '@/lib/data';
 
 const addDays = (days: number) => {
   const date = new Date();
@@ -27,14 +29,16 @@ export async function startPlanCheckout(formData: FormData) {
   const user = auth.user;
   if (!user) redirect('/entrar');
 
-  const { data: company } = await sb
+  const activeCompanyId = cookies().get(ACTIVE_COMPANY_COOKIE)?.value;
+  let companyQuery = sb
     .from('companies')
     .select('id,type,trade_name,legal_name,cnpj,email,phone,whatsapp,gateway_customer_id')
     .eq('owner_id', user.id)
-    .eq('status', 'ativo')
-    .order('created_at', { ascending: true })
-    .limit(1)
-    .maybeSingle();
+    .eq('status', 'ativo');
+  companyQuery = activeCompanyId && activeCompanyId !== 'pessoal'
+    ? companyQuery.eq('id', activeCompanyId)
+    : companyQuery.order('created_at', { ascending: true });
+  const { data: company } = await companyQuery.limit(1).maybeSingle();
   if (!company) redirect('/painel/planos?erro=empresa');
 
   const { data: plan } = await sb
@@ -44,6 +48,10 @@ export async function startPlanCheckout(formData: FormData) {
     .eq('is_active', true)
     .maybeSingle();
   if (!plan || Number(plan.price) <= 0 || plan.interval === 'unico') redirect('/painel/planos?erro=plano');
+
+  const brokerCompany = company.type === 'corretor_autonomo';
+  if (brokerCompany && plan.audience !== 'corretor_autonomo') redirect('/painel/planos?erro=perfil');
+  if (!brokerCompany && plan.audience === 'corretor_autonomo') redirect('/painel/planos?erro=perfil');
 
   const service = createServiceClient() as any;
   let customerId = (company as any).gateway_customer_id as string | null;
@@ -105,7 +113,15 @@ export async function startPlanCheckout(formData: FormData) {
         boleto_url: firstPayment.bankSlipUrl ?? null,
         gateway_payload: firstPayment,
       });
+      const amount = Number(firstPayment.value ?? plan.price);
+      const params = new URLSearchParams({
+        status: 'pendente',
+        payment_id: firstPayment.id,
+        amount: amount.toString(),
+        type: 'plano',
+      });
       if (firstPayment.invoiceUrl) redirect(firstPayment.invoiceUrl);
+      redirect(`${siteUrl()}/confirmacao-pagamento?${params.toString()}`);
     }
   }
 
