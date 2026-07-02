@@ -15,6 +15,13 @@ const nextConfig = {
   // Garante tree-shaking de ícones: importa só o que é usado de lucide-react.
   experimental: {
     optimizePackageImports: ['lucide-react'],
+    // Na Hostinger o app roda atrás de um reverse proxy. O Next valida as
+    // Server Actions comparando o header `Origin` com o host repassado
+    // (`X-Forwarded-Host`); quando não batem, a ação é rejeitada em silêncio
+    // (o botão "não faz nada"). Liberar os domínios públicos corrige isso.
+    serverActions: {
+      allowedOrigins: ['77imoveis.com.br', 'www.77imoveis.com.br'],
+    },
   },
   eslint: { ignoreDuringBuilds: false },
   async headers() {
