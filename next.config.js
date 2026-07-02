@@ -3,12 +3,6 @@ const nextConfig = {
   // Modo SSR completo (Node.js na Hostinger): páginas montadas "ao vivo".
   // Imóveis novos aparecem no Google na hora, sem remontar o site.
   // (Para voltar ao modo estático, bastaria adicionar: output: 'export'.)
-  //
-  // 'standalone': o build gera um servidor Node autocontido em
-  // `.next/standalone` (só com as dependências usadas). O deploy passa a ser
-  // "buildar no GitHub Actions e enviar o pronto" — a Hostinger não reconstrói
-  // mais a cada push, então acaba a janela de 503 do deploy.
-  output: 'standalone',
   reactStrictMode: true,
   poweredByHeader: false,
   images: {
