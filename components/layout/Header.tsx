@@ -37,12 +37,6 @@ export function Header() {
 
         <nav className="flex items-center">
           <div className="hidden items-center gap-3 sm:gap-4 md:flex">
-            <Link
-              href="/anunciar"
-              className="inline-flex min-h-11 items-center rounded-[10px] bg-primary px-3 py-2 text-sm font-normal text-on-primary shadow-[0_10px_22px_-14px_rgba(14,165,233,.45)] transition-colors hover:bg-primary-hover"
-            >
-              Anunciar imóvel
-            </Link>
             <AuthNav />
             <ThemeToggle />
           </div>
