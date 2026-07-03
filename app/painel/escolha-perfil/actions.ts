@@ -37,32 +37,9 @@ export async function completeOnboarding(
   }
   const cityId = answers.city_id || null;
 
-  // Campos essenciais do perfil. Profissionais já entram com role 'profissional'
-  // (não rebaixa admin/moderador, por isso o filtro por role atual).
-  const update: ProfileUpdate = {
-    role_intent: isPro ? 'profissional' : 'particular',
-    role_choice_made_at: new Date().toISOString(),
-    city_id: cityId,
-  };
-
-  const { error: profileError } = await sb
-    .from('profiles')
-    .update(update)
-    .eq('id', uid);
-
-  if (profileError) return { error: 'Não foi possível salvar. Tente novamente.' };
-
-  // onboarding_data é opcional (coluna pode não existir ainda) — falha aqui é ignorada.
-  await sb.from('profiles').update({ onboarding_data: { roleKey, ...answers } }).eq('id', uid);
-
-  // Promove a conta a PROFISSIONAL (sem rebaixar admin/moderador).
-  if (isPro) {
-    await sb.from('profiles').update({ role: 'profissional' }).eq('id', uid).eq('role', 'particular');
-  }
-
   // Cria/atualiza a entidade profissional única da conta.
+  const { data: profile } = await sb.from('profiles').select('full_name,role').eq('id', uid).maybeSingle();
   if (companyType) {
-    const { data: profile } = await sb.from('profiles').select('full_name').eq('id', uid).maybeSingle();
     const { data: existingRows } = await sb.from('companies').select('id,slug,trade_name').eq('owner_id', uid)
       .order('created_at', { ascending: true }).limit(1);
     const existing = existingRows?.[0] ?? null;
@@ -97,6 +74,24 @@ export async function completeOnboarding(
     }
   }
 
-  revalidatePath('/painel');
+  // Só libera o painel depois que todo o fluxo acima terminou sem erro.
+  const update: ProfileUpdate = {
+    role_intent: isPro ? 'profissional' : 'particular',
+    role_choice_made_at: new Date().toISOString(),
+    city_id: cityId,
+    ...(isPro && profile?.role === 'particular' ? { role: 'profissional' as const } : {}),
+  };
+
+  const { error: profileError } = await sb
+    .from('profiles')
+    .update(update)
+    .eq('id', uid);
+
+  if (profileError) return { error: 'Não foi possível salvar. Tente novamente.' };
+
+  // onboarding_data é opcional (coluna pode não existir ainda) — falha aqui é ignorada.
+  await sb.from('profiles').update({ onboarding_data: { roleKey, ...answers } }).eq('id', uid);
+
+  revalidatePath('/painel', 'layout');
   redirect('/painel');
 }

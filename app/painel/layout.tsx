@@ -2,7 +2,8 @@ import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { Building2, CreditCard, Home, MessageSquare, Plus, Shield, Store, UserCog, Users } from 'lucide-react';
 import { getProfile } from '@/lib/auth';
-import { getMyCompany, getMyCompanies } from '@/lib/data';
+import { getFeaturedCities, getMyCompany, getMyCompanies } from '@/lib/data';
+import { OnboardingModal } from '@/components/auth/OnboardingModal';
 import { CompanySwitcher } from '@/components/painel/CompanySwitcher';
 import { TrackedLink } from '@/components/analytics/TrackedLink';
 import { SidebarLink } from '@/components/layout/SidebarLink';
@@ -37,6 +38,11 @@ const roleLabel: Record<string, string> = {
 export default async function PainelLayout({ children }: { children: React.ReactNode }) {
   const profile = await getProfile();
   if (profile?.role === 'admin') redirect('/admin');
+  if (profile && !profile.role_choice_made_at) {
+    const cities = await getFeaturedCities();
+    return <OnboardingModal cities={cities} />;
+  }
+
   const showAdmin = profile?.role === 'moderador';
   const nome = profile?.full_name?.split(' ')[0] ?? 'bem-vindo';
 

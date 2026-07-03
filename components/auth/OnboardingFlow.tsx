@@ -1,6 +1,7 @@
 'use client';
 import { useState, useTransition } from 'react';
-import { Building2, Check, ChevronLeft, HardHat, KeyRound, Loader2, Search } from 'lucide-react';
+import Link from 'next/link';
+import { Building2, Check, ChevronLeft, HardHat, Home, KeyRound, Loader2, Search } from 'lucide-react';
 import { completeOnboarding } from '@/app/painel/escolha-perfil/actions';
 
 type City = { id: string; name: string; slug: string };
@@ -237,7 +238,7 @@ export function OnboardingFlow({ cities }: { cities: City[] }) {
 
   if (roleKey === null) {
     return (
-      <>
+      <div className="space-y-5">
         <div className="grid gap-3 sm:grid-cols-2">
           {roleOptions.map((opt) => {
             const Icon = opt.icon;
@@ -248,18 +249,27 @@ export function OnboardingFlow({ cities }: { cities: City[] }) {
                 className="flex cursor-pointer select-none flex-col gap-3 rounded-xl border-2 border-border bg-surface p-5 transition hover:border-primary/40"
               >
                 <div className="flex items-start justify-between gap-2">
-                  <Icon size={22} className="text-muted" />
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-3 sm:block">
+                      <Icon size={22} className="shrink-0 text-muted sm:mb-3" />
+                      <p className="font-semibold leading-snug">{opt.title}</p>
+                    </div>
+                    <p className="mt-2 text-sm text-muted sm:mt-1">{opt.description}</p>
+                  </div>
                   <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 border-border" />
-                </div>
-                <div>
-                  <p className="font-semibold leading-snug">{opt.title}</p>
-                  <p className="mt-1 text-sm text-muted">{opt.description}</p>
                 </div>
               </label>
             );
           })}
         </div>
-      </>
+        <Link
+          href="/"
+          className="mx-auto hidden items-center justify-center gap-2 text-sm font-semibold text-muted transition hover:text-link sm:inline-flex"
+        >
+          <Home size={16} />
+          Voltar para a home
+        </Link>
+      </div>
     );
   }
 
