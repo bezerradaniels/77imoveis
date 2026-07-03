@@ -24,7 +24,7 @@ export default async function PainelPage() {
   if (profile?.role === 'admin') redirect('/admin');
   const billing = profile?.role === 'profissional' ? await getMyBillingOverview() : null;
   const company = billing?.company ?? null;
-  const summary = subscriptionSummary(company, billing?.subscription ?? null);
+  const summary = subscriptionSummary(company, billing?.subscription ?? null, billing?.manualContract ?? null);
   const isProfessional = profile?.role === 'profissional' && !!company;
   const showBrokers = company?.type === 'imobiliaria';
   const nome = profile?.full_name?.split(' ')[0] ?? 'bem-vindo';

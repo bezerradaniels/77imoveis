@@ -22,11 +22,11 @@ const dotPattern = {
 };
 
 const categorias = [
-  { Icon: Home, label: 'Casas', sub: 'Para morar com a família', href: '/imoveis?tipo=casa' },
-  { Icon: Building2, label: 'Apartamentos', sub: 'Praticidade e localização', href: '/imoveis?tipo=apartamento' },
-  { Icon: Trees, label: 'Terrenos', sub: 'Construa do seu jeito', href: '/imoveis?tipo=terreno' },
-  { Icon: Store, label: 'Imóveis comerciais', sub: 'Salas, lojas e galpões', href: '/imoveis?tipo=sala-comercial' },
-  { Icon: Sparkles, label: 'Lançamentos', sub: 'Novos empreendimentos', href: '/imoveis?modalidade=lancamento' },
+  { Icon: Home, label: 'Casas', sub: 'Para morar com a família', href: '/imoveis/casa' },
+  { Icon: Building2, label: 'Apartamentos', sub: 'Praticidade e localização', href: '/imoveis/apartamento' },
+  { Icon: Trees, label: 'Terrenos', sub: 'Construa do seu jeito', href: '/imoveis/terreno' },
+  { Icon: Store, label: 'Imóveis comerciais', sub: 'Salas, lojas e galpões', href: '/imoveis/sala-comercial' },
+  { Icon: Sparkles, label: 'Lançamentos', sub: 'Novos empreendimentos', href: '/imoveis/lancamento' },
 ];
 
 const profissionais = [
@@ -36,9 +36,9 @@ const profissionais = [
 ];
 
 const seoChips = [
-  { label: 'Casas à venda', href: '/imoveis?tipo=casa&modalidade=venda' },
-  { label: 'Apartamentos para alugar', href: '/imoveis?tipo=apartamento&modalidade=aluguel' },
-  { label: 'Terrenos à venda', href: '/imoveis?tipo=terreno&modalidade=venda' },
+  { label: 'Casas à venda', href: '/imoveis/casa/venda' },
+  { label: 'Apartamentos para alugar', href: '/imoveis/apartamento/aluguel' },
+  { label: 'Terrenos à venda', href: '/imoveis/terreno/venda' },
 ];
 
 function SectionTitle({ title, sub }: { title: string; sub: string }) {
@@ -78,8 +78,7 @@ export default async function HomePage() {
       <HomeHero cities={cityOpts} types={typeOpts} neighborhoods={neighborhoods} />
 
       {/* CIDADES */}
-      <section className="relative overflow-hidden bg-[#f7f9f8] py-[clamp(40px,5.5vw,68px)] dark:bg-bg">
-        <div aria-hidden className="pointer-events-none absolute inset-0 opacity-70" style={dotPattern} />
+      <section className="relative overflow-hidden bg-white py-[clamp(40px,5.5vw,68px)] dark:bg-bg">
         <div className="relative mx-auto max-w-[1200px] px-6">
           <div className="mb-5">
             <SectionTitle title="Encontre imóveis por cidade" sub="Cobertura nas principais cidades do sudoeste e oeste da Bahia." />
@@ -89,7 +88,7 @@ export default async function HomePage() {
               <Link
                 key={c.slug}
                 href={`/${c.slug}`}
-                className="group relative block w-[150px] shrink-0 snap-start overflow-hidden rounded-2xl shadow-[0_14px_30px_-22px_rgba(8,30,22,.5)] outline-none ring-1 ring-black/5 transition-transform duration-200 hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-primary md:w-auto"
+                className="group relative block w-[150px] shrink-0 snap-start overflow-hidden rounded-2xl outline-none ring-1 ring-black/5 transition-transform duration-200 hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-primary md:w-auto"
               >
                 <span
                   aria-hidden
@@ -147,7 +146,7 @@ export default async function HomePage() {
               <Link
                 key={c.label}
                 href={c.href}
-                className="flex w-[210px] shrink-0 snap-start flex-col gap-3 rounded-2xl border border-border bg-surface p-5 outline-none transition-all hover:-translate-y-1 hover:border-primary/40 hover:shadow-[0_18px_34px_-22px_rgba(8,30,22,.45)] focus-visible:ring-2 focus-visible:ring-primary md:w-auto"
+                className="flex w-[210px] shrink-0 snap-start flex-col gap-3 rounded-2xl border border-border bg-surface p-5 outline-none transition-all hover:-translate-y-1 hover:border-primary/40 focus-visible:ring-2 focus-visible:ring-primary md:w-auto"
               >
                 <span className="flex h-11 w-11 items-center justify-center rounded-[13px] bg-primary-soft">
                   <c.Icon size={22} className="text-link" />
@@ -173,7 +172,7 @@ export default async function HomePage() {
               <Link
                 key={p.label}
                 href={p.href}
-                className="flex w-[250px] shrink-0 snap-start flex-col gap-3 rounded-2xl border border-border bg-surface p-5 outline-none transition-all hover:-translate-y-1 hover:border-primary/40 hover:shadow-[0_18px_34px_-22px_rgba(8,30,22,.45)] focus-visible:ring-2 focus-visible:ring-primary md:w-auto"
+                className="flex w-[250px] shrink-0 snap-start flex-col gap-3 rounded-2xl border border-border bg-surface p-5 outline-none transition-all hover:-translate-y-1 hover:border-primary/40 focus-visible:ring-2 focus-visible:ring-primary md:w-auto"
               >
                 <span className="flex h-12 w-12 items-center justify-center rounded-[14px] bg-primary-soft">
                   <p.Icon size={24} className="text-link" />

@@ -47,11 +47,17 @@ export function FilterBar({
   cities = [],
   types = [],
   hideNeighborhoods = false,
+  currentType,
+  currentModalidades,
+  prettyImoveisRoutes = false,
 }: {
   neighborhoods?: { value: string; label: string }[];
   cities?: { value: string; label: string }[];
   types?: { value: string; label: string }[];
   hideNeighborhoods?: boolean;
+  currentType?: string;
+  currentModalidades?: string[];
+  prettyImoveisRoutes?: boolean;
 }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -80,19 +86,63 @@ export function FilterBar({
     setParam(key, next.join(','));
   };
 
-  const selectedModalidades = listParam('modalidade');
+  const selectedModalidades = currentModalidades ?? listParam('modalidade');
+  const selectedType = currentType ?? params.get('tipo') ?? '';
   const selectedQuartos = listParam('quartos');
   const selectedBanheiros = listParam('banheiros');
   const selectedVagas = listParam('vagas');
   const acceptsExchange = params.get('troca') === '1';
 
+  const pushPrettyImoveis = (type: string, modalidades: string[]) => {
+    const next = new URLSearchParams(params.toString());
+    next.delete('pagina');
+    next.delete('tipo');
+    next.delete('modalidade');
+
+    const singleModalidade = modalidades.length === 1 ? modalidades[0] : '';
+    let path = '/imoveis';
+    if (modalidades.length > 1) {
+      if (type) next.set('tipo', type);
+      next.set('modalidade', modalidades.join(','));
+    } else if (type && singleModalidade) {
+      path = `/imoveis/${type}/${singleModalidade}`;
+    } else if (type) {
+      path = `/imoveis/${type}`;
+    } else if (singleModalidade) {
+      path = `/imoveis/${singleModalidade}`;
+    }
+
+    const qs = next.toString();
+    router.push(qs ? `${path}?${qs}` : path);
+  };
+
+  const setType = (value: string) => {
+    if (prettyImoveisRoutes) {
+      pushPrettyImoveis(value, selectedModalidades);
+      return;
+    }
+    setParam('tipo', value);
+  };
+
+  const toggleModalidade = (value: string) => {
+    if (prettyImoveisRoutes) {
+      const next = selectedModalidades.includes(value)
+        ? selectedModalidades.filter((v) => v !== value)
+        : [...selectedModalidades, value];
+      pushPrettyImoveis(selectedType, next);
+      return;
+    }
+    toggleInList('modalidade', value);
+  };
+
   const activeCount =
     selectedModalidades.length +
+    (selectedType ? 1 : 0) +
     selectedQuartos.length +
     selectedBanheiros.length +
     selectedVagas.length +
     (acceptsExchange ? 1 : 0) +
-    ['min', 'max', 'bairro', 'cidade', 'tipo'].filter((k) => params.get(k)).length;
+    ['min', 'max', 'bairro', 'cidade'].filter((k) => params.get(k)).length;
 
   const clearAll = () => {
     trackButtonClick({
@@ -107,7 +157,7 @@ export function FilterBar({
       section: 'listing_filters',
       source_component: 'FilterBar',
     });
-    router.push(pathname);
+    router.push(prettyImoveisRoutes ? '/imoveis' : pathname);
   };
 
   return (
@@ -176,8 +226,8 @@ export function FilterBar({
             <span className="mb-1.5 block text-xs font-semibold text-muted">Tipo</span>
             <Dropdown
               options={[{ value: '', label: 'Todos os tipos' }, ...types]}
-              value={params.get('tipo') ?? ''}
-              onChange={(v) => setParam('tipo', v)}
+              value={selectedType}
+              onChange={setType}
               placeholder="Todos os tipos"
             />
           </div>
@@ -187,7 +237,7 @@ export function FilterBar({
           <span className="mb-1.5 block text-xs font-semibold text-muted">Modalidade</span>
           <div className="grid grid-cols-2 gap-2">
             {modalidades.map((m) => (
-              <Chip key={m.value} active={selectedModalidades.includes(m.value)} onClick={() => toggleInList('modalidade', m.value)}>
+              <Chip key={m.value} active={selectedModalidades.includes(m.value)} onClick={() => toggleModalidade(m.value)}>
                 {m.label}
               </Chip>
             ))}

@@ -1,9 +1,9 @@
 'use server';
 import { revalidatePath } from 'next/cache';
-import { createClient } from '@/lib/supabase/server';
 import { createServiceClient } from '@/lib/supabase/service';
 import type { Database } from '@/lib/supabase/types';
 import { slugify } from '@/lib/format';
+import { ensureAdmin, logAdminAction, requireRow } from '@/lib/admin/guard';
 
 type R = { ok?: true; error?: string };
 
@@ -16,40 +16,6 @@ type CompanyBulkPatch = Pick<Database['public']['Tables']['companies']['Update']
 
 function validIds(ids: string[]) {
   return [...new Set(ids)].filter((id) => /^[0-9a-f-]{36}$/i.test(id)).slice(0, 200);
-}
-
-// Confirma que uma mutação por id afetou uma linha. No PostgREST, um update/delete
-// que atinge 0 linhas (id inexistente ou RLS bloqueando) NÃO retorna erro — sem
-// esta checagem o admin veria um falso sucesso. Use com `.select(...).maybeSingle()`.
-async function requireRow<T>(
-  query: PromiseLike<{ data: T | null; error: { message: string } | null }>,
-  emptyMessage: string,
-): Promise<{ data?: T; error?: string }> {
-  const { data, error } = await query;
-  if (error) return { error: `Falha ao atualizar: ${error.message}` };
-  if (!data) return { error: emptyMessage };
-  return { data };
-}
-
-// Garante que quem chama é admin/moderador (defesa extra além da RLS).
-async function ensureAdmin() {
-  const sb = createClient();
-  const { data: auth } = await sb.auth.getUser();
-  if (!auth.user) return null;
-  const { data } = await sb.from('profiles').select('role,is_active').eq('id', auth.user.id).maybeSingle();
-  if (!data || !(data as any).is_active || !['admin', 'moderador'].includes((data as any).role)) return null;
-  return { sb: createServiceClient(), adminId: auth.user.id };
-}
-
-async function logAdminAction(
-  sb: ReturnType<typeof createServiceClient>,
-  actorId: string,
-  action: string,
-  entityType: string,
-  entityId: string,
-  metadata?: Record<string, unknown>,
-) {
-  await sb.from('audit_logs').insert({ actor_id: actorId, action, entity_type: entityType, entity_id: entityId, metadata: (metadata ?? {}) as any });
 }
 
 async function revalidatePropertySurfaces(sb: ReturnType<typeof createServiceClient>, id: string) {

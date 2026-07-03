@@ -14,6 +14,7 @@ app/                      → as páginas (cada pasta = uma rota/URL)
   (public)/               → páginas públicas (aparecem no Google)
     page.tsx              → a HOME
     [cidade]/[[...rest]]/ → listagem/busca: /cidade e /cidade/tipo
+    imoveis/        → listagem geral e páginas físicas: /imoveis/venda, /imoveis/casa/venda
     imovel/[slug]/        → página de um imóvel
   (auth)/entrar, cadastro → login e criação de conta
   painel/                 → área logada (imóveis, contatos, criar/editar)

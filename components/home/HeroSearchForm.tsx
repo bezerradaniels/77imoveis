@@ -36,7 +36,7 @@ function Field({ label, children, className }: { label: string; children: React.
 // cidade é única e o bairro (digitável) é restrito à cidade escolhida.
 // Navega para a listagem mantendo o contrato de filtros das páginas:
 //   /[cidade]/[tipo]  ·  /[cidade]  ·  /imoveis?cidade=&tipo=a,b
-//   + ?modalidade=venda,aluguel & permuta=1 & quartos=2,3 & bairro=slug
+//   /imoveis/venda · /imoveis/casa/venda · + ?quartos=2,3 & bairro=slug
 export function HeroSearchForm({
   cities,
   types,
@@ -78,8 +78,14 @@ export function HeroSearchForm({
         base = `/${city}`;
       }
     } else {
-      if (tipos.length) sp.set('tipo', tipos.join(','));
-      base = '/imoveis';
+      const singleTipo = tipos.length === 1 ? tipos[0] : '';
+      const singleNeg = negs.length === 1 ? negs[0] : '';
+      if (tipos.length > 1) sp.set('tipo', tipos.join(','));
+      if (negs.length <= 1) sp.delete('modalidade');
+      if (singleTipo && singleNeg) base = `/imoveis/${singleTipo}/${singleNeg}`;
+      else if (singleTipo) base = `/imoveis/${singleTipo}`;
+      else if (singleNeg) base = `/imoveis/${singleNeg}`;
+      else base = '/imoveis';
     }
     const qs = sp.toString();
     trackEvent(ANALYTICS_EVENTS.searchPerformed, {
@@ -104,7 +110,7 @@ export function HeroSearchForm({
   return (
     <div
       role="search"
-      className={cn(!bare && 'rounded-[20px] border border-border bg-surface p-5 shadow-[0_22px_48px_-30px_rgba(8,30,22,.42)]')}
+      className={cn(!bare && 'rounded-[20px] border border-gray-300 bg-surface p-5 dark:border-border')}
     >
       {!bare && (
         <div className="mb-3.5 flex items-center justify-between gap-3">

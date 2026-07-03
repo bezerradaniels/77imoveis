@@ -25,6 +25,8 @@ export async function GET() {
 ## Como navegar
 - Busca geral de imóveis: ${SITE_URL}/imoveis
 - Busca por texto (palavra-chave): ${SITE_URL}/imoveis?busca={termo}
+- Imóveis por modalidade: ${SITE_URL}/imoveis/{modalidade} (ex.: ${SITE_URL}/imoveis/venda)
+- Imóveis por tipo e modalidade: ${SITE_URL}/imoveis/{tipo}/{modalidade} (ex.: ${SITE_URL}/imoveis/casa/venda)
 - Imóveis por cidade: ${SITE_URL}/{cidade}
 - Imóveis por cidade e tipo: ${SITE_URL}/{cidade}/{tipo} (ex.: ${SITE_URL}/vitoria-da-conquista/casas)
 - Página de um imóvel: ${SITE_URL}/imovel/{slug}
@@ -35,7 +37,7 @@ export async function GET() {
 - Vitrines de empresas: ${SITE_URL}/vitrine/{slug}
 
 ## Tipos de imóvel
-${(types as any[]).map((t) => `- ${plural(t.name)}: ${SITE_URL}/imoveis?tipo=${t.slug}`).join('\n') || '- Casas, apartamentos, terrenos, imóveis comerciais e rurais'}
+${(types as any[]).map((t) => `- ${plural(t.name)}: ${SITE_URL}/imoveis/${t.slug}`).join('\n') || '- Casas, apartamentos, terrenos, imóveis comerciais e rurais'}
 
 ## Categorias de profissional
 ${companyTypes.map((t) => `- ${t.label}: ${SITE_URL}/profissionais/${t.value}`).join('\n')}

@@ -37,7 +37,7 @@ export function AdCarousel({ ads }: { ads: HeroAd[] }) {
         <div
           ref={trackRef}
           onScroll={onScroll}
-          className="no-scrollbar flex snap-x snap-mandatory overflow-x-auto rounded-[18px] shadow-[0_22px_48px_-30px_rgba(8,30,22,.42)]"
+          className="no-scrollbar flex snap-x snap-mandatory overflow-x-auto rounded-[18px]"
         >
           {ads.map((ad, i) => {
             const ext = ad.external ? { target: '_blank', rel: 'noopener noreferrer sponsored' } : {};
@@ -83,7 +83,7 @@ export function AdCarousel({ ads }: { ads: HeroAd[] }) {
           type="button"
           aria-label="Anúncio anterior"
           onClick={() => go(idx - 1)}
-          className="absolute left-2 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-white/95 text-[#13201b] shadow-[0_4px_14px_rgba(8,30,22,.18)] outline-none transition-colors hover:border-primary hover:text-primary focus-visible:ring-4 focus-visible:ring-primary/30 sm:left-2.5"
+          className="absolute left-2 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-white/95 text-[#13201b] outline-none transition-colors hover:border-primary hover:text-primary focus-visible:ring-4 focus-visible:ring-primary/30 sm:left-2.5"
         >
           <ChevronLeft size={18} />
         </button>
@@ -91,7 +91,7 @@ export function AdCarousel({ ads }: { ads: HeroAd[] }) {
           type="button"
           aria-label="Próximo anúncio"
           onClick={() => go(idx + 1)}
-          className="absolute right-2 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-white/95 text-[#13201b] shadow-[0_4px_14px_rgba(8,30,22,.18)] outline-none transition-colors hover:border-primary hover:text-primary focus-visible:ring-4 focus-visible:ring-primary/30 sm:right-2.5"
+          className="absolute right-2 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-white/95 text-[#13201b] outline-none transition-colors hover:border-primary hover:text-primary focus-visible:ring-4 focus-visible:ring-primary/30 sm:right-2.5"
         >
           <ChevronRight size={18} />
         </button>

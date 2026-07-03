@@ -1,8 +1,40 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 
+const IMOVEIS_TYPE_SLUGS = [
+  'casa', 'apartamento', 'cobertura', 'kitnet', 'condominio', 'sala-comercial',
+  'loja', 'galpao', 'terreno', 'lote', 'chacara', 'fazenda',
+];
+const IMOVEIS_NEGOTIATIONS = ['venda', 'aluguel', 'temporada', 'romaria', 'lancamento'];
+
+function canonicalImoveisUrl(request: NextRequest) {
+  if (request.nextUrl.pathname !== '/imoveis') return null;
+
+  const typeSlugs = (request.nextUrl.searchParams.get('tipo') ?? '').split(',').filter(Boolean);
+  const negotiations = (request.nextUrl.searchParams.get('modalidade') ?? '')
+    .split(',')
+    .filter((m) => IMOVEIS_NEGOTIATIONS.includes(m));
+  if (typeSlugs.length > 1 || negotiations.length > 1) return null;
+  if (!typeSlugs.length && !negotiations.length) return null;
+
+  const typeSlug = typeSlugs[0];
+  const negotiation = negotiations[0];
+  if (typeSlug && !IMOVEIS_TYPE_SLUGS.includes(typeSlug)) return null;
+
+  const next = request.nextUrl.clone();
+  if (typeSlug && negotiation) next.pathname = `/imoveis/${typeSlug}/${negotiation}`;
+  else if (typeSlug) next.pathname = `/imoveis/${typeSlug}`;
+  else next.pathname = `/imoveis/${negotiation}`;
+  next.searchParams.delete('tipo');
+  next.searchParams.delete('modalidade');
+  return next;
+}
+
 // Renova a sessão do Supabase a cada navegação e protege as áreas logadas.
 export async function middleware(request: NextRequest) {
+  const canonical = canonicalImoveisUrl(request);
+  if (canonical) return NextResponse.redirect(canonical, 308);
+
   let response = NextResponse.next({ request });
 
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;

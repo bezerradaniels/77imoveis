@@ -515,16 +515,19 @@ export async function getListingPublishGate(userId: string, excludePropertyId?: 
   const now = new Date().toISOString();
   const { data: subscriptions } = await sb
     .from('subscriptions')
-    .select('status,current_period_end,plans(max_active_listings)')
+    .select('status,current_period_end,max_listings_override,plans(max_active_listings)')
     .eq('company_id', companyId)
     .in('status', ['ativa', 'trial'])
     .or(`current_period_end.is.null,current_period_end.gt.${now}`)
     .order('created_at', { ascending: false })
     .limit(3);
 
+  // Planos manuais personalizados definem o limite via override (sem plano do catálogo).
   const subscribedLimit = Math.max(
     0,
-    ...((subscriptions ?? []) as any[]).map((s) => Number(s.plans?.max_active_listings ?? 0)),
+    ...((subscriptions ?? []) as any[]).map((s) =>
+      Number(s.max_listings_override ?? s.plans?.max_active_listings ?? 0),
+    ),
   );
   const maxActive = subscribedLimit || 1;
 
@@ -658,20 +661,28 @@ export async function getPlans() {
 
 export async function getMyBillingOverview() {
   if (!hasEnv()) {
-    return { company: null, subscription: null, activeProperties: 0, latestPayment: null };
+    return { company: null, subscription: null, manualContract: null, activeProperties: 0, latestPayment: null };
   }
 
   const company = await getMyCompany();
-  if (!company) return { company: null, subscription: null, activeProperties: 0, latestPayment: null };
+  if (!company) return { company: null, subscription: null, manualContract: null, activeProperties: 0, latestPayment: null };
 
   const sb = createServerClient();
   const companyId = (company as any).id;
-  const [subscription, properties, payment] = await Promise.all([
+  const [subscription, manualContract, properties, payment] = await Promise.all([
     sb
       .from('subscriptions')
-      .select('id,status,current_period_start,current_period_end,cancel_at_period_end,created_at,plans(name,slug,price,interval,max_active_listings,included_featured)')
+      .select('id,status,current_period_start,current_period_end,cancel_at_period_end,created_at,manual_contract_id,max_listings_override,custom_plan_name,plans(name,slug,price,interval,max_active_listings,included_featured)')
       .eq('company_id', companyId)
       .in('status', ['ativa', 'trial', 'pendente', 'inadimplente'])
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle(),
+    sb
+      .from('manual_contracts')
+      .select('id,plan_name,status,payment_method,payment_status,max_active_listings,included_featured,starts_at,ends_at,public_notes')
+      .eq('company_id', companyId)
+      .not('status', 'in', '("cancelado")')
       .order('created_at', { ascending: false })
       .limit(1)
       .maybeSingle(),
@@ -692,6 +703,7 @@ export async function getMyBillingOverview() {
   return {
     company,
     subscription: subscription.data,
+    manualContract: manualContract.data,
     activeProperties: properties.count ?? 0,
     latestPayment: payment.data,
   };

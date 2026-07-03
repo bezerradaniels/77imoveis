@@ -9,11 +9,11 @@ const cidades = [
 ];
 
 const tipos = [
-  ['Casas', '/vitoria-da-conquista/casas'],
-  ['Apartamentos', '/vitoria-da-conquista/apartamentos'],
-  ['Terrenos e lotes', '/vitoria-da-conquista/terrenos'],
-  ['Imóveis comerciais', '/vitoria-da-conquista/sala-comercials'],
-  ['Lançamentos', '/vitoria-da-conquista?modalidade=lancamento'],
+  ['Casas', '/imoveis/casa'],
+  ['Apartamentos', '/imoveis/apartamento'],
+  ['Terrenos e lotes', '/imoveis/terreno'],
+  ['Imóveis comerciais', '/imoveis/sala-comercial'],
+  ['Lançamentos', '/imoveis/lancamento'],
 ];
 
 const profissionais = [

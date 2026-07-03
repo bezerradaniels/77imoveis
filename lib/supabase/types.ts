@@ -221,39 +221,57 @@ export type Database = {
       }
       brokers: {
         Row: {
+          approved_at: string | null
           company_id: string
           created_at: string
           creci: string | null
+          disabled_at: string | null
           email: string | null
           id: string
           name: string
           phone: string | null
           photo_url: string | null
           profile_id: string | null
+          rejected_at: string | null
+          status: string
+          updated_at: string
+          verified_at: string | null
           whatsapp: string | null
         }
         Insert: {
+          approved_at?: string | null
           company_id: string
           created_at?: string
           creci?: string | null
+          disabled_at?: string | null
           email?: string | null
           id?: string
           name: string
           phone?: string | null
           photo_url?: string | null
           profile_id?: string | null
+          rejected_at?: string | null
+          status?: string
+          updated_at?: string
+          verified_at?: string | null
           whatsapp?: string | null
         }
         Update: {
+          approved_at?: string | null
           company_id?: string
           created_at?: string
           creci?: string | null
+          disabled_at?: string | null
           email?: string | null
           id?: string
           name?: string
           phone?: string | null
           photo_url?: string | null
           profile_id?: string | null
+          rejected_at?: string | null
+          status?: string
+          updated_at?: string
+          verified_at?: string | null
           whatsapp?: string | null
         }
         Relationships: [
@@ -340,6 +358,7 @@ export type Database = {
           email: string | null
           facebook: string | null
           featured_until: string | null
+          gateway_customer_id: string | null
           id: string
           instagram: string | null
           is_featured: boolean
@@ -371,6 +390,7 @@ export type Database = {
           email?: string | null
           facebook?: string | null
           featured_until?: string | null
+          gateway_customer_id?: string | null
           id?: string
           instagram?: string | null
           is_featured?: boolean
@@ -402,6 +422,7 @@ export type Database = {
           email?: string | null
           facebook?: string | null
           featured_until?: string | null
+          gateway_customer_id?: string | null
           id?: string
           instagram?: string | null
           is_featured?: boolean
@@ -501,6 +522,53 @@ export type Database = {
             columns: ["specialty_id"]
             isOneToOne: false
             referencedRelation: "specialties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      contract_status_history: {
+        Row: {
+          action: string
+          admin_id: string | null
+          contract_id: string
+          contract_type: string
+          created_at: string
+          from_status: string | null
+          id: string
+          metadata: Json | null
+          reason: string | null
+          to_status: string | null
+        }
+        Insert: {
+          action: string
+          admin_id?: string | null
+          contract_id: string
+          contract_type?: string
+          created_at?: string
+          from_status?: string | null
+          id?: string
+          metadata?: Json | null
+          reason?: string | null
+          to_status?: string | null
+        }
+        Update: {
+          action?: string
+          admin_id?: string | null
+          contract_id?: string
+          contract_type?: string
+          created_at?: string
+          from_status?: string | null
+          id?: string
+          metadata?: Json | null
+          reason?: string | null
+          to_status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contract_status_history_admin_id_fkey"
+            columns: ["admin_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -677,6 +745,7 @@ export type Database = {
           created_at: string
           days: number
           ends_at: string | null
+          feature_type: string
           id: string
           payment_id: string | null
           property_id: string
@@ -688,6 +757,7 @@ export type Database = {
           created_at?: string
           days: number
           ends_at?: string | null
+          feature_type?: string
           id?: string
           payment_id?: string | null
           property_id: string
@@ -699,6 +769,7 @@ export type Database = {
           created_at?: string
           days?: number
           ends_at?: string | null
+          feature_type?: string
           id?: string
           payment_id?: string | null
           property_id?: string
@@ -718,6 +789,116 @@ export type Database = {
             columns: ["property_id"]
             isOneToOne: false
             referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      manual_contracts: {
+        Row: {
+          amount: number | null
+          auto_renew: boolean
+          city_scope: Json | null
+          company_id: string
+          created_at: string
+          created_by: string | null
+          duration_days: number
+          ends_at: string
+          id: string
+          included_featured: number
+          internal_notes: string | null
+          max_active_listings: number
+          paused_at: string | null
+          payment_method: string
+          payment_status: string
+          plan_id: string | null
+          plan_name: string
+          plan_type: string | null
+          public_notes: string | null
+          remaining_days_snapshot: number | null
+          starts_at: string
+          status: Database["public"]["Enums"]["manual_contract_status"]
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          amount?: number | null
+          auto_renew?: boolean
+          city_scope?: Json | null
+          company_id: string
+          created_at?: string
+          created_by?: string | null
+          duration_days: number
+          ends_at: string
+          id?: string
+          included_featured?: number
+          internal_notes?: string | null
+          max_active_listings?: number
+          paused_at?: string | null
+          payment_method?: string
+          payment_status?: string
+          plan_id?: string | null
+          plan_name: string
+          plan_type?: string | null
+          public_notes?: string | null
+          remaining_days_snapshot?: number | null
+          starts_at?: string
+          status?: Database["public"]["Enums"]["manual_contract_status"]
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          amount?: number | null
+          auto_renew?: boolean
+          city_scope?: Json | null
+          company_id?: string
+          created_at?: string
+          created_by?: string | null
+          duration_days?: number
+          ends_at?: string
+          id?: string
+          included_featured?: number
+          internal_notes?: string | null
+          max_active_listings?: number
+          paused_at?: string | null
+          payment_method?: string
+          payment_status?: string
+          plan_id?: string | null
+          plan_name?: string
+          plan_type?: string | null
+          public_notes?: string | null
+          remaining_days_snapshot?: number | null
+          starts_at?: string
+          status?: Database["public"]["Enums"]["manual_contract_status"]
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "manual_contracts_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "manual_contracts_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "manual_contracts_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "plans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "manual_contracts_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -810,6 +991,36 @@ export type Database = {
           },
         ]
       }
+      payment_webhook_events: {
+        Row: {
+          created_at: string
+          event_id: string
+          event_name: string
+          gateway: string
+          id: string
+          payload: Json
+          processed_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          event_id: string
+          event_name: string
+          gateway?: string
+          id?: string
+          payload: Json
+          processed_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          event_id?: string
+          event_name?: string
+          gateway?: string
+          id?: string
+          payload?: Json
+          processed_at?: string | null
+        }
+        Relationships: []
+      }
       payments: {
         Row: {
           amount: number
@@ -817,7 +1028,9 @@ export type Database = {
           company_id: string | null
           created_at: string
           description: string | null
+          external_reference: string | null
           gateway: string
+          gateway_payload: Json | null
           gateway_payment_id: string | null
           id: string
           invoice_url: string | null
@@ -833,7 +1046,9 @@ export type Database = {
           company_id?: string | null
           created_at?: string
           description?: string | null
+          external_reference?: string | null
           gateway?: string
+          gateway_payload?: Json | null
           gateway_payment_id?: string | null
           id?: string
           invoice_url?: string | null
@@ -849,7 +1064,9 @@ export type Database = {
           company_id?: string | null
           created_at?: string
           description?: string | null
+          external_reference?: string | null
           gateway?: string
+          gateway_payload?: Json | null
           gateway_payment_id?: string | null
           id?: string
           invoice_url?: string | null
@@ -891,6 +1108,7 @@ export type Database = {
           price: number
           slug: string
           sort: number
+          stripe_price_id: string | null
         }
         Insert: {
           audience?: string
@@ -906,6 +1124,7 @@ export type Database = {
           price?: number
           slug: string
           sort?: number
+          stripe_price_id?: string | null
         }
         Update: {
           audience?: string
@@ -921,6 +1140,7 @@ export type Database = {
           price?: number
           slug?: string
           sort?: number
+          stripe_price_id?: string | null
         }
         Relationships: []
       }
@@ -991,6 +1211,7 @@ export type Database = {
           availability: string
           bathrooms: number | null
           bedrooms: number | null
+          boosted_until: string | null
           broker_id: string | null
           built_area: number | null
           city_id: string
@@ -1053,6 +1274,7 @@ export type Database = {
           availability?: string
           bathrooms?: number | null
           bedrooms?: number | null
+          boosted_until?: string | null
           broker_id?: string | null
           built_area?: number | null
           city_id: string
@@ -1115,6 +1337,7 @@ export type Database = {
           availability?: string
           bathrooms?: number | null
           bedrooms?: number | null
+          boosted_until?: string | null
           broker_id?: string | null
           built_area?: number | null
           city_id?: string
@@ -1591,11 +1814,15 @@ export type Database = {
           created_at: string
           current_period_end: string | null
           current_period_start: string | null
+          custom_plan_name: string | null
+          featured_override: number | null
           gateway: string
           gateway_customer_id: string | null
           gateway_subscription_id: string | null
           id: string
-          plan_id: string
+          manual_contract_id: string | null
+          max_listings_override: number | null
+          plan_id: string | null
           status: Database["public"]["Enums"]["subscription_status"]
           updated_at: string
         }
@@ -1605,11 +1832,15 @@ export type Database = {
           created_at?: string
           current_period_end?: string | null
           current_period_start?: string | null
+          custom_plan_name?: string | null
+          featured_override?: number | null
           gateway?: string
           gateway_customer_id?: string | null
           gateway_subscription_id?: string | null
           id?: string
-          plan_id: string
+          manual_contract_id?: string | null
+          max_listings_override?: number | null
+          plan_id?: string | null
           status?: Database["public"]["Enums"]["subscription_status"]
           updated_at?: string
         }
@@ -1619,11 +1850,15 @@ export type Database = {
           created_at?: string
           current_period_end?: string | null
           current_period_start?: string | null
+          custom_plan_name?: string | null
+          featured_override?: number | null
           gateway?: string
           gateway_customer_id?: string | null
           gateway_subscription_id?: string | null
           id?: string
-          plan_id?: string
+          manual_contract_id?: string | null
+          max_listings_override?: number | null
+          plan_id?: string | null
           status?: Database["public"]["Enums"]["subscription_status"]
           updated_at?: string
         }
@@ -1633,6 +1868,13 @@ export type Database = {
             columns: ["company_id"]
             isOneToOne: false
             referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "subscriptions_manual_contract_id_fkey"
+            columns: ["manual_contract_id"]
+            isOneToOne: false
+            referencedRelation: "manual_contracts"
             referencedColumns: ["id"]
           },
           {
@@ -2004,6 +2246,7 @@ export type Database = {
           availability: string
           bathrooms: number | null
           bedrooms: number | null
+          boosted_until: string | null
           broker_id: string | null
           built_area: number | null
           city_id: string
@@ -2704,6 +2947,12 @@ export type Database = {
         | "arquivado"
         | "em_moderacao"
         | "reprovado"
+      manual_contract_status:
+        | "agendado"
+        | "ativo"
+        | "pausado"
+        | "cancelado"
+        | "expirado"
       negotiation_type:
         | "venda"
         | "aluguel"
@@ -2900,6 +3149,13 @@ export const Constants = {
         "arquivado",
         "em_moderacao",
         "reprovado",
+      ],
+      manual_contract_status: [
+        "agendado",
+        "ativo",
+        "pausado",
+        "cancelado",
+        "expirado",
       ],
       negotiation_type: [
         "venda",

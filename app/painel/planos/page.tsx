@@ -22,6 +22,9 @@ const statusLabel: Record<string, string> = {
   pendente: 'Pendente',
   inadimplente: 'Inadimplente',
   cancelada: 'Cancelada',
+  pausado: 'Pausado',
+  agendado: 'Agendado',
+  expirado: 'Expirado',
 };
 
 const statusClass: Record<string, string> = {
@@ -30,6 +33,9 @@ const statusClass: Record<string, string> = {
   pendente: 'bg-warning/15 text-warning',
   inadimplente: 'bg-danger/15 text-danger',
   cancelada: 'bg-border text-muted',
+  pausado: 'bg-warning/20 text-warning',
+  agendado: 'bg-primary/10 text-primary',
+  expirado: 'bg-danger/15 text-danger',
 };
 
 const dateLabel = (value?: string | null) => (value ? new Date(value).toLocaleDateString('pt-BR') : null);

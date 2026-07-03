@@ -11,6 +11,8 @@ import { SITE_URL } from '@/lib/seo/meta';
 
 export const revalidate = 3600;
 
+const negotiations = ['venda', 'aluguel', 'temporada', 'romaria', 'lancamento'];
+
 // Apenas URLs públicas e indexáveis. Áreas privadas (/painel, /admin, /entrar,
 // /cadastro, /anunciar) e páginas filtradas por query são deixadas de fora —
 // estas últimas apontam para o canonical da rota base.
@@ -39,6 +41,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Landing pages por categoria de profissional (SEO programático).
   for (const t of companyTypes) {
     urls.push({ url: `${SITE_URL}/profissionais/${t.value}`, changeFrequency: 'weekly', priority: 0.5 });
+  }
+
+  for (const n of negotiations) {
+    urls.push({ url: `${SITE_URL}/imoveis/${n}`, changeFrequency: 'daily', priority: 0.85 });
+  }
+
+  for (const t of types) {
+    urls.push({ url: `${SITE_URL}/imoveis/${t.slug}`, changeFrequency: 'daily', priority: 0.85 });
+    for (const n of negotiations) {
+      urls.push({ url: `${SITE_URL}/imoveis/${t.slug}/${n}`, changeFrequency: 'daily', priority: 0.8 });
+    }
   }
 
   for (const c of cities) {
