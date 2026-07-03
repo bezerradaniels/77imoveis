@@ -96,7 +96,10 @@ export function StorefrontForm({
                 </div>
               ))}
             </div>
-            <p className="mt-2 text-xs text-muted">Salve a aparência primeiro. O pagamento/ativação chega no módulo de pagamentos.</p>
+            <p className="mt-2 text-xs text-muted">
+              Salve a aparência e depois{' '}
+              <a href="/painel/planos" className="font-semibold text-link">ative em Assinatura e compras</a>.
+            </p>
           </div>
         )}
       </div>

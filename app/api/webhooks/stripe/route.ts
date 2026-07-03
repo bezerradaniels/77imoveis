@@ -140,18 +140,21 @@ async function handlePaymentIntent(
     .eq('id', payment.id);
   if (updateError) return { error: `pi.payment.update: ${updateError.message}` };
 
-  if (paid) return activateListingFeature(service, payment.id);
-  return { ok: true };
+  if (!paid) return { ok: true };
+  const feature = await activateListingFeature(service, payment.id);
+  if ('error' in feature) return feature;
+  return activateStorefront(service, payment.id);
 }
 
-// Ativa o destaque vinculado ao pagamento (mesma regra do fluxo Asaas).
+// Ativa o avulso (destaque ou topo) vinculado ao pagamento.
+// Destaque → properties.is_featured; Topo → properties.boosted_until.
 async function activateListingFeature(
   service: any,
   paymentId: string,
 ): Promise<{ ok: true } | { error: string }> {
   const { data: feature, error: featureError } = await service
     .from('listing_features')
-    .select('id,days,property_id')
+    .select('id,days,property_id,feature_type')
     .eq('payment_id', paymentId)
     .maybeSingle();
   if (featureError) return { error: `listing_feature.read: ${featureError.message}` };
@@ -166,11 +169,48 @@ async function activateListingFeature(
     .eq('id', feature.id);
   if (updateError) return { error: `listing_feature.activate: ${updateError.message}` };
 
-  const { error: featuredError } = await service
+  const propertyPatch =
+    feature.feature_type === 'topo'
+      ? { boosted_until: endsAt.toISOString() }
+      : { is_featured: true };
+  const { error: propError } = await service
     .from('properties')
-    .update({ is_featured: true })
+    .update(propertyPatch)
     .eq('id', feature.property_id);
-  if (featuredError) return { error: `property.featured: ${featuredError.message}` };
+  if (propError) return { error: `property.boost: ${propError.message}` };
+
+  return { ok: true };
+}
+
+// Ativa a vitrine vinculada ao pagamento. O service role bypassa o trigger
+// guard_storefront_status, então aqui é o único ponto que ativa/define validade.
+async function activateStorefront(
+  service: any,
+  paymentId: string,
+): Promise<{ ok: true } | { error: string }> {
+  const { data: activation, error: readError } = await service
+    .from('storefront_activations')
+    .select('id,days,storefront_id')
+    .eq('payment_id', paymentId)
+    .maybeSingle();
+  if (readError) return { error: `storefront_activation.read: ${readError.message}` };
+  if (!activation?.id) return { ok: true };
+
+  const start = new Date();
+  const endsAt = new Date(start);
+  endsAt.setDate(endsAt.getDate() + Number(activation.days));
+
+  const { error: activationError } = await service
+    .from('storefront_activations')
+    .update({ status: 'ativo', starts_at: start.toISOString(), ends_at: endsAt.toISOString() })
+    .eq('id', activation.id);
+  if (activationError) return { error: `storefront_activation.activate: ${activationError.message}` };
+
+  const { error: sfError } = await service
+    .from('storefronts')
+    .update({ status: 'ativo', activated_at: start.toISOString(), expires_at: endsAt.toISOString() })
+    .eq('id', activation.storefront_id);
+  if (sfError) return { error: `storefront.activate: ${sfError.message}` };
 
   return { ok: true };
 }

@@ -242,7 +242,10 @@ export async function searchProperties(
     q = single
       ? q.order('price', { ascending: false, nullsFirst: false, foreignTable: 'property_negotiations' } as any)
       : q.order('price', { ascending: false, nullsFirst: false });
-  else q = q.order('is_featured', { ascending: false }).order('published_at', { ascending: false });
+  else q = q
+    .order('boosted_until', { ascending: false, nullsFirst: false }) // Topo da busca (avulso pago)
+    .order('is_featured', { ascending: false })
+    .order('published_at', { ascending: false });
 
   const { data, count } = await q.range(from, from + perPage - 1);
 

@@ -75,6 +75,7 @@ export async function startListingFeatureCheckout(formData: FormData) {
       days: product.days,
       amount: product.amount,
       status: 'pendente_pagamento',
+      feature_type: productSlug.startsWith('topo') ? 'topo' : 'destaque',
     })
     .select('id')
     .single();

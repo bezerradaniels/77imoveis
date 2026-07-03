@@ -1,20 +1,19 @@
 import Link from 'next/link';
-import { ArrowLeft, Building2, Check, CreditCard, ExternalLink, ReceiptText } from 'lucide-react';
-import { getMyBillingOverview, getPlans } from '@/lib/data';
-import {
-  annualDiscount,
-  groupPlanPairs,
-  listingLimit,
-  money,
-  monthlyEquivalent,
-  planBenefits,
-  type PlanPair,
-  type PlanRow,
-} from '@/lib/pricing';
-import { startPlanCheckout } from './actions';
+import { ArrowLeft, Building2, CreditCard, ExternalLink, ReceiptText, Sparkles, Store } from 'lucide-react';
+import { getMyBillingOverview, getMyProperties, getMyStorefront, getPlans, getSiteSetting } from '@/lib/data';
+import { groupPlanPairs, listingLimit, money, oneTimeProductList, type PlanRow } from '@/lib/pricing';
+import { PlanSelector } from '@/components/painel/PlanSelector';
+import { AvulsoPurchase, type AvulsoProduct } from '@/components/painel/AvulsoPurchase';
+import { VitrineActivation } from '@/components/painel/VitrineActivation';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Assinatura e planos', robots: { index: false } };
+export const metadata = { title: 'Assinatura e compras', robots: { index: false } };
+
+const DEFAULT_VITRINE_PRECOS = [
+  { dias: 30, preco: 49.9, label: '30 dias' },
+  { dias: 90, preco: 119.9, label: '90 dias' },
+  { dias: 365, preco: 399.9, label: '1 ano' },
+];
 
 const statusLabel: Record<string, string> = {
   ativa: 'Ativa',
@@ -32,70 +31,22 @@ const statusClass: Record<string, string> = {
   cancelada: 'bg-border text-muted',
 };
 
-const dateLabel = (value?: string | null) =>
-  value ? new Date(value).toLocaleDateString('pt-BR') : null;
+const dateLabel = (value?: string | null) => (value ? new Date(value).toLocaleDateString('pt-BR') : null);
 
-function PlanCard({ pair, currentSlug }: { pair: PlanPair; currentSlug?: string }) {
-  const { monthly, annual } = pair;
-  const discount = annualDiscount(monthly, annual);
-  const isCurrentMonthly = currentSlug === monthly.slug;
-  const isCurrentAnnual = annual && currentSlug === annual.slug;
-
-  return (
-    <article className={`flex h-full flex-col rounded-xl border bg-surface p-5 ${monthly.highlight ? 'border-primary shadow-sm' : 'border-border'}`}>
-      {monthly.highlight && <p className="mb-2 text-xs font-bold uppercase tracking-[.08em] text-link">Mais escolhido</p>}
-      <h2 className="text-lg font-bold">{monthly.name}</h2>
-      <p className="mt-1 text-sm text-muted">{listingLimit(monthly.max_active_listings)}</p>
-
-      <p className="mt-4 text-3xl font-extrabold">{money(monthly.price)}</p>
-      <p className="text-sm text-muted">por mês</p>
-
-      {annual && (
-        <div className="mt-3 rounded-xl bg-primary-soft p-3 text-sm text-link">
-          <p className="font-bold">{money(annual.price)} no plano anual</p>
-          <p className="mt-0.5 text-xs font-semibold text-link/80">
-            {money(monthlyEquivalent(annual))}/mês equivalente{discount ? ` · ${discount}% off` : ''}
-          </p>
-        </div>
-      )}
-
-      <ul className="mt-4 space-y-2 text-sm">
-        {planBenefits(monthly).map((benefit) => (
-          <li key={benefit} className="flex gap-2">
-            <Check size={15} className="mt-0.5 shrink-0 text-success" />
-            <span>{benefit}</span>
-          </li>
-        ))}
-      </ul>
-
-      <div className="mt-auto grid gap-2 pt-5 sm:grid-cols-2">
-        <form action={startPlanCheckout}>
-          <input type="hidden" name="planSlug" value={monthly.slug} />
-          <button
-            disabled={isCurrentMonthly}
-            className="h-10 w-full rounded-full bg-primary px-4 text-sm font-bold text-on-primary hover:bg-primary-hover disabled:cursor-not-allowed disabled:bg-border disabled:text-muted"
-          >
-            {isCurrentMonthly ? 'Plano atual' : 'Mensal'}
-          </button>
-        </form>
-        {annual && (
-          <form action={startPlanCheckout}>
-            <input type="hidden" name="planSlug" value={annual.slug} />
-            <button
-              disabled={!!isCurrentAnnual}
-              className="h-10 w-full rounded-full border border-primary px-4 text-sm font-bold text-primary hover:bg-primary-soft disabled:cursor-not-allowed disabled:border-border disabled:text-muted"
-            >
-              {isCurrentAnnual ? 'Plano atual' : 'Anual'}
-            </button>
-          </form>
-        )}
-      </div>
-    </article>
-  );
-}
+const avulsos = (prefix: string): AvulsoProduct[] =>
+  oneTimeProductList
+    .filter((p) => p.kind === 'listing_feature' && p.slug.startsWith(prefix))
+    .map(({ slug, name, description, amount, days }) => ({ slug, name, description, amount, days }));
 
 export default async function PlanosPage() {
-  const [plans, billing] = await Promise.all([getPlans(), getMyBillingOverview()]);
+  const [plans, billing, { storefront }, properties, precosSetting] = await Promise.all([
+    getPlans(),
+    getMyBillingOverview(),
+    getMyStorefront(),
+    getMyProperties(),
+    getSiteSetting('vitrine_precos'),
+  ]);
+
   const company = billing.company as any;
   const subscription = billing.subscription as any;
   const currentPlan = subscription?.plans;
@@ -105,7 +56,16 @@ export default async function PlanosPage() {
   const renewalDate = dateLabel(subscription?.current_period_end);
   const baseLimit = company?.type === 'corretor_autonomo' ? 1 : 0;
   const maxActive = Number(currentPlan?.max_active_listings ?? baseLimit);
-  const limitText = currentPlan ? listingLimit(maxActive) : company?.type === 'corretor_autonomo' ? '1 imóvel ativo gratuito' : 'Sem plano profissional ativo';
+  const limitText = currentPlan
+    ? listingLimit(maxActive)
+    : company?.type === 'corretor_autonomo'
+      ? '1 imóvel ativo gratuito'
+      : 'Sem plano profissional ativo';
+
+  const activeProperties = properties
+    .filter((p) => p.status === 'ativo')
+    .map((p) => ({ id: p.id, title: p.title }));
+  const vitrinePrecos = (precosSetting as typeof DEFAULT_VITRINE_PRECOS | null) ?? DEFAULT_VITRINE_PRECOS;
 
   return (
     <main className="mx-auto max-w-6xl px-4 py-8">
@@ -115,8 +75,8 @@ export default async function PlanosPage() {
 
       <div className="mb-6 flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Assinatura e planos</h1>
-          <p className="mt-1 text-sm text-muted">Gerencie limites, destaques e cobrança da empresa em foco.</p>
+          <h1 className="text-2xl font-bold">Assinatura e compras</h1>
+          <p className="mt-1 text-sm text-muted">Plano, destaques, topo da busca e vitrine — tudo em um lugar.</p>
         </div>
         <Link href="/planos-e-precos" className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-border bg-surface px-4 text-sm font-bold text-text hover:bg-bg">
           Ver página pública <ExternalLink size={15} />
@@ -135,7 +95,7 @@ export default async function PlanosPage() {
         </div>
       ) : (
         <>
-          <section className="mb-6 grid gap-4 lg:grid-cols-[1.4fr_.8fr]">
+          <section className="mb-8 grid gap-4 lg:grid-cols-[1.4fr_.8fr]">
             <div className="rounded-xl border border-border bg-surface p-5">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
@@ -196,11 +156,19 @@ export default async function PlanosPage() {
             <CreditCard size={18} className="text-link" />
             <h2 className="text-lg font-bold">Escolha seu plano</h2>
           </div>
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {planPairs.map((pair) => (
-              <PlanCard key={pair.key} pair={pair} currentSlug={currentPlan?.slug} />
-            ))}
+          <PlanSelector pairs={planPairs} currentSlug={currentPlan?.slug} />
+
+          <div className="mb-4 mt-10 flex items-center gap-2">
+            <Sparkles size={18} className="text-link" />
+            <h2 className="text-lg font-bold">Impulsione um imóvel</h2>
           </div>
+          <AvulsoPurchase properties={activeProperties} destaques={avulsos('destaque')} topos={avulsos('topo')} />
+
+          <div className="mb-4 mt-10 flex items-center gap-2">
+            <Store size={18} className="text-link" />
+            <h2 className="text-lg font-bold">Vitrine</h2>
+          </div>
+          <VitrineActivation storefront={storefront} precos={vitrinePrecos} />
         </>
       )}
     </main>

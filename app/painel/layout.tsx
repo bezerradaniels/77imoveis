@@ -23,7 +23,7 @@ const nav = {
   becomePro: { href: '/painel/empresa', label: 'Atuar profissionalmente', icon: Building2 },
   brokers: { href: '/painel/corretores', label: 'Equipe de corretores', icon: Users },
   storefront: { href: '/painel/vitrine', label: 'Minha vitrine', icon: Store },
-  plans: { href: '/painel/planos', label: 'Assinatura', icon: CreditCard },
+  plans: { href: '/painel/planos', label: 'Assinatura e compras', icon: CreditCard },
   profile: { href: '/painel/perfil', label: 'Meu perfil', icon: UserCog },
 };
 
