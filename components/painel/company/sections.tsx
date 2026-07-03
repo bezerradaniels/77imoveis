@@ -317,6 +317,8 @@ function ImgPick({ label, st, setter, ratio, hint }: any) {
       >
         {hasImage ? (
           <>
+            {/* Preview local (blob de URL.createObjectURL) ou url do storage — next/image não lida com blob:. */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={st.file ? URL.createObjectURL(st.file) : st.url} alt="" className="h-full w-full object-cover" />
             {/* Overlay no hover */}
             <span className="absolute inset-0 flex items-center justify-center bg-slate-950/0 opacity-0 transition group-hover:bg-slate-950/40 group-hover:opacity-100">

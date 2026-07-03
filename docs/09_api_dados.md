@@ -48,7 +48,7 @@ Clique no WhatsApp também registra um lead `channel='whatsapp'` (via Edge Funct
 | Função | Auth | Papel |
 |---|---|---|
 | `create-lead` | pública | anti-spam + insert + notificação |
-| `asaas-webhook` | token | confirma pagamentos/assinaturas |
+| `stripe-webhook` (`/api/webhooks/stripe`) | assinatura Stripe | confirma pagamentos/assinaturas |
 | `expire-features` | cron | expira destaques vencidos |
 | `rebuild-trigger` | service | dispara rebuild SSG ao mudar anúncios |
 | `signed-upload` | usuário | gera URL de upload validada |

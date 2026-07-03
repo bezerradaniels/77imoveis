@@ -42,7 +42,7 @@ Portal imobiliário regional do **DDD 77** (oeste e sudoeste da Bahia). Mobile-f
 | Hospedagem | Hostinger econômica → **site estático (SSG)** com rebuild incremental para preservar SEO |
 | Busca | PostgreSQL FTS + trigram (autocomplete) + PostGIS (raio no mapa) |
 | Mapas | Leaflet + tiles OSM/MapTiler |
-| Pagamentos | Gateway brasileiro (Asaas/Mercado Pago): **Pix + boleto + cartão**; Stripe futuro |
+| Pagamentos | **Stripe**: assinaturas (fatura por ciclo) e avulsos (Checkout) — **Pix + boleto + cartão** |
 | Destaque de imóvel | Pagamento **avulso** (7/15/30 dias) |
 | Planos | Particular grátis (1 imóvel) · Profissional grátis (10) · pagos acima |
 | Contato | **WhatsApp + formulário**, com registro interno dos leads |

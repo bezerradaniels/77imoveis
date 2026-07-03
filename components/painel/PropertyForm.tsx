@@ -675,7 +675,11 @@ export function PropertyForm({
     <div className="overflow-hidden rounded-2xl border border-border bg-surface">
       {compact && <div className="border-b border-border px-3.5 py-2.5 text-[11.5px] font-bold uppercase tracking-wide text-muted">Prévia do anúncio</div>}
       <div className="relative" style={{ height: compact ? 160 : 190, background: 'repeating-linear-gradient(135deg,var(--subtle) 0 14px,var(--border) 14px 28px)' }}>
-        {coverSrc && <img src={coverSrc} alt="" className="h-full w-full object-cover" />}
+        {coverSrc && (
+          // Prévia da capa: pode ser blob (URL.createObjectURL) — next/image não lida com blob:.
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={coverSrc} alt="" className="h-full w-full object-cover" />
+        )}
         <span className="absolute left-3 top-3 rounded-lg bg-black/70 px-2.5 py-1 text-[11px] font-semibold text-white">{negoBadge}</span>
         {!coverSrc && <span className="absolute inset-0 flex items-center justify-center font-mono text-xs text-muted">capa do anúncio</span>}
       </div>
@@ -976,6 +980,8 @@ export function PropertyForm({
                     {photos.map((p, i) => (
                       <div key={p.id} draggable onDragStart={() => (drag.current = i)} onDragOver={(e) => e.preventDefault()} onDrop={(e) => { e.preventDefault(); if (drag.current != null && drag.current !== i) reorder(drag.current, i); drag.current = null; }}
                         className="group relative aspect-square cursor-grab overflow-hidden rounded-xl border border-border bg-subtle">
+                        {/* Foto enviada: url do storage ou blob de preview — next/image não lida com blob:. */}
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img src={p.url ?? p.preview} alt="" className="h-full w-full object-cover" />
                         {i === 0 && <span className="absolute left-1.5 top-1.5 flex items-center gap-1 rounded-md bg-primary px-2 py-0.5 text-[10.5px] font-bold text-on-primary">Capa</span>}
                         {p.low && <span className="absolute bottom-1.5 left-1.5 rounded-md bg-warning px-1.5 py-0.5 text-[10px] font-semibold text-white">Baixa resolução</span>}

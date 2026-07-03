@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import { adminListBanners } from '@/lib/data';
 import { BannerForm, BannerToggle } from '@/components/admin/BannerAdmin';
 
@@ -24,7 +25,7 @@ export default async function AdminBanners() {
           <li key={b.id} className="flex flex-col gap-2 rounded-xl border border-border bg-surface p-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="min-w-0 flex items-center gap-3">
               {b.image_url && (
-                <img src={b.image_url} alt={b.title ?? ''} className="h-12 w-20 shrink-0 rounded object-cover" />
+                <Image src={b.image_url} alt={b.title ?? ''} width={80} height={48} className="h-12 w-20 shrink-0 rounded object-cover" />
               )}
               <div className="min-w-0">
                 <p className="text-sm font-medium">{b.title || '(sem título)'}</p>

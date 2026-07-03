@@ -97,6 +97,8 @@ export function ProfileForm({ profile, cities }: { profile: Profile; cities: Cit
       <div className="flex items-center gap-4">
         <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-full border border-border bg-surface">
           {avatarPreview ? (
+            // Preview local (blob de URL.createObjectURL) — next/image não lida com blob:.
+            // eslint-disable-next-line @next/next/no-img-element
             <img src={avatarPreview} alt="Foto de perfil" className="h-full w-full object-cover" />
           ) : avatarUrl ? (
             <Image src={avatarUrl} alt="Foto de perfil" fill className="object-cover" sizes="80px" />

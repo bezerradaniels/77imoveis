@@ -316,13 +316,16 @@ export async function setPropertyStatus(
 
   const patch: PropertyUpdate = { status };
   if (status === 'ativo') patch.published_at = new Date().toISOString();
-  const { error } = await sb.from('properties').update(patch).eq('id', id);
+  // .select('id') confirma que a linha foi atualizada. Sem isso, um update que
+  // afeta 0 linhas (id inexistente ou RLS bloqueando) não retorna erro e o
+  // painel mostraria um falso sucesso.
+  const { data, error } = await sb.from('properties').update(patch).eq('id', id).select('id').maybeSingle();
   revalidatePath('/painel/imoveis');
-  if (!error) return { ok: true };
+  if (!error && data) return { ok: true };
   // O trigger do banco bloqueia o 2º imóvel ativo de conta Particular.
-  if (error.message.includes('LIMITE_PARTICULAR'))
+  if (error?.message.includes('LIMITE_PARTICULAR'))
     return { error: 'Você já tem 1 anúncio ativo no plano Particular. Crie um perfil profissional para publicar mais imóveis.' };
-  if (error.message.includes('LIMITE_CORRETOR_AUTONOMO'))
+  if (error?.message.includes('LIMITE_CORRETOR_AUTONOMO'))
     return { error: 'Corretor autônomo pode manter 1 imóvel ativo gratuitamente. Para ativar mais imóveis, assine um plano profissional.' };
   return { error: 'Não foi possível atualizar o anúncio.' };
 }

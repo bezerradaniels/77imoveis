@@ -46,9 +46,10 @@ export function LoginForm() {
       <Field label="E-mail">
         <Input name="email" type="email" autoComplete="email" required placeholder="voce@email.com" />
       </Field>
-      <Field label="Senha">
+      <Field label="Senha" htmlFor="login-password">
         <div className="relative">
           <Input
+            id="login-password"
             name="password"
             type={showPassword ? 'text' : 'password'}
             autoComplete="current-password"

@@ -5,7 +5,7 @@ Portal imobiliário regional do **DDD 77** (oeste/sudoeste da Bahia). Conteúdo 
 ## Stack
 - **Next.js (App Router) + TypeScript + Tailwind** — modo SSR (Node) na Hostinger.
 - **Supabase** (PostgreSQL + Auth + Storage) — banco **já criado e populado** (ver `/database`).
-- Pagamentos: gateway brasileiro (Asaas/Mercado Pago) — Pix/boleto/cartão (fase futura).
+- Pagamentos: **Stripe** — assinaturas (fatura por ciclo, `send_invoice`) e compras avulsas (Checkout); Pix/boleto/cartão.
 - Publica via GitHub → Hostinger (Aplicativo Node.js conectado ao repo).
 
 ## Convenções (IMPORTANTES — manter)
@@ -40,7 +40,7 @@ Portal imobiliário regional do **DDD 77** (oeste/sudoeste da Bahia). Conteúdo 
    filtros na URL, JSON-LD, breadcrumbs, metadata dinâmica. (maior prioridade: tráfego e leads)
 4. **Cadastro** (2 etapas) + **Criar/editar anúncio** (merge de modalidades, dropdowns estilizados, upload de fotos).
 5. **Painel do corretor** (mobile-first, lista de contatos), depois **Vitrine** e **Admin**.
-6. Pagamentos (Asaas/Mercado Pago), leads/anti-spam, blog/CMS, performance e LGPD.
+6. Pagamentos (Stripe), leads/anti-spam, blog/CMS, performance e LGPD.
 
 ## Comandos
 ```bash

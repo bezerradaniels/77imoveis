@@ -110,9 +110,10 @@ export function SignupForm() {
           onChange={(e) => setEmail(e.target.value.trim().toLowerCase())}
         />
       </Field>
-      <Field label="Senha">
+      <Field label="Senha" htmlFor="signup-password">
         <div className="relative">
           <Input
+            id="signup-password"
             name="password"
             type={showPassword ? 'text' : 'password'}
             autoComplete="new-password"

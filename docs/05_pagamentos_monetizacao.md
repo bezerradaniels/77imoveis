@@ -65,21 +65,14 @@ Compras avulsas:
 
 > Regra: ao tentar ativar acima do limite do plano, o app oferece upgrade. Para `particular` no 2º imóvel: *"Gostaria de migrar para um plano profissional (B2B)?"*.
 
-## 3. Gateway de pagamento (Brasil)
+## 3. Gateway de pagamento — Stripe
 
-**Recomendado: Asaas** (ou **Mercado Pago**) — aceitam **Pix, boleto e cartão**, têm assinaturas recorrentes e webhooks, e cobram em BRL. Stripe fica como integração futura para cartão internacional.
+Gateway atual: **Stripe** (conta BR, BRL). Aceita **cartão, Pix e boleto**.
 
-Comparativo rápido:
+- **Assinaturas de planos:** modelo **fatura por ciclo** (`collection_method='send_invoice'`). A cada período o Stripe emite uma **fatura hospedada** paga por cartão/boleto/Pix — sem cobrança automática no cartão. *Pix recorrente/Automático não existe em conta BR, por isso o modelo por fatura.*
+- **Compras avulsas (destaques):** **Stripe Checkout** (`mode='payment'`) com cartão + Pix + boleto.
 
-| | Asaas | Mercado Pago | Stripe |
-|---|---|---|---|
-| Pix | ✅ nativo | ✅ nativo | ⚠️ limitado no BR |
-| Boleto | ✅ | ✅ | ⚠️ |
-| Cartão | ✅ | ✅ | ✅ |
-| Assinatura recorrente | ✅ | ✅ | ✅ |
-| Conhecido pelo público local | médio | **alto** | baixo |
-
-A camada de pagamento é abstraída em `lib/payments` (interface `PaymentProvider`), então trocar/empilhar gateways no futuro não afeta o resto do app.
+Client em `lib/payments/stripe.ts`; webhook em `app/api/webhooks/stripe/route.ts` (ver `docs/06_stripe_webhook.md`). Preço recorrente por plano em `plans.stripe_price_id` (populado por `npm run stripe:setup-plans`).
 
 ## 4. Fluxos
 
@@ -94,15 +87,11 @@ A camada de pagamento é abstraída em `lib/payments` (interface `PaymentProvide
 2. Gera `payment` + `listing_features` (status `pendente_pagamento`).
 3. Webhook confirma → `listing_features.status='ativo'`, define `starts_at/ends_at` e marca `properties.is_featured=true` até expirar (job diário expira).
 
-## 5. Webhooks (Edge Functions)
+## 5. Webhook
 
-```
-supabase/functions/
-├─ asaas-webhook/        # PAYMENT_CONFIRMED, PAYMENT_RECEIVED, SUBSCRIPTION_*
-├─ expire-features/      # cron diário: expira destaques vencidos
-└─ rebuild-trigger/      # dispara rebuild SSG ao mudar anúncios
-```
-Segurança: validar assinatura/`access_token` do webhook; idempotência por `gateway_payment_id`; tudo registrado em `audit_logs`.
+Rota Next.js `app/api/webhooks/stripe/route.ts` — eventos `invoice.paid` / `invoice.payment_failed` (assinaturas), `payment_intent.succeeded` / `payment_intent.payment_failed` e `checkout.session.completed` (avulsos), `customer.subscription.deleted`. Detalhes em `docs/06_stripe_webhook.md`.
+
+Segurança: verificação da assinatura (`stripe-signature` + `STRIPE_WEBHOOK_SECRET`); idempotência por `event.id` em `payment_webhook_events` (retorna 5xx para o Stripe reenviar se algo falhar).
 
 ## 6. Relatórios de receita (admin)
 

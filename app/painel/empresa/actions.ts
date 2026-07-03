@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/server';
 import { ACTIVE_COMPANY_COOKIE } from '@/lib/data';
 import { slugify } from '@/lib/format';
 import { companyInputSchema, firstZodError } from '@/lib/validation';
+import { replaceCompanyBrokers } from '@/lib/brokers';
 import type { Database } from '@/lib/supabase/types';
 
 type CompanyInsert = Database['public']['Tables']['companies']['Insert'];
@@ -98,34 +99,47 @@ export async function saveCompany(input: CompanyInput): Promise<{ slug?: string;
     cookies().set(ACTIVE_COMPANY_COOKIE, id!, { path: '/', maxAge: 60 * 60 * 24 * 365, sameSite: 'lax' });
   }
 
+  // Erro genérico para as etapas relacionais: sem checar cada `{ error }`, uma
+  // falha aqui deixaria a empresa salva mas as relações incompletas — e a UI
+  // mostraria falso sucesso.
+  const relError = 'A empresa foi salva, mas não foi possível gravar todos os dados (cidades, especialidades ou corretores). Revise e salve novamente.';
+
   // Cidades de atuação (N:N).
-  await sb.from('company_cities').delete().eq('company_id', id);
-  if (input.cityIds.length)
-    await sb.from('company_cities').insert(input.cityIds.map((city_id) => ({ company_id: id, city_id })));
+  const { error: cityDelError } = await sb.from('company_cities').delete().eq('company_id', id);
+  if (cityDelError) return { error: relError };
+  if (input.cityIds.length) {
+    const { error } = await sb.from('company_cities').insert(input.cityIds.map((city_id) => ({ company_id: id, city_id })));
+    if (error) return { error: relError };
+  }
 
   // Especialidades (N:N).
-  await sb.from('company_specialties').delete().eq('company_id', id);
-  if (input.specialtyIds.length)
-    await sb.from('company_specialties').insert(
+  const { error: specDelError } = await sb.from('company_specialties').delete().eq('company_id', id);
+  if (specDelError) return { error: relError };
+  if (input.specialtyIds.length) {
+    const { error } = await sb.from('company_specialties').insert(
       input.specialtyIds.map((specialty_id) => ({ company_id: id, specialty_id })),
     );
+    if (error) return { error: relError };
+  }
 
   // Corretores avulsos existem apenas para imobiliárias nesta fase.
   if (input.type !== 'imobiliaria') {
-    await sb.from('brokers').delete().eq('company_id', id);
+    const { error } = await sb.from('brokers').delete().eq('company_id', id);
+    if (error) return { error: relError };
   } else if (input.brokers) {
-    await sb.from('brokers').delete().eq('company_id', id);
-    if (input.brokers.length)
-      await sb.from('brokers').insert(
-        input.brokers.map((b) => ({
-          company_id: id,
-          name: b.name,
-          creci: b.creci || null,
-          phone: b.phone || null,
-          whatsapp: b.whatsapp || null,
-          photo_url: b.photoUrl || null,
-        })),
-      );
+    // Substituição atômica (RPC transacional, com fallback e rollback).
+    const { error } = await replaceCompanyBrokers(
+      sb,
+      id!,
+      input.brokers.map((b) => ({
+        name: b.name,
+        creci: b.creci || null,
+        phone: b.phone || null,
+        whatsapp: b.whatsapp || null,
+        photo_url: b.photoUrl || null,
+      })),
+    );
+    if (error) return { error: relError };
   }
 
   await sb.from('profiles').update({

@@ -134,6 +134,8 @@ export function StorefrontForm({
           <Field key={label} label={label}>
             <label className={`flex ${ratio} cursor-pointer items-center justify-center overflow-hidden rounded-lg border border-dashed border-border text-xs text-muted hover:bg-bg`}>
               {st.file || st.url ? (
+                // Preview local (blob de URL.createObjectURL) ou url do storage — next/image não lida com blob:.
+                // eslint-disable-next-line @next/next/no-img-element
                 <img src={st.file ? URL.createObjectURL(st.file) : st.url} alt="" className="h-full w-full object-cover" />
               ) : (
                 <span className="flex flex-col items-center gap-1"><ImagePlus size={18} /> Enviar</span>

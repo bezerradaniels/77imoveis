@@ -72,6 +72,8 @@ export function BannerForm() {
       </div>
       <label className="flex min-h-32 cursor-pointer items-center justify-center overflow-hidden rounded-lg border border-dashed border-border bg-bg text-sm text-muted hover:border-primary/50">
         {preview ? (
+          // Preview local (blob de URL.createObjectURL) — next/image não lida com blob:.
+          // eslint-disable-next-line @next/next/no-img-element
           <img src={preview} alt="" className="h-32 w-full object-cover" />
         ) : (
           <span className="inline-flex items-center gap-2"><ImagePlus size={18} /> Enviar imagem do banner</span>

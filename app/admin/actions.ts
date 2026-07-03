@@ -18,6 +18,19 @@ function validIds(ids: string[]) {
   return [...new Set(ids)].filter((id) => /^[0-9a-f-]{36}$/i.test(id)).slice(0, 200);
 }
 
+// Confirma que uma mutação por id afetou uma linha. No PostgREST, um update/delete
+// que atinge 0 linhas (id inexistente ou RLS bloqueando) NÃO retorna erro — sem
+// esta checagem o admin veria um falso sucesso. Use com `.select(...).maybeSingle()`.
+async function requireRow<T>(
+  query: PromiseLike<{ data: T | null; error: { message: string } | null }>,
+  emptyMessage: string,
+): Promise<{ data?: T; error?: string }> {
+  const { data, error } = await query;
+  if (error) return { error: `Falha ao atualizar: ${error.message}` };
+  if (!data) return { error: emptyMessage };
+  return { data };
+}
+
 // Garante que quem chama é admin/moderador (defesa extra além da RLS).
 async function ensureAdmin() {
   const sb = createClient();
@@ -67,9 +80,12 @@ export async function adminSetPropertyStatus(id: string, status: ListingStatus):
 
   const patch = propertyUpdatePatch(status);
 
-  const { error } = await admin.sb.from('properties').update(patch).eq('id', id);
+  const res = await requireRow(
+    admin.sb.from('properties').update(patch).eq('id', id).select('id').maybeSingle(),
+    'Nenhum imóvel foi atualizado.',
+  );
   await revalidatePropertySurfaces(admin.sb, id);
-  if (error) return { error: `Falha ao atualizar: ${error.message}` };
+  if (res.error) return { error: res.error };
   await logAdminAction(admin.sb, admin.adminId, 'property.status', 'property', id, { status });
   return { ok: true };
 }
@@ -77,9 +93,12 @@ export async function adminSetPropertyStatus(id: string, status: ListingStatus):
 export async function adminTogglePropertyFeatured(id: string, featured: boolean): Promise<R> {
   const admin = await ensureAdmin();
   if (!admin) return { error: 'Sem permissão.' };
-  const { error } = await admin.sb.from('properties').update({ is_featured: featured }).eq('id', id);
+  const res = await requireRow(
+    admin.sb.from('properties').update({ is_featured: featured }).eq('id', id).select('id').maybeSingle(),
+    'Nenhum imóvel foi atualizado.',
+  );
   await revalidatePropertySurfaces(admin.sb, id);
-  if (error) return { error: `Falha ao atualizar: ${error.message}` };
+  if (res.error) return { error: res.error };
   await logAdminAction(admin.sb, admin.adminId, 'property.featured', 'property', id, { featured });
   return { ok: true };
 }
@@ -146,9 +165,12 @@ export async function adminSetUserRole(id: string, role: UserRole): Promise<R> {
   const admin = await ensureAdmin();
   if (!admin) return { error: 'Sem permissão.' };
   if (!allowedRoles.includes(role)) return { error: 'Papel inválido.' };
-  const { error } = await admin.sb.from('profiles').update({ role }).eq('id', id);
+  const res = await requireRow(
+    admin.sb.from('profiles').update({ role }).eq('id', id).select('id').maybeSingle(),
+    'Nenhum usuário foi atualizado.',
+  );
   revalidatePath('/admin/usuarios');
-  if (error) return { error: `Falha ao atualizar: ${error.message}` };
+  if (res.error) return { error: res.error };
   await logAdminAction(admin.sb, admin.adminId, 'user.role', 'profile', id, { role });
   return { ok: true };
 }
@@ -163,9 +185,12 @@ export async function adminUpdateUser(id: string, patch: Partial<Database['publi
     whatsapp: patch.whatsapp,
     city_id: patch.city_id || null,
   };
-  const { error } = await admin.sb.from('profiles').update(safePatch).eq('id', id);
+  const res = await requireRow(
+    admin.sb.from('profiles').update(safePatch).eq('id', id).select('id').maybeSingle(),
+    'Nenhum usuário foi atualizado.',
+  );
   revalidatePath('/admin/usuarios');
-  if (error) return { error: `Falha ao salvar usuário: ${error.message}` };
+  if (res.error) return { error: res.error };
   await logAdminAction(admin.sb, admin.adminId, 'user.update', 'profile', id, safePatch);
   return { ok: true };
 }
@@ -280,12 +305,17 @@ export async function adminBulkDeleteNeighborhoods(ids: string[]): Promise<R> {
 export async function adminDeleteProperty(id: string): Promise<R> {
   const admin = await ensureAdmin();
   if (!admin) return { error: 'Sem permissão.' };
-  const { error } = await admin.sb
-    .from('properties')
-    .update({ status: 'arquivado', is_featured: false })
-    .eq('id', id);
+  const res = await requireRow(
+    admin.sb
+      .from('properties')
+      .update({ status: 'arquivado', is_featured: false })
+      .eq('id', id)
+      .select('id')
+      .maybeSingle(),
+    'Nenhum imóvel foi removido.',
+  );
   await revalidatePropertySurfaces(admin.sb, id);
-  if (error) return { error: `Falha ao remover: ${error.message}` };
+  if (res.error) return { error: res.error };
   await logAdminAction(admin.sb, admin.adminId, 'property.remove', 'property', id, { status: 'arquivado' });
   return { ok: true };
 }
@@ -368,17 +398,19 @@ export async function adminRemoveBroker(id: string): Promise<R> {
 export async function adminToggleBanner(id: string, active: boolean): Promise<R> {
   const admin = await ensureAdmin();
   if (!admin) return { error: 'Sem permissão.' };
-  const { error } = await admin.sb.from('banners').update({ is_active: active }).eq('id', id);
+  const { data, error } = await admin.sb.from('banners').update({ is_active: active }).eq('id', id).select('id').maybeSingle();
   revalidatePath('/admin/banners');
-  return error ? { error: 'Falha ao atualizar.' } : { ok: true };
+  if (error) return { error: 'Falha ao atualizar.' };
+  return data ? { ok: true } : { error: 'Nenhum banner foi atualizado.' };
 }
 
 export async function adminDeleteBanner(id: string): Promise<R> {
   const admin = await ensureAdmin();
   if (!admin) return { error: 'Sem permissão.' };
-  const { error } = await admin.sb.from('banners').delete().eq('id', id);
+  const { data, error } = await admin.sb.from('banners').delete().eq('id', id).select('id');
   revalidatePath('/admin/banners');
-  return error ? { error: 'Falha ao excluir.' } : { ok: true };
+  if (error) return { error: 'Falha ao excluir.' };
+  return data?.length ? { ok: true } : { error: 'Nenhum banner foi removido.' };
 }
 
 export async function adminCreateBanner(data: {
@@ -390,9 +422,10 @@ export async function adminCreateBanner(data: {
   const admin = await ensureAdmin();
   if (!admin) return { error: 'Sem permissão.' };
   if (!data.image_url || !data.target_url || !data.slot) return { error: 'Preencha todos os campos.' };
-  const { error } = await admin.sb.from('banners').insert({ ...data, is_active: true });
+  const { data: created, error } = await admin.sb.from('banners').insert({ ...data, is_active: true }).select('id').maybeSingle();
   revalidatePath('/admin/banners');
-  return error ? { error: 'Falha ao criar banner.' } : { ok: true };
+  if (error) return { error: 'Falha ao criar banner.' };
+  return created ? { ok: true } : { error: 'Não foi possível criar o banner.' };
 }
 
 // ---- Vitrines ----
@@ -404,9 +437,10 @@ export async function adminToggleStorefront(id: string, active: boolean): Promis
   const patch: Partial<Database['public']['Tables']['storefronts']['Update']> = active
     ? { status: 'ativo', activated_at: new Date().toISOString(), expires_at: null }
     : { status: 'expirado' };
-  const { error } = await service.from('storefronts').update(patch).eq('id', id);
+  const { data, error } = await service.from('storefronts').update(patch).eq('id', id).select('id').maybeSingle();
   revalidatePath('/admin/vitrines');
-  return error ? { error: 'Falha ao atualizar vitrine.' } : { ok: true };
+  if (error) return { error: 'Falha ao atualizar vitrine.' };
+  return data ? { ok: true } : { error: 'Nenhuma vitrine foi atualizada.' };
 }
 
 export async function adminBulkToggleStorefronts(ids: string[], active: boolean): Promise<R> {

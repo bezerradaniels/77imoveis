@@ -1,6 +1,7 @@
 'use server';
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
+import { replaceCompanyBrokers } from '@/lib/brokers';
 
 const ALLOWED_TYPES = ['imobiliaria'];
 
@@ -24,22 +25,18 @@ export async function saveBrokers(brokers: BrokerInput[]): Promise<{ error?: str
     return { error: 'Disponível apenas para imobiliárias.' };
   }
 
-  await sb.from('brokers').delete().eq('company_id', company.id);
-
-  const clean = brokers.filter((b) => b.name.trim());
-  if (clean.length) {
-    const { error } = await sb.from('brokers').insert(
-      clean.map((b) => ({
-        company_id: company.id,
-        name: b.name.trim(),
-        creci: b.creci?.trim() || null,
-        email: b.email?.trim() || null,
-        phone: b.phone?.trim() || null,
-        whatsapp: b.whatsapp?.trim() || null,
-      })),
-    );
-    if (error) return { error: 'Não foi possível salvar os corretores.' };
-  }
+  const { error } = await replaceCompanyBrokers(
+    sb,
+    company.id,
+    brokers.map((b) => ({
+      name: b.name,
+      creci: b.creci?.trim() || null,
+      email: b.email?.trim() || null,
+      phone: b.phone?.trim() || null,
+      whatsapp: b.whatsapp?.trim() || null,
+    })),
+  );
+  if (error) return { error };
 
   revalidatePath('/painel/corretores');
   return { ok: true };
