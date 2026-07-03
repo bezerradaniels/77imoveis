@@ -179,6 +179,16 @@ export const planBenefits = (plan: Pick<PlanRow, 'benefits'>) =>
 export const listingLimit = (limit: number) =>
   limit >= 100000 ? 'Imóveis ilimitados' : `${limit} imóveis ativos`;
 
+// Recomendação curta ("melhor para") por família de plano — ajuda a escolher.
+export const planTagline: Record<string, string> = {
+  'corretor-essencial': 'Ideal para quem está começando a divulgar imóveis.',
+  'corretor-pro': 'Para corretores que querem mais alcance e destaques.',
+  'corretor-max': 'Para carteiras grandes e máxima visibilidade regional.',
+  'empresa-start': 'Ideal para imobiliárias começando no portal.',
+  'empresa-pro': 'Para equipes que querem crescer com destaques e vitrine.',
+  'empresa-lider': 'Para imobiliárias líderes com alto volume de imóveis.',
+};
+
 export function groupPlanPairs(plans: PlanRow[], audience: string): PlanPair[] {
   const rows = plans
     .filter((plan) => plan.audience === audience && Number(plan.price) > 0)

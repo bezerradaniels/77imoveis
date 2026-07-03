@@ -2,7 +2,9 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { Building2, CreditCard, Home, MessageSquare, Shield, Store, UserCog, Users } from 'lucide-react';
 import { getProfile } from '@/lib/auth';
-import { getMyCompany } from '@/lib/data';
+import { getMyBillingOverview } from '@/lib/data';
+import { subscriptionSummary } from '@/lib/subscription';
+import { SubscriptionSummary } from '@/components/painel/SubscriptionSummary';
 import { TrackEventOnMount } from '@/components/analytics/TrackEventOnMount';
 import { ANALYTICS_EVENTS } from '@/lib/analytics';
 import { logout } from './actions';
@@ -20,7 +22,9 @@ const roleLabel: Record<string, string> = {
 export default async function PainelPage() {
   const profile = await getProfile();
   if (profile?.role === 'admin') redirect('/admin');
-  const company = profile?.role === 'profissional' ? await getMyCompany() : null;
+  const billing = profile?.role === 'profissional' ? await getMyBillingOverview() : null;
+  const company = billing?.company ?? null;
+  const summary = subscriptionSummary(company, billing?.subscription ?? null);
   const isProfessional = profile?.role === 'profissional' && !!company;
   const showBrokers = company?.type === 'imobiliaria';
   const nome = profile?.full_name?.split(' ')[0] ?? 'bem-vindo';
@@ -70,7 +74,7 @@ export default async function PainelPage() {
         params={{ user_role: profile?.role ?? 'unknown', section: 'dashboard_home' }}
       />
       <div className="mx-auto max-w-3xl">
-        <div className="mb-6">
+        <div className="mb-4">
           <h1 className="text-2xl font-bold">Olá, {nome} 👋</h1>
           <div className="mt-1 flex items-center gap-2 text-sm text-muted">
             <span>Conta {accountLabel}</span>
@@ -81,6 +85,10 @@ export default async function PainelPage() {
               </button>
             </form>
           </div>
+        </div>
+
+        <div className="mb-6">
+          <SubscriptionSummary summary={summary} />
         </div>
 
         <div className="grid gap-3 sm:grid-cols-2">

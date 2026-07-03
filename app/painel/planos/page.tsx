@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { ArrowLeft, Building2, CreditCard, ExternalLink, ReceiptText, Sparkles, Store } from 'lucide-react';
 import { getMyBillingOverview, getMyProperties, getMyStorefront, getPlans, getSiteSetting } from '@/lib/data';
 import { groupPlanPairs, listingLimit, money, oneTimeProductList, type PlanRow } from '@/lib/pricing';
+import { trialDaysRemaining } from '@/lib/subscription';
 import { PlanSelector } from '@/components/painel/PlanSelector';
 import { AvulsoPurchase, type AvulsoProduct } from '@/components/painel/AvulsoPurchase';
 import { VitrineActivation } from '@/components/painel/VitrineActivation';
@@ -54,6 +55,8 @@ export default async function PlanosPage() {
   const companyAudience = company?.type === 'corretor_autonomo' ? 'corretor_autonomo' : 'b2b';
   const planPairs = company ? groupPlanPairs(plans as PlanRow[], companyAudience) : [];
   const renewalDate = dateLabel(subscription?.current_period_end);
+  const isTrial = subscription?.status === 'trial';
+  const trialLeft = isTrial ? trialDaysRemaining(subscription?.current_period_end) : null;
   const baseLimit = company?.type === 'corretor_autonomo' ? 1 : 0;
   const maxActive = Number(currentPlan?.max_active_listings ?? baseLimit);
   const limitText = currentPlan
@@ -110,6 +113,13 @@ export default async function PlanosPage() {
                 </span>
               </div>
 
+              {isTrial && trialLeft !== null && (
+                <p className="mt-3 rounded-lg bg-primary/10 px-3 py-2 text-sm font-semibold text-primary">
+                  Teste grátis ativo — {trialLeft} {trialLeft === 1 ? 'dia restante' : 'dias restantes'}. Depois do teste,
+                  será necessário concluir o pagamento para manter o plano ativo.
+                </p>
+              )}
+
               <div className="mt-5 grid gap-3 sm:grid-cols-3">
                 <div className="rounded-xl bg-bg p-3">
                   <p className="text-xs text-muted">Imóveis ativos</p>
@@ -122,7 +132,7 @@ export default async function PlanosPage() {
                   <p className="mt-1 text-lg font-extrabold tabular-nums">{Number(currentPlan?.included_featured ?? 0)}</p>
                 </div>
                 <div className="rounded-xl bg-bg p-3">
-                  <p className="text-xs text-muted">Renovação</p>
+                  <p className="text-xs text-muted">{isTrial ? 'Teste grátis até' : 'Renovação'}</p>
                   <p className="mt-1 text-lg font-extrabold">{renewalDate ?? 'A definir'}</p>
                 </div>
               </div>

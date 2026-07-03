@@ -69,7 +69,9 @@ export async function startPlanCheckout(formData: FormData) {
     await service.from('companies').update({ gateway_customer_id: customerId }).eq('id', company.id);
   }
 
-  const trialDays = company.type === 'corretor_autonomo' ? 0 : COMPANY_TRIAL_DAYS;
+  // Todo plano pago começa com 60 dias grátis (trial), independente do tipo de
+  // conta. O Stripe controla o trial (send_invoice); a fatura só nasce no fim.
+  const trialDays = COMPANY_TRIAL_DAYS;
   const subscription = await createPlanInvoiceSubscription({
     customerId,
     plan,

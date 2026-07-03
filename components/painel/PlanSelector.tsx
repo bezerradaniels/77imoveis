@@ -1,14 +1,16 @@
 'use client';
 import { useState } from 'react';
-import { Check } from 'lucide-react';
+import { Check, Gift } from 'lucide-react';
 import {
   annualDiscount,
   listingLimit,
   money,
   monthlyEquivalent,
   planBenefits,
+  planTagline,
   type PlanPair,
 } from '@/lib/pricing';
+import { TRIAL_DAYS } from '@/lib/subscription';
 import { startPlanCheckout } from '@/app/painel/planos/actions';
 
 export function PlanSelector({ pairs, currentSlug }: { pairs: PlanPair[]; currentSlug?: string }) {
@@ -46,8 +48,14 @@ export function PlanSelector({ pairs, currentSlug }: { pairs: PlanPair[]; curren
               {pair.monthly.highlight && (
                 <p className="mb-2 text-xs font-bold uppercase tracking-[.08em] text-link">Mais escolhido</p>
               )}
+              <span className="mb-2 inline-flex w-fit items-center gap-1 rounded-full bg-success/15 px-2.5 py-1 text-xs font-bold text-success">
+                <Gift size={13} /> {TRIAL_DAYS} dias grátis
+              </span>
               <h3 className="text-lg font-bold">{pair.monthly.name}</h3>
               <p className="mt-1 text-sm text-muted">{listingLimit(pair.monthly.max_active_listings)}</p>
+              {planTagline[pair.key] && (
+                <p className="mt-1 text-sm text-text/80">{planTagline[pair.key]}</p>
+              )}
 
               {showAnnual ? (
                 <>
@@ -81,8 +89,13 @@ export function PlanSelector({ pairs, currentSlug }: { pairs: PlanPair[]; curren
                   disabled={isCurrent}
                   className="h-10 w-full rounded-full bg-primary px-4 text-sm font-bold text-on-primary hover:bg-primary-hover disabled:cursor-not-allowed disabled:bg-border disabled:text-muted"
                 >
-                  {isCurrent ? 'Plano atual' : showAnnual ? 'Assinar anual' : 'Assinar mensal'}
+                  {isCurrent ? 'Plano atual' : 'Escolher este plano'}
                 </button>
+                {!isCurrent && (
+                  <p className="mt-2 text-center text-xs text-muted">
+                    {TRIAL_DAYS} dias grátis. Depois, {showAnnual ? money(pair.annual!.price) + '/ano' : money(pair.monthly.price) + '/mês'} para manter ativo.
+                  </p>
+                )}
               </form>
             </article>
           );
