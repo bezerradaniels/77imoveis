@@ -73,7 +73,7 @@ export default async function HomePage() {
   const cityCards = citySequence.map((item) => cities.find((city) => city.slug === item.slug) ?? item);
 
   return (
-    <main className="w-full overflow-x-hidden">
+    <main data-home-page className="w-full overflow-x-hidden">
       {/* HERO */}
       <HomeHero cities={cityOpts} types={typeOpts} neighborhoods={neighborhoods} />
 

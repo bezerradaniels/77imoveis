@@ -248,7 +248,7 @@ export async function ImoveisListingPage({
   };
 
   return (
-    <main className="bg-slate-50 dark:bg-bg">
+    <main className="bg-internal dark:bg-bg">
       <JsonLd
         data={breadcrumbLd([
           { name: 'Início', url: SITE },

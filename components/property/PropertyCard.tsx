@@ -28,7 +28,7 @@ export function PropertyCard(p: CardProperty) {
       href={`/imovel/${p.slug}`}
       className="group block w-[200px] rounded-[20px] outline-none transition-transform duration-200 hover:-translate-y-0.5 focus-visible:ring-4 focus-visible:ring-primary/15"
     >
-      <div className="relative h-[200px] w-[200px] transform-gpu overflow-hidden rounded-[20px] bg-slate-200 [-webkit-mask-image:-webkit-radial-gradient(white,black)]">
+      <div className="relative h-[200px] w-[200px] transform-gpu overflow-hidden rounded-[20px] border border-border bg-slate-200 [-webkit-mask-image:-webkit-radial-gradient(white,black)]">
         <Image
           src={p.coverUrl}
           alt={p.title}

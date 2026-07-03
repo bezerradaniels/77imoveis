@@ -110,7 +110,7 @@ export function HeroSearchForm({
   return (
     <div
       role="search"
-      className={cn(!bare && 'rounded-[20px] border border-gray-300 bg-surface p-5 dark:border-border')}
+      className={cn(!bare && 'flex h-full w-full flex-col rounded-[20px] border border-border bg-surface p-5')}
     >
       {!bare && (
         <div className="mb-3.5 flex items-center justify-between gap-3">
@@ -121,7 +121,7 @@ export function HeroSearchForm({
         </div>
       )}
 
-      <div className="flex flex-col gap-3">
+      <div className={cn('flex flex-col gap-3', !bare && 'lg:gap-3.5')}>
         <Field label="Objetivo">
           <MultiSelect options={objetivoOpts} selected={objetivo} onChange={setObjetivo} placeholder="Comprar, alugar ou permuta" />
         </Field>
@@ -161,7 +161,10 @@ export function HeroSearchForm({
       <button
         type="button"
         onClick={buscar}
-        className="mt-[18px] flex h-[50px] w-full items-center justify-center gap-2 rounded-[13px] bg-primary text-[15.5px] font-bold text-on-primary transition-colors hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primary/25"
+        className={cn(
+          'mt-[18px] flex h-[50px] w-full items-center justify-center gap-2 rounded-[13px] bg-primary text-[15.5px] font-bold text-on-primary transition-colors hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primary/25',
+          !bare && 'lg:mt-auto',
+        )}
       >
         <Search size={19} /> Buscar imóveis
       </button>

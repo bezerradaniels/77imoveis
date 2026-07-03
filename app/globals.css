@@ -6,7 +6,7 @@
   /* Identidade 77imóveis */
   --bg: #ffffff;
   --surface: #ffffff;
-  --border: #e7eae7;
+  --border: #d1d5db;
   --text: #1d2722;
   --text-muted: #6b756f;
   --primary: #0369a1;
@@ -26,6 +26,7 @@
   /* neutro claro para faixas/realces */
   --subtle: #f6f8f7;
   --header-bg: #f8f9fa;
+  --internal-bg: #f8f9fa;
 }
 
 .dark {
@@ -44,13 +45,18 @@
   --primary-soft: rgba(56, 189, 248, 0.15);
   --primary-soft-hover: rgba(56, 189, 248, 0.25);
   --header-bg: #15201b;
+  --internal-bg: var(--bg);
 }
 
 html { color-scheme: light dark; }
 body {
-  background: var(--bg);
+  background: var(--internal-bg);
   color: var(--text);
   letter-spacing: 0;
+}
+
+body:has([data-home-page]) {
+  background: var(--bg);
 }
 
 body:has([data-painel-shell]) {
@@ -100,4 +106,24 @@ textarea {
 @keyframes sheetUp {
   from { transform: translateY(100%); }
   to   { transform: translateY(0); }
+}
+
+@keyframes adSlideInNext {
+  from { opacity: 0; transform: translateX(28px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes adSlideOutNext {
+  from { opacity: 1; transform: translateX(0); }
+  to { opacity: 0; transform: translateX(-28px); }
+}
+
+@keyframes adSlideInPrev {
+  from { opacity: 0; transform: translateX(-28px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes adSlideOutPrev {
+  from { opacity: 1; transform: translateX(0); }
+  to { opacity: 0; transform: translateX(28px); }
 }

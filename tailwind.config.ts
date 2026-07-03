@@ -8,6 +8,7 @@ const config: Config = {
       colors: {
         // tokens via CSS variables (suporta modo claro/escuro)
         bg: 'var(--bg)',
+        internal: 'var(--internal-bg)',
         surface: 'var(--surface)',
         subtle: 'var(--subtle)',
         border: 'var(--border)',

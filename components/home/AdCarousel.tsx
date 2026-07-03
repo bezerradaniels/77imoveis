@@ -1,124 +1,146 @@
 'use client';
-import { useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import type { HeroAd } from '@/lib/hero-ads';
 import { cn } from '@/lib/cn';
 
 // Carrossel de publicidade do hero.
-// Implementação leve: CSS scroll-snap nativo + estado só para o indicador.
-// 6 slots clicáveis em 16:9, navegação por setas/teclado e indicadores (dots).
+// Fade lateral suave, navegação por setas/indicadores e autoplay.
 export function AdCarousel({ ads }: { ads: HeroAd[] }) {
-  const trackRef = useRef<HTMLDivElement>(null);
   const [idx, setIdx] = useState(0);
-  const last = ads.length - 1;
+  const [prevIdx, setPrevIdx] = useState<number | null>(null);
+  const [direction, setDirection] = useState<1 | -1>(1);
 
-  const go = (i: number) => {
-    const t = trackRef.current;
-    const n = Math.max(0, Math.min(last, i));
-    if (t) t.scrollTo({ left: n * t.clientWidth, behavior: 'smooth' });
+  const go = (i: number, dir?: 1 | -1) => {
+    if (!ads.length) return;
+    const n = ((i % ads.length) + ads.length) % ads.length;
+    if (n === idx) return;
+
+    setDirection(dir ?? (n > idx ? 1 : -1));
+    setPrevIdx(idx);
     setIdx(n);
   };
 
-  const onScroll = () => {
-    const t = trackRef.current;
-    if (!t) return;
-    const i = Math.round(t.scrollLeft / t.clientWidth);
-    if (i !== idx) setIdx(i);
-  };
+  useEffect(() => {
+    if (ads.length < 2) return;
+    const timer = window.setInterval(() => {
+      setDirection(1);
+      setPrevIdx(idx);
+      setIdx((idx + 1) % ads.length);
+    }, 5000);
+
+    return () => window.clearInterval(timer);
+  }, [ads.length, idx]);
+
+  useEffect(() => {
+    if (prevIdx === null) return;
+    const timer = window.setTimeout(() => setPrevIdx(null), 900);
+
+    return () => window.clearTimeout(timer);
+  }, [prevIdx]);
 
   return (
     <div
       role="region"
       aria-roledescription="carrossel"
       aria-label="Anúncios em destaque"
+      className="relative"
     >
-      <div className="relative">
-        <div
-          ref={trackRef}
-          onScroll={onScroll}
-          className="no-scrollbar flex snap-x snap-mandatory overflow-x-auto rounded-[18px]"
-        >
-          {ads.map((ad, i) => {
-            const ext = ad.external ? { target: '_blank', rel: 'noopener noreferrer sponsored' } : {};
-            return (
-              <a
-                key={i}
-                href={ad.href}
-                aria-label={ad.aria}
-                {...ext}
-                className="relative block aspect-[16/9] w-full shrink-0 snap-start overflow-hidden no-underline outline-none focus-visible:ring-4 focus-visible:ring-primary/40"
-              >
+      <div className="relative overflow-hidden rounded-[18px] border border-border bg-surface">
+        <div aria-hidden className="invisible">
+          <span className="block aspect-[16/9] w-full" />
+          <span className="block h-10 sm:h-11" />
+        </div>
+        {ads.map((ad, i) => {
+          const ext = ad.external ? { target: '_blank', rel: 'noopener noreferrer sponsored' } : {};
+          const active = i === idx;
+          const leaving = i === prevIdx;
+
+          return (
+            <a
+              key={i}
+              href={ad.href}
+              aria-label={ad.aria}
+              {...ext}
+              className={cn(
+                'group absolute inset-0 flex flex-col overflow-hidden no-underline outline-none will-change-transform focus-visible:ring-4 focus-visible:ring-primary/40',
+                active && 'z-20 translate-x-0 opacity-100',
+                active && (direction === 1
+                  ? 'animate-[adSlideInNext_900ms_cubic-bezier(.22,1,.36,1)_both]'
+                  : 'animate-[adSlideInPrev_900ms_cubic-bezier(.22,1,.36,1)_both]'),
+                leaving && 'z-10 pointer-events-none',
+                leaving && (direction === 1
+                  ? 'animate-[adSlideOutNext_900ms_cubic-bezier(.22,1,.36,1)_both]'
+                  : 'animate-[adSlideOutPrev_900ms_cubic-bezier(.22,1,.36,1)_both]'),
+                !active && !leaving && 'pointer-events-none z-0 opacity-0',
+              )}
+            >
+              <span className="relative block aspect-[16/9] w-full overflow-hidden">
                 <Image
                   src={ad.img}
                   alt={ad.alt}
                   fill
                   priority={i === 0}
                   sizes="(min-width: 768px) 60vw, 100vw"
-                  className="object-cover"
+                  className="object-cover transition duration-500 group-hover:scale-[1.025]"
                 />
+              </span>
+              <span className="flex h-10 items-center justify-between bg-primary px-5 text-[14px] font-bold text-on-primary transition-colors group-hover:bg-primary-hover sm:h-11 sm:px-7">
+                Ver detalhes
+                <ChevronRight size={22} strokeWidth={2.4} />
+              </span>
+            </a>
+          );
+        })}
+      </div>
+
+      <div className="absolute left-0 right-0 top-full mt-3 flex items-center justify-center gap-2.5">
+        <button
+          type="button"
+          aria-label="Anúncio anterior"
+          onClick={() => go(idx - 1, -1)}
+          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-border bg-surface text-text outline-none transition hover:border-primary hover:text-primary focus-visible:ring-4 focus-visible:ring-primary/25"
+        >
+          <ChevronLeft size={18} />
+        </button>
+
+        <div
+          role="tablist"
+          aria-label="Selecionar anúncio"
+          className="flex h-10 items-center justify-center gap-1 rounded-full border border-border bg-surface px-2"
+        >
+          {ads.map((_, i) => {
+            const active = i === idx;
+            return (
+              <button
+                key={i}
+                type="button"
+                role="tab"
+                aria-selected={active}
+                aria-label={`Ir para anúncio ${i + 1}`}
+                onClick={() => go(i)}
+                className="group flex h-8 w-8 items-center justify-center rounded-full outline-none transition-colors hover:bg-bg focus-visible:ring-2 focus-visible:ring-primary/50"
+              >
                 <span
-                  aria-hidden
-                  className="absolute inset-0"
-                  style={{
-                    background:
-                      'linear-gradient(to top, rgba(8,22,16,.74) 0%, rgba(8,22,16,.18) 42%, transparent 65%)',
-                  }}
+                  className={cn(
+                    'h-2 rounded-full transition-all duration-200',
+                    active ? 'w-6 bg-primary' : 'w-2 bg-border group-hover:bg-muted/45',
+                  )}
                 />
-                <span className="absolute left-3 top-3 rounded-full bg-white/90 px-2.5 py-1 text-[11px] font-bold tracking-[.02em] text-[#13201b]">
-                  {ad.tag}
-                </span>
-                <span className="absolute inset-x-3.5 bottom-3 block">
-                  <span className="block text-[16px] font-bold leading-tight text-white [text-shadow:0_1px_8px_rgba(0,0,0,.3)]">
-                    {ad.title}
-                  </span>
-                  <span className="mt-0.5 block text-[12.5px] font-medium text-white/90">{ad.sub}</span>
-                </span>
-              </a>
+              </button>
             );
           })}
         </div>
 
         <button
           type="button"
-          aria-label="Anúncio anterior"
-          onClick={() => go(idx - 1)}
-          className="absolute left-2 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-white/95 text-[#13201b] outline-none transition-colors hover:border-primary hover:text-primary focus-visible:ring-4 focus-visible:ring-primary/30 sm:left-2.5"
-        >
-          <ChevronLeft size={18} />
-        </button>
-        <button
-          type="button"
           aria-label="Próximo anúncio"
-          onClick={() => go(idx + 1)}
-          className="absolute right-2 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-white/95 text-[#13201b] outline-none transition-colors hover:border-primary hover:text-primary focus-visible:ring-4 focus-visible:ring-primary/30 sm:right-2.5"
+          onClick={() => go(idx + 1, 1)}
+          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-border bg-surface text-text outline-none transition hover:border-primary hover:text-primary focus-visible:ring-4 focus-visible:ring-primary/25"
         >
           <ChevronRight size={18} />
         </button>
-      </div>
-
-      <div role="tablist" aria-label="Selecionar anúncio" className="flex items-center justify-center gap-[7px] px-0 pb-[5px] pt-[11px]">
-        {ads.map((_, i) => {
-          const active = i === idx;
-          return (
-            <button
-              key={i}
-              type="button"
-              role="tab"
-              aria-selected={active}
-              aria-label={`Ir para anúncio ${i + 1}`}
-              onClick={() => go(i)}
-              className="flex h-8 w-8 items-center justify-center rounded-full outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
-            >
-              <span
-                className={cn(
-                  'h-[7px] rounded-full transition-all',
-                  active ? 'w-[22px] bg-primary' : 'w-[7px] bg-[#d3dad6]',
-                )}
-              />
-            </button>
-          );
-        })}
       </div>
     </div>
   );

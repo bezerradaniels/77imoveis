@@ -62,7 +62,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       </aside>
 
       {/* Conteúdo */}
-      <div data-painel-shell className="min-h-screen bg-slate-100 dark:bg-bg lg:pl-64">
+      <div data-painel-shell className="min-h-screen bg-internal dark:bg-bg lg:pl-64">
         {/* Nav móvel — tabs com scroll horizontal */}
         <nav className="no-scrollbar flex gap-1 overflow-x-auto border-b border-slate-300 bg-slate-200 px-3 py-2 lg:hidden">
           {nav.map(({ href, label, icon: Icon }) => (

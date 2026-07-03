@@ -132,7 +132,7 @@ export default async function PainelLayout({ children }: { children: React.React
         </div>
       </aside>
 
-      <div data-painel-shell className="min-h-screen bg-slate-100 dark:bg-bg lg:pl-64">
+      <div data-painel-shell className="min-h-screen bg-internal dark:bg-bg lg:pl-64">
         {children}
       </div>
     </>

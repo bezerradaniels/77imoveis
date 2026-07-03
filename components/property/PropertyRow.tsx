@@ -29,7 +29,7 @@ export function PropertyRow({ priority = false, ...p }: CardProperty & { priorit
   return (
     <Link
       href={`/imovel/${p.slug}`}
-      className="group flex gap-3 rounded-xl bg-surface p-2.5 outline-none transition hover:shadow-md focus-visible:ring-4 focus-visible:ring-primary/15 sm:gap-4 sm:p-3"
+      className="group flex gap-3 rounded-xl border border-border bg-surface p-2.5 outline-none transition hover:shadow-md focus-visible:ring-4 focus-visible:ring-primary/15 sm:gap-4 sm:p-3"
     >
       <div className="relative h-[92px] w-[120px] shrink-0 overflow-hidden rounded-lg bg-slate-200 sm:h-[140px] sm:w-[200px] sm:rounded-xl">
         <Image

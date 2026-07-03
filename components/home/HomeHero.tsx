@@ -26,9 +26,9 @@ export function HomeHero({
         {/* Botão + bottom sheet (mobile) — único trecho interativo */}
         <MobileSearchSheet cities={cities} types={types} neighborhoods={neighborhoods} />
 
-        <div className="mt-4 flex flex-col items-stretch gap-3.5 md:mt-6 md:flex-row md:gap-[18px]">
+        <div className="mt-4 flex flex-col items-stretch gap-3.5 pb-[52px] md:mt-6 md:flex-row md:gap-[18px]">
           {/* Card do formulário (~36%) — só no desktop; no mobile vai pro bottom sheet */}
-          <div className="hidden min-w-0 md:block md:basis-[36%] md:shrink-0 md:grow-0">
+          <div className="hidden min-w-0 md:flex md:basis-[36%] md:shrink-0 md:grow-0">
             <HeroSearchForm cities={cities} types={types} neighborhoods={neighborhoods} />
           </div>
 

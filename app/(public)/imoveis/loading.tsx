@@ -3,7 +3,7 @@ import { Skeleton, PropertyRowSkeleton } from '@/components/ui/Skeleton';
 // Skeleton da listagem geral de imóveis.
 export default function ImoveisLoading() {
   return (
-    <main className="bg-slate-50 dark:bg-bg">
+    <main className="bg-internal dark:bg-bg">
       <div className="mx-auto max-w-[1200px] px-4 py-6">
         <Skeleton className="mb-4 h-7 w-2/3 max-w-md" />
         <div className="grid gap-6 lg:grid-cols-[280px_1fr]">
