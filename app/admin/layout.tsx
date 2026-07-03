@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
-import { LayoutDashboard, Home, Building2, Users, MapPin, CreditCard, Image, Store, UserCog } from 'lucide-react';
+import { LayoutDashboard, Home, Building2, Users, MapPin, CreditCard, Image, Store, UserCog, UserSquare, FileText } from 'lucide-react';
 import { getProfile } from '@/lib/auth';
 import { SidebarLink } from '@/components/layout/SidebarLink';
 import { LogoutButton } from '@/components/layout/LogoutButton';
@@ -15,6 +15,8 @@ const nav = [
   { href: '/admin/empresas', label: 'Empresas',    icon: Building2 },
   { href: '/admin/corretores', label: 'Corretores', icon: Users },
   { href: '/admin/usuarios', label: 'Usuários',    icon: Users },
+  { href: '/admin/clientes', label: 'Clientes',    icon: UserSquare },
+  { href: '/admin/contratos', label: 'Contratos',  icon: FileText },
   { href: '/admin/cidades',  label: 'Cidades',     icon: MapPin },
   { href: '/admin/planos',   label: 'Planos',      icon: CreditCard },
   { href: '/admin/banners',  label: 'Banners',     icon: Image },

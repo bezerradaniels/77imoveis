@@ -682,7 +682,7 @@ export async function getMyBillingOverview() {
       .from('manual_contracts')
       .select('id,plan_name,status,payment_method,payment_status,max_active_listings,included_featured,starts_at,ends_at,public_notes')
       .eq('company_id', companyId)
-      .not('status', 'in', '("cancelado")')
+      .neq('status', 'cancelado')
       .order('created_at', { ascending: false })
       .limit(1)
       .maybeSingle(),
@@ -944,5 +944,188 @@ export async function adminListStorefronts() {
     .select('id,slug,headline,status,activated_at,expires_at,views_count,created_at,companies(trade_name,slug)')
     .order('created_at', { ascending: false })
     .limit(200);
+  return data ?? [];
+}
+
+// =====================================================================
+// CONTRATOS MANUAIS (gestão comercial pelo admin)
+// =====================================================================
+
+const DAY_MS = 86_400_000;
+
+// Deriva o status EFETIVO (expirado quando o fim já passou) e os dias restantes.
+// Evita depender de um cron para a leitura ficar correta.
+function withContractDerived<T extends { status: string; ends_at: string | null }>(r: T) {
+  const now = Date.now();
+  const endMs = r.ends_at ? new Date(r.ends_at).getTime() : null;
+  const ended = endMs !== null && endMs <= now;
+  const effectiveStatus =
+    (r.status === 'ativo' || r.status === 'agendado') && ended ? 'expirado' : r.status;
+  const remainingDays = endMs !== null ? Math.max(0, Math.ceil((endMs - now) / DAY_MS)) : null;
+  return { ...r, effectiveStatus, remainingDays };
+}
+
+const CONTRACT_COMPANY_SELECT =
+  'companies(id,trade_name,slug,type,status,email,phone,city_id,cities!companies_city_id_fkey(name),profiles!companies_owner_id_fkey(full_name,email,phone,whatsapp))';
+
+export async function adminListManualContracts(filters: {
+  status?: string;
+  paymentStatus?: string;
+  expiring?: '7' | '15' | '30';
+  text?: string;
+} = {}) {
+  if (!hasEnv()) return [];
+  let q = createServerClient()
+    .from('manual_contracts')
+    .select(
+      `id,plan_name,plan_type,status,payment_method,payment_status,amount,max_active_listings,included_featured,` +
+        `auto_renew,city_scope,starts_at,ends_at,duration_days,paused_at,remaining_days_snapshot,internal_notes,public_notes,created_at,updated_at,${CONTRACT_COMPANY_SELECT}`,
+    )
+    .order('created_at', { ascending: false })
+    .limit(300);
+  if (filters.paymentStatus) q = q.eq('payment_status', filters.paymentStatus);
+  if (filters.expiring) {
+    const until = new Date(Date.now() + Number(filters.expiring) * DAY_MS).toISOString();
+    q = q.in('status', ['ativo', 'agendado']).gte('ends_at', new Date().toISOString()).lte('ends_at', until);
+  }
+  const { data } = await q;
+  let rows = ((data ?? []) as any[]).map(withContractDerived);
+  // Status filtra pelo EFETIVO (inclui expirados derivados).
+  if (filters.status) rows = rows.filter((r) => r.effectiveStatus === filters.status);
+  const text = filters.text?.replace(/[%,]/g, ' ').trim().toLowerCase();
+  if (text) {
+    rows = rows.filter((r) => {
+      const co = (r as any).companies;
+      return (
+        (r.plan_name ?? '').toLowerCase().includes(text) ||
+        (r.id ?? '').toLowerCase().includes(text) ||
+        (co?.trade_name ?? '').toLowerCase().includes(text) ||
+        (co?.profiles?.full_name ?? '').toLowerCase().includes(text) ||
+        (co?.email ?? '').toLowerCase().includes(text) ||
+        (co?.profiles?.email ?? '').toLowerCase().includes(text) ||
+        (co?.phone ?? '').toLowerCase().includes(text) ||
+        (co?.cities?.name ?? '').toLowerCase().includes(text)
+      );
+    });
+  }
+  return rows;
+}
+
+export async function adminGetContract(id: string) {
+  if (!hasEnv()) return null;
+  const sb = createServerClient();
+  const [{ data: contract }, { data: history }] = await Promise.all([
+    sb
+      .from('manual_contracts')
+      .select(
+        `id,plan_name,plan_type,status,payment_method,payment_status,amount,max_active_listings,included_featured,` +
+          `auto_renew,city_scope,starts_at,ends_at,duration_days,paused_at,remaining_days_snapshot,internal_notes,public_notes,created_at,updated_at,${CONTRACT_COMPANY_SELECT}`,
+      )
+      .eq('id', id)
+      .maybeSingle(),
+    sb
+      .from('contract_status_history')
+      .select('id,action,from_status,to_status,reason,metadata,created_at,profiles(full_name,email)')
+      .eq('contract_type', 'plan')
+      .eq('contract_id', id)
+      .order('created_at', { ascending: false })
+      .limit(100),
+  ]);
+  if (!contract) return null;
+  return { ...withContractDerived(contract as any), history: history ?? [] };
+}
+
+// Situação comercial de cada cliente profissional (assinatura automática,
+// plano manual, trial, pausado, expirado, sem plano...). Deriva o rótulo.
+export async function adminListCustomerSituations(filters: { situation?: string; cityId?: string; text?: string } = {}) {
+  if (!hasEnv()) return [];
+  let q = createServerClient()
+    .from('companies')
+    .select(
+      'id,trade_name,slug,type,status,email,phone,city_id,created_at,cities!companies_city_id_fkey(name),' +
+        'profiles!companies_owner_id_fkey(full_name,email,phone),' +
+        'subscriptions(id,status,current_period_end,gateway,manual_contract_id,custom_plan_name,created_at,plans(name)),' +
+        'manual_contracts(id,plan_name,status,payment_status,ends_at,created_at)',
+    )
+    .neq('status', 'removido')
+    .order('created_at', { ascending: false })
+    .limit(300);
+  if (filters.cityId) q = q.eq('city_id', filters.cityId);
+  const { data } = await q;
+  const now = Date.now();
+
+  const rows = (data ?? []).map((co: any) => {
+    // Assinatura automática mais recente que concede/pede acesso.
+    const subs = (co.subscriptions ?? [])
+      .slice()
+      .sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+    const autoSub = subs.find((s: any) => s.gateway !== 'manual' && ['ativa', 'trial', 'pendente', 'inadimplente'].includes(s.status)) ?? null;
+    // Contrato manual mais recente em aberto.
+    const contracts = (co.manual_contracts ?? [])
+      .filter((c: any) => c.status !== 'cancelado')
+      .slice()
+      .sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+    const mc = contracts[0] ?? null;
+    const mcEnded = mc?.ends_at ? new Date(mc.ends_at).getTime() <= now : false;
+    const mcEff = mc ? ((mc.status === 'ativo' || mc.status === 'agendado') && mcEnded ? 'expirado' : mc.status) : null;
+
+    let situation = 'sem_plano';
+    let planName: string | null = null;
+    let endsAt: string | null = null;
+    if (mcEff === 'ativo') { situation = 'manual_ativo'; planName = mc.plan_name; endsAt = mc.ends_at; }
+    else if (mcEff === 'agendado') { situation = 'agendado'; planName = mc.plan_name; endsAt = mc.ends_at; }
+    else if (mcEff === 'pausado') { situation = 'pausado'; planName = mc.plan_name; endsAt = mc.ends_at; }
+    else if (mcEff === 'expirado') { situation = 'expirado'; planName = mc.plan_name; endsAt = mc.ends_at; }
+    else if (autoSub?.status === 'trial') { situation = 'trial'; planName = autoSub.custom_plan_name ?? autoSub.plans?.name ?? null; endsAt = autoSub.current_period_end; }
+    else if (autoSub?.status === 'ativa') { situation = 'assinatura_ativa'; planName = autoSub.custom_plan_name ?? autoSub.plans?.name ?? null; endsAt = autoSub.current_period_end; }
+    else if (autoSub?.status === 'pendente') { situation = 'pendente'; planName = autoSub.plans?.name ?? null; endsAt = autoSub.current_period_end; }
+    else if (autoSub?.status === 'inadimplente') { situation = 'inadimplente'; planName = autoSub.plans?.name ?? null; endsAt = autoSub.current_period_end; }
+
+    const remainingDays = endsAt ? Math.max(0, Math.ceil((new Date(endsAt).getTime() - now) / DAY_MS)) : null;
+    return {
+      id: co.id,
+      trade_name: co.trade_name,
+      slug: co.slug,
+      type: co.type,
+      status: co.status,
+      email: co.email ?? co.profiles?.email ?? null,
+      phone: co.phone ?? co.profiles?.phone ?? null,
+      owner_name: co.profiles?.full_name ?? null,
+      city_name: co.cities?.name ?? null,
+      situation,
+      planName,
+      endsAt,
+      remainingDays,
+      contractId: mc?.id ?? null,
+      paymentStatus: mc?.payment_status ?? null,
+      isManual: !!mc,
+    };
+  });
+
+  let filtered = rows;
+  if (filters.situation) filtered = filtered.filter((r) => r.situation === filters.situation);
+  const text = filters.text?.replace(/[%,]/g, ' ').trim().toLowerCase();
+  if (text) {
+    filtered = filtered.filter(
+      (r) =>
+        (r.trade_name ?? '').toLowerCase().includes(text) ||
+        (r.owner_name ?? '').toLowerCase().includes(text) ||
+        (r.email ?? '').toLowerCase().includes(text) ||
+        (r.phone ?? '').toLowerCase().includes(text) ||
+        (r.city_name ?? '').toLowerCase().includes(text),
+    );
+  }
+  return filtered;
+}
+
+// Empresas para o seletor de cliente no formulário de contrato manual.
+export async function adminListCompaniesForSelect() {
+  if (!hasEnv()) return [];
+  const { data } = await createServerClient()
+    .from('companies')
+    .select('id,trade_name,type,city_id,cities!companies_city_id_fkey(name)')
+    .neq('status', 'removido')
+    .order('trade_name')
+    .limit(1000);
   return data ?? [];
 }

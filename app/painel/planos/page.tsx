@@ -56,16 +56,30 @@ export default async function PlanosPage() {
 
   const company = billing.company as any;
   const subscription = billing.subscription as any;
+  const manualContract = billing.manualContract as any;
   const currentPlan = subscription?.plans;
   const latestPayment = billing.latestPayment as any;
   const companyAudience = company?.type === 'corretor_autonomo' ? 'corretor_autonomo' : 'b2b';
   const planPairs = company ? groupPlanPairs(plans as PlanRow[], companyAudience) : [];
-  const renewalDate = dateLabel(subscription?.current_period_end);
-  const isTrial = subscription?.status === 'trial';
+  // Plano manual (criado pelo admin) tem prioridade de exibição.
+  const currentPlanName = currentPlan?.name ?? subscription?.custom_plan_name ?? manualContract?.plan_name ?? null;
+  const manualEffStatus =
+    manualContract?.status === 'ativo' ? 'ativa'
+    : manualContract?.status === 'pausado' ? 'pausado'
+    : manualContract?.status === 'agendado' ? 'agendado'
+    : manualContract?.status === 'expirado' ? 'expirado'
+    : null;
+  const effStatus = manualEffStatus ?? subscription?.status;
+  const renewalDate = dateLabel(subscription?.current_period_end ?? manualContract?.ends_at);
+  const isTrial = subscription?.status === 'trial' && !manualContract;
   const trialLeft = isTrial ? trialDaysRemaining(subscription?.current_period_end) : null;
   const baseLimit = company?.type === 'corretor_autonomo' ? 1 : 0;
-  const maxActive = Number(currentPlan?.max_active_listings ?? baseLimit);
-  const limitText = currentPlan
+  const maxActive = Number(
+    subscription?.max_listings_override ?? currentPlan?.max_active_listings ?? manualContract?.max_active_listings ?? baseLimit,
+  );
+  const includedFeatured = Number(manualContract?.included_featured ?? currentPlan?.included_featured ?? 0);
+  const hasPlan = !!currentPlanName;
+  const limitText = hasPlan
     ? listingLimit(maxActive)
     : company?.type === 'corretor_autonomo'
       ? '1 imóvel ativo gratuito'
@@ -108,14 +122,14 @@ export default async function PlanosPage() {
             <div className="rounded-xl border border-border bg-surface p-5">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
-                  <p className="text-sm text-muted">Assinatura atual</p>
-                  <h2 className="mt-1 text-xl font-bold">{currentPlan?.name ?? 'Sem assinatura ativa'}</h2>
+                  <p className="text-sm text-muted">{manualContract ? 'Plano manual' : 'Assinatura atual'}</p>
+                  <h2 className="mt-1 text-xl font-bold">{currentPlanName ?? 'Sem assinatura ativa'}</h2>
                   <p className="mt-1 text-sm text-muted">
                     {company.trade_name ?? company.legal_name ?? 'Perfil profissional'} · {limitText}
                   </p>
                 </div>
-                <span className={`rounded-full px-3 py-1 text-xs font-bold ${statusClass[subscription?.status] ?? 'bg-border text-muted'}`}>
-                  {statusLabel[subscription?.status] ?? 'Sem plano'}
+                <span className={`rounded-full px-3 py-1 text-xs font-bold ${statusClass[effStatus] ?? 'bg-border text-muted'}`}>
+                  {statusLabel[effStatus] ?? 'Sem plano'}
                 </span>
               </div>
 
@@ -135,7 +149,7 @@ export default async function PlanosPage() {
                 </div>
                 <div className="rounded-xl bg-bg p-3">
                   <p className="text-xs text-muted">Destaques inclusos</p>
-                  <p className="mt-1 text-lg font-extrabold tabular-nums">{Number(currentPlan?.included_featured ?? 0)}</p>
+                  <p className="mt-1 text-lg font-extrabold tabular-nums">{includedFeatured}</p>
                 </div>
                 <div className="rounded-xl bg-bg p-3">
                   <p className="text-xs text-muted">{isTrial ? 'Teste grátis até' : 'Renovação'}</p>
