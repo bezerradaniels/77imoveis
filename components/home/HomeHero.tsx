@@ -1,5 +1,5 @@
 import type { Option } from '@/components/ui/Dropdown';
-import { heroAds } from '@/lib/hero-ads';
+import { heroAds, type HeroAd } from '@/lib/hero-ads';
 import { HeroSearchForm } from './HeroSearchForm';
 import { AdCarousel } from './AdCarousel';
 import { HomeGreeting } from './HomeGreeting';
@@ -13,11 +13,15 @@ export function HomeHero({
   cities,
   types,
   neighborhoods,
+  ads,
 }: {
   cities: Option[];
   types: Option[];
   neighborhoods: Record<string, Option[]>;
+  // Anúncios do carrossel vindos do banco; vazio => fallback estático (demo).
+  ads?: HeroAd[];
 }) {
+  const carouselAds = ads && ads.length ? ads : heroAds;
   return (
     <section aria-label="Buscar imóveis no Oeste da Bahia" className="relative z-10 overflow-hidden bg-[#f8f9fa] pt-6 pb-8 dark:bg-bg md:overflow-visible md:py-10">
       <div className="relative z-[1] mx-auto w-full max-w-[1200px] px-6">
@@ -34,7 +38,7 @@ export function HomeHero({
 
           {/* Card do carrossel (~64%) — sempre visível */}
           <div className="min-w-0 md:flex-1">
-            <AdCarousel ads={heroAds} />
+            <AdCarousel ads={carouselAds} />
           </div>
         </div>
       </div>

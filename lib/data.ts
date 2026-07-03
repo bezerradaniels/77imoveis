@@ -1118,6 +1118,115 @@ export async function adminListCustomerSituations(filters: { situation?: string;
   return filtered;
 }
 
+// =====================================================================
+// CONTRATOS DE PUBLICIDADE (banners como contrato comercial)
+// =====================================================================
+
+export async function adminListAdContracts(filters: {
+  status?: string;
+  paymentStatus?: string;
+  cityId?: string;
+  text?: string;
+} = {}) {
+  if (!hasEnv()) return [];
+  let q = createServerClient()
+    .from('banners')
+    .select(
+      'id,internal_name,title,image_url,image_url_mobile,target_url,slot,city_id,priority,status,is_active,' +
+        'payment_method,payment_status,amount,auto_renew,duration_days,starts_at,ends_at,internal_notes,' +
+        'impressions,clicks,created_at,cities(name),companies(id,trade_name,slug,phone,email)',
+    )
+    .eq('slot', 'home_topo')
+    .order('priority', { ascending: false })
+    .order('created_at', { ascending: false })
+    .limit(300);
+  if (filters.paymentStatus) q = q.eq('payment_status', filters.paymentStatus);
+  if (filters.cityId === 'regional') q = q.is('city_id', null);
+  else if (filters.cityId) q = q.eq('city_id', filters.cityId);
+  const { data } = await q;
+  let rows = ((data ?? []) as any[]).map((r) => {
+    const endMs = r.ends_at ? new Date(r.ends_at).getTime() : null;
+    const ended = endMs !== null && endMs <= Date.now();
+    const effectiveStatus = (r.status === 'ativo' || r.status === 'agendado') && ended ? 'expirado' : r.status;
+    const remainingDays = endMs !== null ? Math.max(0, Math.ceil((endMs - Date.now()) / DAY_MS)) : null;
+    return { ...r, effectiveStatus, remainingDays };
+  });
+  if (filters.status) rows = rows.filter((r) => r.effectiveStatus === filters.status);
+  const text = filters.text?.replace(/[%,]/g, ' ').trim().toLowerCase();
+  if (text) {
+    rows = rows.filter(
+      (r) =>
+        (r.internal_name ?? '').toLowerCase().includes(text) ||
+        (r.title ?? '').toLowerCase().includes(text) ||
+        (r.id ?? '').toLowerCase().includes(text) ||
+        (r.companies?.trade_name ?? '').toLowerCase().includes(text) ||
+        (r.cities?.name ?? '').toLowerCase().includes(text),
+    );
+  }
+  return rows;
+}
+
+export async function adminGetAdContract(id: string) {
+  if (!hasEnv()) return null;
+  const sb = createServerClient();
+  const [{ data: banner }, { data: history }] = await Promise.all([
+    sb
+      .from('banners')
+      .select(
+        'id,internal_name,title,image_url,image_url_mobile,target_url,slot,city_id,priority,status,is_active,' +
+          'payment_method,payment_status,amount,auto_renew,duration_days,starts_at,ends_at,internal_notes,' +
+          'impressions,clicks,created_at,cities(name),companies(id,trade_name,slug)',
+      )
+      .eq('id', id)
+      .maybeSingle(),
+    sb
+      .from('contract_status_history')
+      .select('id,action,from_status,to_status,reason,metadata,created_at,profiles(full_name,email)')
+      .eq('contract_type', 'ad')
+      .eq('contract_id', id)
+      .order('created_at', { ascending: false })
+      .limit(100),
+  ]);
+  if (!banner) return null;
+  const r = banner as any;
+  const endMs = r.ends_at ? new Date(r.ends_at).getTime() : null;
+  const ended = endMs !== null && endMs <= Date.now();
+  const effectiveStatus = (r.status === 'ativo' || r.status === 'agendado') && ended ? 'expirado' : r.status;
+  const remainingDays = endMs !== null ? Math.max(0, Math.ceil((endMs - Date.now()) / DAY_MS)) : null;
+  return { ...r, effectiveStatus, remainingDays, history: history ?? [] };
+}
+
+// Banners ativos do carrossel da home. Filtra por janela de datas (defesa:
+// mesmo sem cron, um banner expirado por data não aparece). cityId null =
+// campanhas regionais (home); cityId = campanhas daquela cidade.
+export async function getHomeBanners(cityId?: string | null) {
+  if (!hasEnv()) return [];
+  const now = new Date().toISOString();
+  let q = db()
+    .from('banners')
+    .select('id,title,internal_name,image_url,image_url_mobile,target_url')
+    .eq('slot', 'home_topo')
+    .eq('is_active', true)
+    .or(`starts_at.is.null,starts_at.lte.${now}`)
+    .or(`ends_at.is.null,ends_at.gt.${now}`)
+    .order('priority', { ascending: false })
+    .order('created_at', { ascending: false })
+    .limit(8);
+  q = cityId ? q.eq('city_id', cityId) : q.is('city_id', null);
+  const { data } = await q;
+  return (data ?? []).map((b: any) => ({
+    img: b.image_url as string,
+    imgMobile: (b.image_url_mobile as string) || undefined,
+    tag: 'Patrocinado',
+    title: (b.title || b.internal_name || 'Anúncio') as string,
+    sub: '',
+    alt: (b.title || b.internal_name || 'Anúncio') as string,
+    aria: `Anúncio: ${b.title || b.internal_name || ''}`.trim(),
+    href: b.target_url as string,
+    external: true as const,
+  }));
+}
+
 // Empresas para o seletor de cliente no formulário de contrato manual.
 export async function adminListCompaniesForSelect() {
   if (!hasEnv()) return [];

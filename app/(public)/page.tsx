@@ -4,7 +4,7 @@ import {
   HardHat, Handshake, Megaphone, PlusCircle, ChevronRight,
 } from 'lucide-react';
 import type { Metadata } from 'next';
-import { getFeaturedCities, getPropertyTypes, getFeaturedProperties, getCityCounts, getNeighborhoodsByCity } from '@/lib/data';
+import { getFeaturedCities, getPropertyTypes, getFeaturedProperties, getCityCounts, getNeighborhoodsByCity, getHomeBanners } from '@/lib/data';
 import { PropertyCard } from '@/components/property/PropertyCard';
 import { HomeHero } from '@/components/home/HomeHero';
 import { ScrollRail } from '@/components/home/ScrollRail';
@@ -61,12 +61,13 @@ const citySequence = [
 ];
 
 export default async function HomePage() {
-  const [cities, types, venda, counts, neighborhoods] = await Promise.all([
+  const [cities, types, venda, counts, neighborhoods, banners] = await Promise.all([
     getFeaturedCities(),
     getPropertyTypes(),
     getFeaturedProperties('venda', 8),
     getCityCounts(),
     getNeighborhoodsByCity(),
+    getHomeBanners(),
   ]);
   const cityOpts = cities.map((c) => ({ value: c.slug, label: c.name }));
   const typeOpts = types.map((t) => ({ value: t.slug, label: t.name }));
@@ -75,7 +76,7 @@ export default async function HomePage() {
   return (
     <main data-home-page className="w-full overflow-x-hidden">
       {/* HERO */}
-      <HomeHero cities={cityOpts} types={typeOpts} neighborhoods={neighborhoods} />
+      <HomeHero cities={cityOpts} types={typeOpts} neighborhoods={neighborhoods} ads={banners} />
 
       {/* CIDADES */}
       <section className="relative overflow-hidden bg-white py-[clamp(40px,5.5vw,68px)] dark:bg-bg">

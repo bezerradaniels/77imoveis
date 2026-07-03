@@ -78,46 +78,88 @@ export type Database = {
       }
       banners: {
         Row: {
+          amount: number | null
+          auto_renew: boolean
           city_id: string | null
           clicks: number
+          company_id: string | null
           created_at: string
+          created_by: string | null
+          duration_days: number | null
           ends_at: string | null
           id: string
           image_url: string
+          image_url_mobile: string | null
           impressions: number
+          internal_name: string | null
+          internal_notes: string | null
           is_active: boolean
+          payment_method: string | null
+          payment_status: string
+          priority: number
           slot: Database["public"]["Enums"]["banner_slot"]
           starts_at: string | null
+          status: Database["public"]["Enums"]["manual_contract_status"]
           target_url: string
           title: string | null
+          updated_at: string
+          updated_by: string | null
         }
         Insert: {
+          amount?: number | null
+          auto_renew?: boolean
           city_id?: string | null
           clicks?: number
+          company_id?: string | null
           created_at?: string
+          created_by?: string | null
+          duration_days?: number | null
           ends_at?: string | null
           id?: string
           image_url: string
+          image_url_mobile?: string | null
           impressions?: number
+          internal_name?: string | null
+          internal_notes?: string | null
           is_active?: boolean
+          payment_method?: string | null
+          payment_status?: string
+          priority?: number
           slot: Database["public"]["Enums"]["banner_slot"]
           starts_at?: string | null
+          status?: Database["public"]["Enums"]["manual_contract_status"]
           target_url: string
           title?: string | null
+          updated_at?: string
+          updated_by?: string | null
         }
         Update: {
+          amount?: number | null
+          auto_renew?: boolean
           city_id?: string | null
           clicks?: number
+          company_id?: string | null
           created_at?: string
+          created_by?: string | null
+          duration_days?: number | null
           ends_at?: string | null
           id?: string
           image_url?: string
+          image_url_mobile?: string | null
           impressions?: number
+          internal_name?: string | null
+          internal_notes?: string | null
           is_active?: boolean
+          payment_method?: string | null
+          payment_status?: string
+          priority?: number
           slot?: Database["public"]["Enums"]["banner_slot"]
           starts_at?: string | null
+          status?: Database["public"]["Enums"]["manual_contract_status"]
           target_url?: string
           title?: string | null
+          updated_at?: string
+          updated_by?: string | null
         }
         Relationships: [
           {
@@ -125,6 +167,27 @@ export type Database = {
             columns: ["city_id"]
             isOneToOne: false
             referencedRelation: "cities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "banners_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "banners_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "banners_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]

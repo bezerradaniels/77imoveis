@@ -77,14 +77,28 @@ export function AdCarousel({ ads }: { ads: HeroAd[] }) {
               )}
             >
               <span className="relative block aspect-[16/9] w-full overflow-hidden">
-                <Image
-                  src={ad.img}
-                  alt={ad.alt}
-                  fill
-                  priority={i === 0}
-                  sizes="(min-width: 768px) 60vw, 100vw"
-                  className="object-cover transition duration-500 group-hover:scale-[1.025]"
-                />
+                {ad.imgMobile ? (
+                  // Art-direction (imagem mobile própria): <picture> com <img> nativo.
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <picture>
+                    <source media="(max-width: 767px)" srcSet={ad.imgMobile} />
+                    <img
+                      src={ad.img}
+                      alt={ad.alt}
+                      loading={i === 0 ? 'eager' : 'lazy'}
+                      className="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-[1.025]"
+                    />
+                  </picture>
+                ) : (
+                  <Image
+                    src={ad.img}
+                    alt={ad.alt}
+                    fill
+                    priority={i === 0}
+                    sizes="(min-width: 768px) 60vw, 100vw"
+                    className="object-cover transition duration-500 group-hover:scale-[1.025]"
+                  />
+                )}
               </span>
               <span className="flex h-10 items-center justify-between bg-primary px-5 text-[14px] font-bold text-on-primary transition-colors group-hover:bg-primary-hover sm:h-11 sm:px-7">
                 Ver detalhes

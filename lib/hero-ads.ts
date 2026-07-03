@@ -8,6 +8,8 @@
 export type HeroAd = {
   /** Caminho da imagem (16:9 recomendado). Pode ser URL externa de campanha. */
   img: string;
+  /** Imagem específica para mobile (opcional; art-direction). */
+  imgMobile?: string;
   /** Selo curto: Patrocinado, Lançamento, Destaque, etc. */
   tag: string;
   title: string;

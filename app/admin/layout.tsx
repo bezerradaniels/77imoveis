@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
-import { LayoutDashboard, Home, Building2, Users, MapPin, CreditCard, Image, Store, UserCog, UserSquare, FileText } from 'lucide-react';
+import { LayoutDashboard, Home, Building2, Users, MapPin, CreditCard, Megaphone, Store, UserCog, UserSquare, FileText } from 'lucide-react';
 import { getProfile } from '@/lib/auth';
 import { SidebarLink } from '@/components/layout/SidebarLink';
 import { LogoutButton } from '@/components/layout/LogoutButton';
@@ -19,7 +19,7 @@ const nav = [
   { href: '/admin/contratos', label: 'Contratos',  icon: FileText },
   { href: '/admin/cidades',  label: 'Cidades',     icon: MapPin },
   { href: '/admin/planos',   label: 'Planos',      icon: CreditCard },
-  { href: '/admin/banners',  label: 'Banners',     icon: Image },
+  { href: '/admin/publicidade', label: 'Publicidade', icon: Megaphone },
   { href: '/admin/vitrines', label: 'Vitrines',    icon: Store },
   { href: '/admin/perfil',   label: 'Meu perfil',  icon: UserCog },
 ];
