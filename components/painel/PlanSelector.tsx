@@ -87,7 +87,7 @@ export function PlanSelector({ pairs, currentSlug }: { pairs: PlanPair[]; curren
                 <input type="hidden" name="planSlug" value={plan.slug} />
                 <button
                   disabled={isCurrent}
-                  className="h-10 w-full rounded-full bg-primary px-4 text-sm font-bold text-on-primary hover:bg-primary-hover disabled:cursor-not-allowed disabled:bg-border disabled:text-muted"
+                  className="h-10 w-full rounded-full bg-action px-4 text-sm font-bold text-on-action hover:bg-action-hover disabled:cursor-not-allowed disabled:bg-border disabled:text-muted"
                 >
                   {isCurrent ? 'Plano atual' : 'Escolher este plano'}
                 </button>

@@ -17,7 +17,7 @@ export function VitrineActivation({ storefront, precos }: { storefront: any; pre
       <div className="rounded-xl border border-dashed border-border bg-surface p-6 text-center">
         <Store className="mx-auto mb-2 text-muted" size={22} />
         <p className="text-sm text-muted">Configure a aparência da sua vitrine antes de ativá-la.</p>
-        <Link href="/painel/vitrine" className="mt-3 inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-bold text-on-primary">
+        <Link href="/painel/vitrine" className="mt-3 inline-flex items-center gap-2 rounded-full border border-primary/25 bg-primary-soft px-4 py-2 text-sm font-bold text-primary hover:bg-primary-soft-hover">
           <Settings2 size={15} /> Configurar vitrine
         </Link>
       </div>
@@ -54,7 +54,7 @@ export function VitrineActivation({ storefront, precos }: { storefront: any; pre
             <input type="hidden" name="days" value={p.dias} />
             <p className="text-sm font-bold">{p.label}</p>
             <p className="mt-1 text-xl font-extrabold">{money(Number(p.preco))}</p>
-            <button className="mt-3 h-9 w-full rounded-full bg-primary px-4 text-sm font-bold text-on-primary hover:bg-primary-hover">
+            <button className="mt-3 h-9 w-full rounded-full bg-action px-4 text-sm font-bold text-on-action hover:bg-action-hover">
               Ativar
             </button>
           </form>

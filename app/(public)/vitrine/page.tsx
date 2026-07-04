@@ -33,7 +33,7 @@ export default async function VitrinesPage() {
                 href={`/vitrine/${s.slug}`}
                 className="overflow-hidden rounded-xl border border-border bg-surface transition hover:-translate-y-0.5 hover:border-primary/40"
               >
-                <div className="relative flex aspect-[5/2] items-center justify-center overflow-hidden bg-border" style={!s.cover_url ? { background: s.accent_color || '#0891b2' } : undefined}>
+                <div className="relative flex aspect-[5/2] items-center justify-center overflow-hidden bg-border" style={!s.cover_url ? { background: s.accent_color || '#0ea5e9' } : undefined}>
                   {s.cover_url && (
                     <Image
                       src={s.cover_url}
@@ -79,7 +79,7 @@ export default async function VitrinesPage() {
         <div className="rounded-xl border border-dashed border-border p-12 text-center">
           <Store className="mx-auto mb-2 text-muted" />
           <p className="text-muted">Ainda não há vitrines ativas.</p>
-          <Link href="/profissionais" className="mt-4 inline-flex rounded-full bg-primary px-4 py-2 font-semibold text-on-primary">
+          <Link href="/profissionais" className="mt-4 inline-flex rounded-full border border-primary/25 bg-primary-soft px-4 py-2 font-semibold text-primary hover:bg-primary-soft-hover">
             Ver profissionais
           </Link>
         </div>

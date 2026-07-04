@@ -31,7 +31,7 @@ export function PropertyRow({ priority = false, ...p }: CardProperty & { priorit
       href={`/imovel/${p.slug}`}
       className="group flex gap-3 rounded-xl border border-border bg-surface p-2.5 outline-none transition hover:shadow-md focus-visible:ring-4 focus-visible:ring-primary/15 sm:gap-4 sm:p-3"
     >
-      <div className="relative h-[92px] w-[120px] shrink-0 overflow-hidden rounded-lg bg-slate-200 sm:h-[140px] sm:w-[200px] sm:rounded-xl">
+      <div className="relative h-[92px] w-[120px] shrink-0 overflow-hidden rounded-lg bg-subtle sm:h-[140px] sm:w-[200px] sm:rounded-xl">
         <Image
           src={p.coverUrl}
           alt={p.title}
@@ -42,7 +42,7 @@ export function PropertyRow({ priority = false, ...p }: CardProperty & { priorit
           className="object-cover transition duration-500 group-hover:scale-[1.03]"
         />
         {p.isFeatured && (
-          <span className="absolute left-1.5 top-1.5 rounded-md bg-white/90 px-1.5 py-0.5 text-[10px] font-bold leading-none text-slate-900 backdrop-blur sm:left-2 sm:top-2 sm:px-2 sm:py-1 sm:text-[11px]">
+          <span className="absolute left-1.5 top-1.5 rounded-md bg-white/90 px-1.5 py-0.5 text-[10px] font-bold leading-none text-text backdrop-blur sm:left-2 sm:top-2 sm:px-2 sm:py-1 sm:text-[11px]">
             Destaque
           </span>
         )}
@@ -54,14 +54,14 @@ export function PropertyRow({ priority = false, ...p }: CardProperty & { priorit
       <div className="flex min-w-0 flex-1 flex-col py-0.5">
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0">
-            <div className="line-clamp-1 text-[13px] font-medium leading-4 text-slate-900 dark:text-white sm:text-sm">{location || 'Região'}</div>
+            <div className="line-clamp-1 text-[13px] font-medium leading-4 text-text sm:text-sm">{location || 'Região'}</div>
             <div className="mt-0.5 line-clamp-2 text-[14px] font-semibold leading-[1.15] text-text sm:text-base">{p.title}</div>
           </div>
           <Heart size={17} className="mt-0.5 shrink-0 text-muted" aria-hidden />
         </div>
 
         {!!specs.length && (
-          <div className="mt-1.5 flex flex-wrap items-center gap-x-2.5 gap-y-1 text-[12px] font-medium text-slate-900 dark:text-white sm:text-[13px]">
+          <div className="mt-1.5 flex flex-wrap items-center gap-x-2.5 gap-y-1 text-[12px] font-medium text-text sm:text-[13px]">
             {specs.map(({ Icon, value }, i) => (
               <span key={i} className="inline-flex items-center gap-1">
                 <Icon size={13} className="text-link" />
@@ -72,7 +72,7 @@ export function PropertyRow({ priority = false, ...p }: CardProperty & { priorit
         )}
 
         <div className="mt-auto pt-1.5 text-[15px] font-bold leading-5 text-text sm:text-[17px]">{priceLabel(p)}</div>
-        <div className="line-clamp-1 text-[11px] font-medium text-slate-900 dark:text-white sm:text-[12px]">{advertiser}</div>
+        <div className="line-clamp-1 text-[11px] font-medium text-text sm:text-[12px]">{advertiser}</div>
       </div>
     </Link>
   );

@@ -217,7 +217,7 @@ export default async function ListagemPage({
   };
 
   return (
-    <main className="bg-internal dark:bg-bg">
+    <main className="bg-internal">
       <JsonLd
         data={breadcrumbLd([
           { name: 'Início', url: SITE },

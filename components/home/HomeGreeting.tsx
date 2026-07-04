@@ -36,7 +36,7 @@ export function HomeGreeting() {
         ) : (
           <>
             <span className="block">Encontre o imóvel ideal no</span>
-            <span className="block bg-gradient-to-r from-primary to-[#0891b2] bg-clip-text text-transparent">
+            <span className="block bg-gradient-to-r from-primary to-link-hover bg-clip-text text-transparent">
               Oeste da Bahia
             </span>
           </>

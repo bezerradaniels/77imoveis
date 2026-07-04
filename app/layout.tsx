@@ -72,8 +72,8 @@ export const metadata: Metadata = {
   },
 };
 
-// Define o tema (claro/escuro) antes da página pintar, evitando o "flash".
-const themeInit = `(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||(!t&&matchMedia('(prefers-color-scheme:dark)').matches))document.documentElement.classList.add('dark')}catch(e){}})()`;
+// Respeita apenas escolha explícita; a paleta atual é clara por padrão.
+const themeInit = `(function(){try{var t=localStorage.getItem('theme');if(t==='dark')document.documentElement.classList.add('dark')}catch(e){}})()`;
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (

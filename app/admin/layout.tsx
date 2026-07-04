@@ -32,11 +32,11 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   return (
     <>
       {/* Sidebar — só desktop */}
-      <aside className="fixed bottom-0 left-0 top-0 z-30 hidden w-64 overflow-hidden bg-slate-200 text-slate-900 lg:flex lg:flex-col">
+      <aside className="fixed bottom-0 left-0 top-0 z-30 hidden w-64 overflow-hidden border-r border-border bg-surface text-text lg:flex lg:flex-col">
         <div className="flex h-full flex-col gap-5 px-4 py-6">
           <div>
             <p className="text-lg font-bold leading-tight">Olá, {nome}</p>
-            <p className="mt-1 text-sm font-medium text-slate-600">Administração do portal</p>
+            <p className="mt-1 text-sm font-medium text-muted">Administração do portal</p>
           </div>
 
           <nav className="flex-1 space-y-1 overflow-y-auto" aria-label="Navegação admin">
@@ -49,7 +49,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
                 buttonText={label}
                 buttonLocation="admin_sidebar"
                 section="admin_nav"
-                className="flex items-center gap-3 rounded-[10px] px-3 py-2 text-sm font-semibold text-slate-900 transition hover:bg-white/65"
+                className="flex items-center gap-3 rounded-[10px] px-3 py-2 text-sm font-semibold text-text transition hover:bg-primary-soft"
               >
                 <Icon size={18} className="text-primary" />
                 {label}
@@ -64,9 +64,9 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       </aside>
 
       {/* Conteúdo */}
-      <div data-painel-shell className="min-h-screen bg-internal dark:bg-bg lg:pl-64">
+      <div data-painel-shell className="min-h-screen bg-internal lg:pl-64">
         {/* Nav móvel — tabs com scroll horizontal */}
-        <nav className="no-scrollbar flex gap-1 overflow-x-auto border-b border-slate-300 bg-slate-200 px-3 py-2 lg:hidden">
+        <nav className="no-scrollbar flex gap-1 overflow-x-auto border-b border-border bg-surface px-3 py-2 lg:hidden">
           {nav.map(({ href, label, icon: Icon }) => (
             <SidebarLink
               key={href}
@@ -76,7 +76,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
               buttonText={label}
               buttonLocation="admin_mobile_nav"
               section="admin_nav"
-              className="inline-flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-white/60"
+              className="inline-flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold text-text transition hover:bg-primary-soft"
             >
               <Icon size={14} />
               {label}

@@ -73,7 +73,7 @@ export function MobileContactBar(props: ContactCardProps) {
             });
             setOpen(true);
           }}
-          className="h-12 shrink-0 rounded-xl bg-primary px-5 text-sm font-bold text-on-primary transition hover:bg-primary-hover"
+          className="h-12 shrink-0 rounded-xl bg-action px-5 text-sm font-bold text-on-action transition hover:bg-action-hover"
         >
           Falar com anunciante
         </button>

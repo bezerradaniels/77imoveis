@@ -60,7 +60,7 @@ export function SubscriptionSummary({ summary }: { summary: Summary }) {
         {summary.cta && (
           <Link
             href={summary.cta.href}
-            className="inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-bold text-on-primary hover:bg-primary-hover"
+            className="inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-action px-4 py-2 text-sm font-bold text-on-action hover:bg-action-hover"
           >
             {summary.cta.label} <ArrowRight size={15} />
           </Link>

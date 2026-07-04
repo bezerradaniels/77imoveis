@@ -32,7 +32,7 @@ export function StorefrontForm({
   const [slug, setSlug] = useState(storefront?.slug ?? '');
   const [headline, setHeadline] = useState(storefront?.headline ?? '');
   const [about, setAbout] = useState(storefront?.about ?? '');
-  const [accent, setAccent] = useState(storefront?.accent_color ?? '#0891b2');
+  const [accent, setAccent] = useState(storefront?.accent_color ?? '#0ea5e9');
   const [showWa, setShowWa] = useState(storefront?.show_whatsapp ?? true);
   const [logo, setLogo] = useState<{ url: string; file?: File }>({ url: storefront?.logo_url ?? '' });
   const [cover, setCover] = useState<{ url: string; file?: File }>({ url: storefront?.cover_url ?? '' });
@@ -209,7 +209,7 @@ export function StorefrontForm({
             </p>
             <form action={startStorefrontCheckout} className="mt-5">
               <input type="hidden" name="days" value={selectedPreco.dias} />
-              <button className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-full bg-primary px-4 text-sm font-bold text-on-primary hover:bg-primary-hover">
+              <button className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-full bg-action px-4 text-sm font-bold text-on-action hover:bg-action-hover">
                 <CreditCard size={16} /> Ir para pagamento
               </button>
             </form>

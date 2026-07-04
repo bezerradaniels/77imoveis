@@ -16,7 +16,7 @@ export default function ErrorPage({ reset }: { error: Error & { digest?: string 
       <div className="mt-8 flex flex-wrap justify-center gap-3">
         <button
           onClick={reset}
-          className="inline-flex min-h-11 items-center gap-2 rounded-[10px] bg-primary px-4 py-2 text-sm font-bold text-on-primary transition-colors hover:bg-primary-hover"
+          className="inline-flex min-h-11 items-center gap-2 rounded-[10px] bg-action px-4 py-2 text-sm font-bold text-on-action transition-colors hover:bg-action-hover"
         >
           <RefreshCcw size={16} aria-hidden /> Tentar novamente
         </button>

@@ -159,7 +159,7 @@ function RadioCard({
       </div>
       <span className={`mt-0.5 flex shrink-0 items-center justify-center rounded-full border-2 transition
         ${compact ? 'h-4 w-4' : 'h-5 w-5'}
-        ${checked ? 'border-[#4ade80] bg-[#4ade80]' : 'border-border'}`}>
+        ${checked ? 'border-primary bg-primary' : 'border-border'}`}>
         {checked && <Check size={compact ? 10 : 12} strokeWidth={3} className="text-white" />}
       </span>
     </label>
@@ -363,7 +363,7 @@ export function OnboardingFlow({ cities }: { cities: City[] }) {
       <button
         disabled={!canAdvance || pending}
         onClick={advance}
-        className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3 font-semibold text-on-primary transition hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-40 sm:w-auto"
+        className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-action px-6 py-3 font-semibold text-on-action transition hover:bg-action-hover disabled:cursor-not-allowed disabled:opacity-40 sm:w-auto"
       >
         {pending && <Loader2 size={18} className="animate-spin" />}
         {isLastStep ? 'Concluir' : 'Continuar'}

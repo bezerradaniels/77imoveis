@@ -32,7 +32,7 @@ export function MobileSearchSheet({
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="mt-[18px] flex h-[50px] w-full items-center justify-center gap-2.5 rounded-[13px] bg-primary text-[15.5px] font-bold text-on-primary transition-colors hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primary/25 md:hidden"
+        className="mt-[18px] flex h-[50px] w-full items-center justify-center gap-2.5 rounded-[13px] bg-action text-[15.5px] font-bold text-on-action transition-colors hover:bg-action-hover focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-action/25 md:hidden"
       >
         <Search size={19} /> Buscar imóveis
       </button>

@@ -30,7 +30,7 @@ export function AvulsoPurchase({
     return (
       <div className="rounded-xl border border-dashed border-border bg-surface p-6 text-center">
         <p className="text-sm text-muted">Você precisa de um imóvel ativo para comprar destaque ou topo da busca.</p>
-        <Link href="/painel/imoveis" className="mt-3 inline-block rounded-full bg-primary px-4 py-2 text-sm font-bold text-on-primary">
+        <Link href="/painel/imoveis" className="mt-3 inline-block rounded-full border border-primary/25 bg-primary-soft px-4 py-2 text-sm font-bold text-primary hover:bg-primary-soft-hover">
           Meus imóveis
         </Link>
       </div>
@@ -99,7 +99,7 @@ export function AvulsoPurchase({
           <form action={startListingFeatureCheckout} className="mt-4">
             <input type="hidden" name="propertyId" value={propertyId} />
             <input type="hidden" name="productSlug" value={product?.slug ?? ''} />
-            <button className="h-10 w-full rounded-full bg-primary px-4 text-sm font-bold text-on-primary hover:bg-primary-hover">
+            <button className="h-10 w-full rounded-full bg-action px-4 text-sm font-bold text-on-action hover:bg-action-hover">
               Comprar {type === 'destaque' ? 'destaque' : 'topo'}
             </button>
           </form>

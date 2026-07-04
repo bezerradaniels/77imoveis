@@ -11,7 +11,7 @@ type Props = Omit<React.ComponentProps<typeof TrackedLink>, 'href'> & {
 };
 
 // Link de navegação do painel/admin com estado "página atual" (aria-current).
-export function SidebarLink({ exact, activeClassName = 'bg-white text-primary', className, href, ...props }: Props) {
+export function SidebarLink({ exact, activeClassName = 'bg-primary-soft text-primary', className, href, ...props }: Props) {
   const pathname = usePathname();
   const active = exact ? pathname === href : pathname === href || pathname.startsWith(`${href}/`);
   return (

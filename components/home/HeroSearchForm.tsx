@@ -162,7 +162,7 @@ export function HeroSearchForm({
         type="button"
         onClick={buscar}
         className={cn(
-          'mt-[18px] flex h-[50px] w-full items-center justify-center gap-2 rounded-[13px] bg-primary text-[15.5px] font-bold text-on-primary transition-colors hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primary/25',
+          'mt-[18px] flex h-[50px] w-full items-center justify-center gap-2 rounded-[13px] bg-action text-[15.5px] font-bold text-on-action transition-colors hover:bg-action-hover focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-action/25',
           !bare && 'lg:mt-auto',
         )}
       >

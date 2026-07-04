@@ -54,7 +54,7 @@ export async function saveStorefront(input: StorefrontInput): Promise<{ slug?: s
   const company = companies?.[0];
   if (!company) return { error: 'Crie sua empresa antes de configurar a vitrine.' };
 
-  const accentColor = /^#[0-9a-f]{6}$/i.test(input.accentColor ?? '') ? input.accentColor : '#0891b2';
+  const accentColor = /^#[0-9a-f]{6}$/i.test(input.accentColor ?? '') ? input.accentColor : '#0ea5e9';
   const base: StorefrontUpdate = {
     headline: input.headline?.trim() || null,
     about: input.about?.trim() || null,

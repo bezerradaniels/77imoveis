@@ -622,7 +622,7 @@ export function PropertyForm({
     <span
       className={cn(
         'flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 transition',
-        sel ? 'border-[#4ade80] bg-[#4ade80] text-white' : 'border-border bg-surface',
+        sel ? 'border-primary bg-primary text-on-primary' : 'border-border bg-surface',
       )}
     >
       {sel && <Check size={13} strokeWidth={3} />}
@@ -721,7 +721,7 @@ export function PropertyForm({
         </p>
         <div className="mt-6 flex flex-col gap-2.5">
           {success.status === 'ativo' && success.slug && (
-            <Link href={`/imovel/${success.slug}`} className="flex h-12 items-center justify-center rounded-xl bg-primary text-[14.5px] font-semibold text-on-primary">Ver página do imóvel</Link>
+            <Link href={`/imovel/${success.slug}`} className="flex h-12 items-center justify-center rounded-xl bg-action text-[14.5px] font-semibold text-on-action hover:bg-action-hover">Ver página do imóvel</Link>
           )}
           <Link href="/painel/imoveis" className="flex h-12 items-center justify-center rounded-xl border border-border bg-surface text-sm font-semibold">Gerenciar meus anúncios</Link>
           <button type="button" onClick={() => { setSuccess(null); setData(blank(defaults)); setPhotos([]); setStep(1); savedId.current = undefined; }} className="h-11 rounded-xl text-sm font-semibold text-primary">Publicar outro imóvel</button>
@@ -754,8 +754,8 @@ export function PropertyForm({
                   disabled={!done}
                   className={cn(
                     'h-3 w-3 rounded-full transition sm:h-3.5 sm:w-3.5',
-                    done && 'bg-[#4ade80] hover:scale-110',
-                    cur && 'bg-[#4ade80] ring-4 ring-[#4ade80]/20',
+                    done && 'bg-primary hover:scale-110',
+                    cur && 'bg-primary ring-4 ring-primary/20',
                     !done && !cur && 'bg-border',
                   )}
                 />
@@ -1114,11 +1114,11 @@ export function PropertyForm({
       <div className="mt-8 border-t border-border pt-4">
         <div className="flex flex-col gap-2.5 sm:flex-row sm:items-center sm:justify-end">
           {step !== 9 ? (
-            <button type="button" onClick={goNext} className="order-1 flex h-[46px] items-center justify-center gap-1 rounded-xl bg-primary px-5 text-[14.5px] font-semibold text-on-primary sm:order-3 sm:min-w-44">
+            <button type="button" onClick={goNext} className="order-1 flex h-[46px] items-center justify-center gap-1 rounded-xl bg-action px-5 text-[14.5px] font-semibold text-on-action hover:bg-action-hover sm:order-3 sm:min-w-44">
               Continuar<ChevronRight size={16} />
             </button>
           ) : (
-            <button type="button" onClick={publish} disabled={busy} className="order-1 flex h-[46px] items-center justify-center gap-2 rounded-xl bg-primary px-5 text-[14.5px] font-bold text-on-primary disabled:opacity-60 sm:order-3 sm:min-w-44">
+            <button type="button" onClick={publish} disabled={busy} className="order-1 flex h-[46px] items-center justify-center gap-2 rounded-xl bg-action px-5 text-[14.5px] font-bold text-on-action hover:bg-action-hover disabled:opacity-60 sm:order-3 sm:min-w-44">
               {busy && <Loader2 size={16} className="animate-spin" />}Publicar imóvel
             </button>
           )}
@@ -1149,7 +1149,7 @@ export function PropertyForm({
               <div className="flex items-center justify-between rounded-xl border border-primary/30 bg-primary/5 p-3.5"><div><div className="text-sm font-bold">Empresa Start <span className="ml-1 rounded-md bg-primary px-1.5 py-0.5 text-[10px] text-on-primary">Novo</span></div><div className="text-xs text-muted">Até 50 imóveis · vitrine da empresa</div></div><div className="text-[15px] font-bold text-primary">R$ 79,90<span className="text-[11px] font-medium text-muted">/mês</span></div></div>
             </div>
             <div className="grid gap-2">
-              <Link href="/painel/planos" className="flex h-[46px] items-center justify-center rounded-xl bg-primary text-[14.5px] font-semibold text-on-primary">Ver planos e assinar</Link>
+              <Link href="/painel/planos" className="flex h-[46px] items-center justify-center rounded-xl bg-action text-[14.5px] font-semibold text-on-action hover:bg-action-hover">Ver planos e assinar</Link>
               <button type="button" onClick={() => setPlanModal(false)} className="h-[42px] w-full rounded-xl border border-border text-[13.5px] font-semibold text-muted">Continuar com plano gratuito</button>
             </div>
           </div>

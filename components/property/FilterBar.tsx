@@ -28,7 +28,7 @@ function Chip({ active, onClick, children }: { active: boolean; onClick: () => v
       onClick={onClick}
       className={cn(
         'inline-flex w-full items-center justify-center gap-1 rounded-[10px] px-2 py-1.5 text-[13px] font-medium transition-colors',
-        active ? 'bg-primary text-on-primary' : 'border border-border text-slate-900 hover:bg-bg dark:text-on-primary',
+        active ? 'bg-primary text-on-primary' : 'border border-border text-text hover:bg-bg',
       )}
     >
       {active && <Check size={13} />}
@@ -289,7 +289,7 @@ export function FilterBar({
               defaultValue={params.get('min') ?? ''}
               placeholder="Mín."
               onBlur={(e) => setParam('min', e.target.value)}
-              className="h-9 rounded-lg border border-border bg-surface px-2.5 text-sm font-medium text-slate-900 dark:text-white"
+              className="h-9 rounded-lg border border-border bg-surface px-2.5 text-sm font-medium text-text"
             />
             <input
               type="number"
@@ -297,7 +297,7 @@ export function FilterBar({
               defaultValue={params.get('max') ?? ''}
               placeholder="Máx."
               onBlur={(e) => setParam('max', e.target.value)}
-              className="h-9 rounded-lg border border-border bg-surface px-2.5 text-sm font-medium text-slate-900 dark:text-white"
+              className="h-9 rounded-lg border border-border bg-surface px-2.5 text-sm font-medium text-text"
             />
           </div>
         </div>

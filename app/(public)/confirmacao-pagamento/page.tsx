@@ -101,7 +101,7 @@ export default function ConfirmacaoPagamentoPage({
           <div className="mb-6 space-y-2">
             <Link
               href="/painel/planos"
-              className="inline-block w-full rounded-full bg-primary px-4 py-3 text-sm font-bold text-on-primary hover:bg-primary-hover"
+              className="inline-block w-full rounded-full bg-action px-4 py-3 text-sm font-bold text-on-action hover:bg-action-hover"
             >
               Tentar novamente
             </Link>
@@ -117,7 +117,7 @@ export default function ConfirmacaoPagamentoPage({
         {status !== 'erro' && (
           <Link
             href={redirectUrl}
-            className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-primary px-4 py-3 text-sm font-bold text-on-primary hover:bg-primary-hover"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-action px-4 py-3 text-sm font-bold text-on-action hover:bg-action-hover"
           >
             Ir para {redirectLabel} <ArrowRight size={16} />
           </Link>

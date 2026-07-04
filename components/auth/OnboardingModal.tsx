@@ -11,7 +11,7 @@ export function OnboardingModal({ cities }: { cities: City[] }) {
       role="dialog"
       aria-modal="true"
       aria-labelledby="onboarding-title"
-      className="fixed inset-0 z-[60] min-h-screen overflow-y-auto bg-internal px-4 py-5 text-text dark:bg-bg sm:px-6 lg:px-10"
+      className="fixed inset-0 z-[60] min-h-screen overflow-y-auto bg-internal px-4 py-5 text-text sm:px-6 lg:px-10"
     >
       <div className="mx-auto flex min-h-full w-full max-w-5xl flex-col pt-2 pb-8 sm:pt-4 lg:pt-6">
         <div className="mb-7 text-center">

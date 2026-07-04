@@ -39,7 +39,7 @@ export function Dropdown({
         onClick={() => setOpen((o) => !o)}
         className="flex h-10 w-full items-center justify-between gap-2 rounded-xl border border-border bg-surface px-3 text-sm"
       >
-        <span className={cn(selected ? 'font-medium text-slate-900 dark:text-white' : 'text-muted')}>{selected?.label ?? placeholder}</span>
+        <span className={cn(selected ? 'font-medium text-text' : 'text-muted')}>{selected?.label ?? placeholder}</span>
         <ChevronDown size={16} className={cn('text-muted transition', open && 'rotate-180')} />
       </button>
       {open && (

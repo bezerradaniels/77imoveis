@@ -58,7 +58,7 @@ function PlanCard({ pair }: { pair: PlanPair }) {
 
       <Link
         href="/cadastro"
-        className="mt-6 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-bold text-on-primary transition-colors hover:bg-primary-hover"
+        className="mt-6 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-action px-4 py-2 text-sm font-bold text-on-action transition-colors hover:bg-action-hover"
       >
         Começar agora <ArrowRight size={16} />
       </Link>
@@ -104,7 +104,7 @@ export default async function PlanosPrecosPage() {
               Planos mensais fixos para corretores autônomos, imobiliárias e construtoras, com opção anual com desconto e compras avulsas para destacar imóveis, vitrines e banners.
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
-              <Link href="/cadastro" className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-primary px-5 py-2 text-sm font-bold text-on-primary hover:bg-primary-hover">
+              <Link href="/cadastro" className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-action px-5 py-2 text-sm font-bold text-on-action hover:bg-action-hover">
                 Criar conta <ArrowRight size={16} />
               </Link>
               <Link href="/anunciar" className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-border bg-surface px-5 py-2 text-sm font-bold text-text hover:bg-bg">

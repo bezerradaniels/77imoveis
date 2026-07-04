@@ -18,7 +18,7 @@ export default function NotFound() {
       <div className="mt-8 flex flex-wrap justify-center gap-3">
         <Link
           href="/imoveis"
-          className="inline-flex min-h-11 items-center rounded-[10px] bg-primary px-4 py-2 text-sm font-bold text-on-primary transition-colors hover:bg-primary-hover"
+          className="inline-flex min-h-11 items-center rounded-[10px] border border-primary/25 bg-primary-soft px-4 py-2 text-sm font-bold text-primary transition-colors hover:bg-primary-soft-hover"
         >
           Ver imóveis disponíveis
         </Link>

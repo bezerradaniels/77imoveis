@@ -124,7 +124,7 @@ export function BrokerAdmin({ broker }: { broker: Broker }) {
           <input name="photo_url" defaultValue={broker.photo_url ?? ''} placeholder="Foto URL" className="rounded-md border border-border bg-surface px-2 py-1.5 text-sm" />
           <input name="photo_file" type="file" accept="image/jpeg,image/png,image/webp,image/avif" className="rounded-md border border-border bg-surface px-2 py-1.5 text-sm" />
           <div className="flex gap-2 sm:col-span-2">
-            <button disabled={pending} onClick={() => trackButtonClick({ button_id: 'admin_save_broker_button', button_text: 'Salvar', button_location: 'admin_broker_edit_form' })} className="rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-on-primary disabled:opacity-50">Salvar</button>
+            <button disabled={pending} onClick={() => trackButtonClick({ button_id: 'admin_save_broker_button', button_text: 'Salvar', button_location: 'admin_broker_edit_form' })} className="rounded-md bg-action px-3 py-1.5 text-sm font-medium text-on-action hover:bg-action-hover disabled:opacity-50">Salvar</button>
             <button type="button" disabled={pending} onClick={() => setEditing(false)} className="rounded-md border border-border px-3 py-1.5 text-sm">Cancelar</button>
           </div>
         </form>

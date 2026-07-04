@@ -76,11 +76,11 @@ export default async function PainelLayout({ children }: { children: React.React
 
   return (
     <>
-      <aside className="fixed bottom-0 left-0 top-0 z-30 hidden w-64 overflow-hidden bg-slate-200 text-slate-900 lg:flex lg:flex-col">
+      <aside className="fixed bottom-0 left-0 top-0 z-30 hidden w-64 overflow-hidden border-r border-border bg-surface text-text lg:flex lg:flex-col">
         <div className="flex h-full flex-col gap-5 px-4 py-6">
           <div>
             <p className="text-lg font-bold leading-tight">Olá, {nome}</p>
-            <p className="mt-1 text-sm font-medium text-slate-600">Conta {accountLabel}</p>
+            <p className="mt-1 text-sm font-medium text-muted">Conta {accountLabel}</p>
           </div>
 
           {companies.length > 0 && (
@@ -110,7 +110,7 @@ export default async function PainelLayout({ children }: { children: React.React
                   buttonText={item.label}
                   buttonLocation="painel_sidebar"
                   section="painel_nav"
-                  className="flex items-center gap-3 rounded-[10px] px-3 py-2 text-sm font-semibold text-slate-900 transition hover:bg-white/65"
+                  className="flex items-center gap-3 rounded-[10px] px-3 py-2 text-sm font-semibold text-text transition hover:bg-primary-soft"
                 >
                   <Icon size={18} className="text-primary" />
                   {item.label}
@@ -124,7 +124,7 @@ export default async function PainelLayout({ children }: { children: React.React
                 buttonText="Administração"
                 buttonLocation="painel_sidebar"
                 section="painel_nav"
-                className="flex items-center gap-3 rounded-[10px] px-3 py-2 text-sm font-semibold text-slate-900 transition hover:bg-white/65"
+                className="flex items-center gap-3 rounded-[10px] px-3 py-2 text-sm font-semibold text-text transition hover:bg-primary-soft"
               >
                 <Shield size={18} className="text-primary" />
                 Administração
@@ -138,7 +138,7 @@ export default async function PainelLayout({ children }: { children: React.React
         </div>
       </aside>
 
-      <div data-painel-shell className="min-h-screen bg-internal dark:bg-bg lg:pl-64">
+      <div data-painel-shell className="min-h-screen bg-internal lg:pl-64">
         {children}
       </div>
     </>

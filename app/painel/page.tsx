@@ -68,7 +68,7 @@ export default async function PainelPage() {
   ];
 
   return (
-    <main className="min-h-screen bg-internal px-4 py-8 dark:bg-bg">
+    <main className="min-h-screen bg-internal px-4 py-8">
       <TrackEventOnMount
         eventName={ANALYTICS_EVENTS.dashboardView}
         params={{ user_role: profile?.role ?? 'unknown', section: 'dashboard_home' }}

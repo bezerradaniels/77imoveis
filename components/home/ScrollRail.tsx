@@ -61,7 +61,7 @@ export function ScrollRail({ children, className, count }: Props) {
               key={i}
               className={cn(
                 'h-1.5 rounded-full transition-all duration-200',
-                i === active ? 'w-6 bg-primary' : 'w-2.5 bg-slate-300 dark:bg-border',
+                i === active ? 'w-6 bg-primary' : 'w-2.5 bg-border',
               )}
             />
           ))}

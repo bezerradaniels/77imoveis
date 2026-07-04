@@ -79,7 +79,7 @@ export default async function HomePage() {
       <HomeHero cities={cityOpts} types={typeOpts} neighborhoods={neighborhoods} ads={banners} />
 
       {/* CIDADES */}
-      <section className="relative overflow-hidden bg-white py-[clamp(40px,5.5vw,68px)] dark:bg-bg">
+      <section className="relative overflow-hidden bg-[#fafafa] py-[clamp(40px,5.5vw,68px)]">
         <div className="relative mx-auto max-w-[1200px] px-6">
           <div className="mb-5">
             <SectionTitle title="Encontre imóveis por cidade" sub="Cobertura nas principais cidades do sudoeste e oeste da Bahia." />
@@ -93,7 +93,7 @@ export default async function HomePage() {
               >
                 <span
                   aria-hidden
-                  className="block aspect-[3/4] bg-slate-200 bg-cover bg-center transition-transform duration-300 group-hover:scale-[1.04]"
+                  className="block aspect-[3/4] bg-subtle bg-cover bg-center transition-transform duration-300 group-hover:scale-[1.04]"
                   style={{ backgroundImage: `url("${cityImageFor(c.slug)}")` }}
                 />
                 <span aria-hidden className="absolute inset-0" style={{ background: 'linear-gradient(180deg,rgba(6,11,9,0) 40%,rgba(6,11,9,.82) 100%)' }} />
@@ -111,7 +111,7 @@ export default async function HomePage() {
       </section>
 
       {/* DESTAQUES */}
-      <section className="bg-surface">
+      <section className="bg-[#f8f9fa]">
         <div className="mx-auto max-w-[1200px] px-6 py-[clamp(40px,5.5vw,68px)]">
           <div className="mb-5 flex flex-wrap items-end justify-between gap-4">
             <SectionTitle title="Imóveis em destaque" sub="Seleção de oportunidades recentes no Oeste da Bahia." />
@@ -128,7 +128,7 @@ export default async function HomePage() {
               ))}
             </ScrollRail>
           ) : (
-            <p className="rounded-2xl border border-dashed border-border bg-[#f7f9f8] p-12 text-center text-[14px] text-muted dark:bg-bg">
+            <p className="rounded-2xl border border-dashed border-border bg-surface p-12 text-center text-[14px] text-muted">
               Em breve, imóveis em destaque aqui.
             </p>
           )}
@@ -136,7 +136,7 @@ export default async function HomePage() {
       </section>
 
       {/* CATEGORIAS */}
-      <section className="relative overflow-hidden bg-[#f7f9f8] dark:bg-bg">
+      <section className="relative overflow-hidden bg-[#fafafa]">
         <div aria-hidden className="pointer-events-none absolute -right-24 top-0 h-72 w-72 rounded-full bg-primary/10 blur-3xl" />
         <div className="relative mx-auto max-w-[1200px] px-6 py-[clamp(40px,5.5vw,68px)]">
           <div className="mb-5">
@@ -163,7 +163,7 @@ export default async function HomePage() {
       </section>
 
       {/* PROFISSIONAIS */}
-      <section className="bg-surface">
+      <section className="bg-[#f8f9fa]">
         <div className="mx-auto max-w-[1200px] px-6 py-[clamp(40px,5.5vw,68px)]">
           <div className="mb-5">
             <SectionTitle title="Profissionais e empresas da região" sub="Conecte-se com imobiliárias, construtoras e corretores do Oeste da Bahia." />
@@ -190,25 +190,25 @@ export default async function HomePage() {
       </section>
 
       {/* CTA ANUNCIANTE */}
-      <section id="anunciar" className="relative overflow-hidden bg-primary">
-        <div aria-hidden className="pointer-events-none absolute inset-0 opacity-25" style={{ backgroundImage: 'radial-gradient(circle, rgba(255,255,255,.18) 1px, transparent 1px)', backgroundSize: '26px 26px' }} />
+      <section id="anunciar" className="relative overflow-hidden border-y border-border bg-[#fafafa]">
+        <div aria-hidden className="pointer-events-none absolute inset-0 opacity-60" style={dotPattern} />
         <div className="relative mx-auto flex max-w-[1200px] flex-col items-start justify-between gap-7 px-6 py-[clamp(40px,5.5vw,64px)] md:flex-row md:items-center">
           <div className="max-w-[620px]">
-            <div className="mb-3 inline-flex items-center gap-2 text-[12px] font-bold uppercase tracking-[.08em] text-white/75">
+            <div className="mb-3 inline-flex items-center gap-2 text-[12px] font-bold uppercase tracking-[.08em] text-link">
               <Megaphone size={16} /> Para anunciantes
             </div>
-            <h2 className="m-0 mb-3 text-[clamp(20px,2.6vw,28px)] font-extrabold leading-[1.12] tracking-tight text-on-primary">
+            <h2 className="m-0 mb-3 text-[clamp(20px,2.6vw,28px)] font-extrabold leading-[1.12] tracking-tight text-text">
               Anuncie seu imóvel ou sua empresa
             </h2>
-            <p className="m-0 text-[14px] leading-relaxed text-white/85 md:text-[15px]">
-              Proprietários particulares anunciam <strong className="text-on-primary">grátis</strong>. Corretores autônomos, imobiliárias e construtoras contam com planos para destacar seus imóveis e captar mais clientes no Oeste da Bahia.
+            <p className="m-0 text-[14px] leading-relaxed text-muted md:text-[15px]">
+              Proprietários particulares anunciam <strong className="text-text">grátis</strong>. Corretores autônomos, imobiliárias e construtoras contam com planos para destacar seus imóveis e captar mais clientes no Oeste da Bahia.
             </p>
           </div>
           <div className="flex w-full flex-col gap-3 md:w-auto md:min-w-[240px]">
-            <Link href="/anunciar" className="flex items-center justify-center gap-2 rounded-xl bg-white px-7 py-3.5 text-[15px] font-extrabold text-link shadow-[0_14px_30px_-12px_rgba(0,0,0,.22)] transition-transform hover:-translate-y-0.5 hover:text-link-hover">
+            <Link href="/anunciar" className="flex items-center justify-center gap-2 rounded-xl bg-action px-7 py-3.5 text-[15px] font-extrabold text-on-action transition-colors hover:bg-action-hover">
               <PlusCircle size={18} /> Anunciar grátis
             </Link>
-            <Link href="/planos-e-precos" className="flex items-center justify-center gap-2 rounded-xl border border-white/45 bg-white/10 px-7 py-3.5 text-[15px] font-bold text-on-primary transition-colors hover:bg-white/20">
+            <Link href="/planos-e-precos" className="flex items-center justify-center gap-2 rounded-xl border border-border bg-surface px-7 py-3.5 text-[15px] font-bold text-text transition-colors hover:border-primary/40 hover:bg-primary-soft">
               Ver planos para empresas
             </Link>
           </div>
@@ -216,10 +216,10 @@ export default async function HomePage() {
       </section>
 
       {/* SEO */}
-      <section id="sobre" className="scroll-mt-24 bg-[#f7f9f8] dark:bg-bg">
+      <section id="sobre" className="scroll-mt-24 bg-[#f8f9fa]">
         <div className="mx-auto max-w-[1200px] px-6 py-[clamp(40px,5.5vw,64px)]">
           <h2 className="mb-3 text-[clamp(19px,2.1vw,23px)] font-extrabold tracking-tight text-text">Imóveis no Oeste da Bahia</h2>
-          <p className="mb-4 max-w-[920px] text-[14px] leading-relaxed text-[#46514a] dark:text-muted">
+          <p className="mb-4 max-w-[920px] text-[14px] leading-relaxed text-muted">
             O <strong>77imóveis</strong> é o portal imobiliário regional que reúne casas, apartamentos, terrenos e imóveis comerciais nas principais cidades do sudoeste e oeste da Bahia. Pesquise para comprar ou alugar com filtros de cidade, tipo e número de quartos, e fale diretamente com imobiliárias, construtoras e corretores da sua região.
           </p>
           <div className="flex flex-wrap gap-2">

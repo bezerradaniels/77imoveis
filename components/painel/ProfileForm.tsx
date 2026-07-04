@@ -182,7 +182,7 @@ export function ProfileForm({ profile, cities }: { profile: Profile; cities: Cit
         type="submit"
         onClick={() => trackButtonClick({ button_id: 'profile_save_button', button_text: 'Salvar perfil', button_location: 'profile_form' })}
         disabled={pending || uploading}
-        className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3 font-semibold text-on-primary transition hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-40 sm:w-auto"
+        className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-action px-6 py-3 font-semibold text-on-action transition hover:bg-action-hover disabled:cursor-not-allowed disabled:opacity-40 sm:w-auto"
       >
         {pending && <Loader2 size={18} className="animate-spin" />}
         Salvar perfil

@@ -112,7 +112,7 @@ export default async function PlanosPage() {
             <Building2 className="text-link" />
             <p className="text-sm">Crie um perfil profissional para acessar assinaturas, vitrine e planos.</p>
           </div>
-          <Link href="/painel/empresa" className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-on-primary">
+          <Link href="/painel/empresa" className="rounded-full bg-action px-4 py-2 text-sm font-semibold text-on-action hover:bg-action-hover">
             Atuar profissionalmente
           </Link>
         </div>

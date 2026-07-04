@@ -51,7 +51,7 @@ export function UpdatePasswordForm() {
         <LockKeyhole size={34} className="mx-auto text-success" />
         <h2 className="mt-3 text-lg font-bold">Senha atualizada</h2>
         <p className="mt-2 text-sm leading-relaxed text-muted">Agora você já pode acessar seu painel com a nova senha.</p>
-        <Link href="/entrar" className="mt-5 inline-flex rounded-lg bg-primary px-4 py-2 text-sm font-bold text-on-primary hover:bg-primary-hover">
+        <Link href="/entrar" className="mt-5 inline-flex rounded-lg bg-action px-4 py-2 text-sm font-bold text-on-action hover:bg-action-hover">
           Entrar no painel
         </Link>
       </div>

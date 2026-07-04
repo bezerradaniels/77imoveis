@@ -312,7 +312,7 @@ function ImgPick({ label, st, setter, ratio, hint }: any) {
     <Field label={label}>
       <label
         className={`group relative flex ${ratio} cursor-pointer items-center justify-center overflow-hidden rounded-xl border-2 border-dashed text-muted transition ${
-          hasImage ? 'border-transparent' : 'border-primary/40 bg-[#f8fbfe] hover:border-primary hover:bg-[#eff8ff]'
+          hasImage ? 'border-transparent' : 'border-primary/40 bg-primary-soft hover:border-primary hover:bg-primary-soft-hover'
         }`}
       >
         {hasImage ? (
@@ -321,8 +321,8 @@ function ImgPick({ label, st, setter, ratio, hint }: any) {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={st.file ? URL.createObjectURL(st.file) : st.url} alt="" className="h-full w-full object-cover" />
             {/* Overlay no hover */}
-            <span className="absolute inset-0 flex items-center justify-center bg-slate-950/0 opacity-0 transition group-hover:bg-slate-950/40 group-hover:opacity-100">
-              <span className="inline-flex items-center gap-1.5 rounded-lg bg-white/95 px-3 py-1.5 text-xs font-bold text-slate-900 shadow">
+            <span className="absolute inset-0 flex items-center justify-center bg-black/0 opacity-0 transition group-hover:bg-black/35 group-hover:opacity-100">
+              <span className="inline-flex items-center gap-1.5 rounded-lg bg-white/95 px-3 py-1.5 text-xs font-bold text-text shadow">
                 <ImagePlus size={14} /> Trocar
               </span>
             </span>

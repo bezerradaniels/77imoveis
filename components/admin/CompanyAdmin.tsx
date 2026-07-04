@@ -108,7 +108,7 @@ export function CompanyAdmin({
           <input name="instagram" defaultValue={company.instagram ?? ''} placeholder="Instagram" className="rounded-md border border-border bg-surface px-2 py-1.5 text-sm" />
           <textarea name="description" defaultValue={company.description ?? ''} placeholder="Descrição" className="min-h-20 rounded-md border border-border bg-surface px-2 py-1.5 text-sm sm:col-span-2" />
           <div className="flex gap-2 sm:col-span-2">
-            <button disabled={pending} onClick={() => trackButtonClick({ button_id: 'admin_save_company_button', button_text: 'Salvar', button_location: 'admin_company_edit_form' })} className="rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-on-primary disabled:opacity-50">Salvar</button>
+            <button disabled={pending} onClick={() => trackButtonClick({ button_id: 'admin_save_company_button', button_text: 'Salvar', button_location: 'admin_company_edit_form' })} className="rounded-md bg-action px-3 py-1.5 text-sm font-medium text-on-action hover:bg-action-hover disabled:opacity-50">Salvar</button>
             <button type="button" disabled={pending} onClick={() => setEditing(false)} className="rounded-md border border-border px-3 py-1.5 text-sm">Cancelar</button>
           </div>
         </form>

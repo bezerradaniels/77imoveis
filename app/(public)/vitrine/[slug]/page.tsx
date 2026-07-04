@@ -46,7 +46,7 @@ export default async function VitrinePublicaPage({ params }: { params: { slug: s
 
   const s: any = res.storefront;
   const c = s.companies;
-  const accent = s.accent_color || '#0891b2';
+  const accent = s.accent_color || '#0ea5e9';
   const accentText = readableTextOn(accent);
   const wa = s.show_whatsapp && (c.whatsapp || c.phone) ? `https://wa.me/55${(c.whatsapp || c.phone).replace(/\D/g, '')}` : null;
 

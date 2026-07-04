@@ -163,7 +163,7 @@ export function ManualContractForm({
       <button
         type="button"
         onClick={() => { reset(); setOpen(true); }}
-        className={triggerClassName ?? 'inline-flex h-10 items-center gap-2 rounded-full bg-primary px-4 text-sm font-bold text-on-primary hover:bg-primary-hover'}
+        className={triggerClassName ?? 'inline-flex h-10 items-center gap-2 rounded-full bg-action px-4 text-sm font-bold text-on-action hover:bg-action-hover'}
       >
         {mode === 'create' ? <Plus size={16} /> : <Pencil size={14} />}
         {triggerLabel ?? (mode === 'create' ? 'Novo contrato' : 'Editar')}

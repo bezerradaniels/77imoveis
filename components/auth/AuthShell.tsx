@@ -7,7 +7,7 @@ type AuthShellProps = {
 
 export function AuthShell({ eyebrow, title, description, children }: AuthShellProps) {
   return (
-    <main className="flex min-h-[calc(100vh-185px)] w-full items-center justify-center bg-internal px-4 py-10 dark:bg-bg sm:py-14">
+    <main className="flex min-h-[calc(100vh-185px)] w-full items-center justify-center bg-internal px-4 py-10 sm:py-14">
       <section className="auth-form w-full max-w-sm rounded-lg border border-border bg-surface p-6 sm:p-7">
         <div className="mb-6">
           {eyebrow && (

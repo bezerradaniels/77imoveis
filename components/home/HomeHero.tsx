@@ -23,7 +23,7 @@ export function HomeHero({
 }) {
   const carouselAds = ads && ads.length ? ads : heroAds;
   return (
-    <section aria-label="Buscar imóveis no Oeste da Bahia" className="relative z-10 overflow-hidden bg-[#f8f9fa] pt-6 pb-8 dark:bg-bg md:overflow-visible md:py-10">
+    <section aria-label="Buscar imóveis no Oeste da Bahia" className="relative z-10 overflow-hidden bg-[#f8f9fa] pt-6 pb-8 md:overflow-visible md:py-10">
       <div className="relative z-[1] mx-auto w-full max-w-[1200px] px-6">
         <HomeGreeting />
 

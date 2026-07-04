@@ -86,7 +86,7 @@ export default async function AdminClientes({ searchParams }: { searchParams: SP
                 mode="create"
                 presetCompanyId={r.id}
                 triggerLabel="Novo contrato"
-                triggerClassName="inline-flex h-9 items-center gap-1 rounded-full bg-primary px-4 text-sm font-bold text-on-primary hover:bg-primary-hover"
+                triggerClassName="inline-flex h-9 items-center gap-1 rounded-full bg-action px-4 text-sm font-bold text-on-action hover:bg-action-hover"
               />
             </div>
           </li>
