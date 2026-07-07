@@ -24,14 +24,19 @@ const nextConfig = {
     },
   },
   eslint: { ignoreDuringBuilds: false },
+  async rewrites() {
+    return [
+      { source: '/captacao-profissionais', destination: '/captacao-profissionais.html' },
+    ];
+  },
   async headers() {
     // CSP só em produção: o dev server do Next usa eval/inline para o
     // hot-reload, que exigiria afrouxar a política e perderia o sentido.
     const csp = [
       "default-src 'self'",
       "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://challenges.cloudflare.com",
-      "style-src 'self' 'unsafe-inline'",
-      "font-src 'self'",
+      "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+      "font-src 'self' https://fonts.gstatic.com",
       "img-src 'self' data: blob: https://*.supabase.co https://www.googletagmanager.com https://www.google-analytics.com",
       "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://www.google-analytics.com https://www.googletagmanager.com https://challenges.cloudflare.com",
       "frame-src https://challenges.cloudflare.com https://www.googletagmanager.com",
