@@ -16,6 +16,15 @@
       body * {
         font-family: "Figtree", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       }
+
+      body {
+        background:
+          radial-gradient(circle at 18% 12%, rgba(14, 165, 233, 0.14), transparent 34rem),
+          radial-gradient(circle at 82% 8%, rgba(74, 222, 128, 0.13), transparent 32rem),
+          radial-gradient(circle at 52% 86%, rgba(14, 165, 233, 0.08), transparent 38rem),
+          #fafafa;
+        background-attachment: fixed;
+      }
     </style>
 
     <script src="https://cdn.tailwindcss.com"></script>
@@ -43,13 +52,13 @@
       };
     </script>
   </head>
-  <body class="bg-bg font-sans text-text antialiased">
-    <main>
-      <section class="overflow-hidden bg-surface">
+  <body class="overflow-x-hidden font-sans text-text antialiased">
+    <main class="w-full overflow-x-hidden">
+      <section class="overflow-hidden px-5 sm:px-8 lg:px-10">
         <div
-          class="mx-auto grid min-h-[50vh] max-w-7xl items-center gap-10 px-5 py-6 sm:px-8 lg:grid-cols-2 lg:px-10"
+          class="mx-auto grid min-h-[50vh] w-full max-w-6xl items-center gap-y-10 py-6 lg:grid-cols-[minmax(0,0.92fr)_minmax(0,1fr)] lg:gap-x-20"
         >
-          <div class="mx-auto max-w-2xl text-center lg:mx-0 lg:text-left">
+          <div class="mx-auto w-full max-w-xl text-center lg:mx-0 lg:text-left">
             <p
               class="inline-flex rounded-full border border-sky-200 bg-sky-50 px-4 py-2 text-sm font-bold text-primary"
             >
@@ -57,58 +66,53 @@
             </p>
 
             <h1
-              class="mt-6 text-3xl font-black leading-tight tracking-normal text-text sm:text-5xl lg:text-5xl"
+              class="mt-6 text-3xl font-bold tracking-normal text-text sm:text-4xl lg:text-4xl"
             >
-              Anuncie no 77Imóveis com
-              <span class="text-primary">60 dias grátis</span>
+              Aumente a visibilidade dos seus imóveis com o <br>
+              <span class="text-primary font-black">Portal 77 Imóveis</span>
             </h1>
 
-            <p class="mt-5 text-lg leading-8 text-muted sm:text-xl">
+            <p class="mt-5 text-lg leading-[1.55]  sm:text-lg">
               Ganhe presença regional desde o lançamento do portal e coloque sua
               carteira de imóveis na frente de quem procura comprar, alugar ou
               negociar no oeste da Bahia.
             </p>
 
             <div
-              class="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center lg:justify-start"
+              class="mt-8 flex flex-col items-stretch gap-1 sm:items-center lg:items-start"
             >
               <a
                 href="/cadastro"
-                class="inline-flex w-full items-center justify-center rounded-md bg-action px-7 py-4 text-base font-black text-onAction text-white shadow-lg shadow-green-500/20 transition hover:bg-actionHover sm:w-auto"
+                class="inline-flex items-center justify-center rounded-md bg-green-600 px-4 py-2 text-lg font-black text-white transition hover:bg-green-700 sm:w-auto"
               >
-                Garantir 60 dias grátis
+                Teste por 60 dias grátis
+              </a>
+              <a
+                href="https://wa.me/5577992116008"
+                target="_blank"
+                class="inline-flex items-center justify-center rounded-md px-4 py-1 text-lg font-semibold text-slate-600 transition hover:text-green-700 sm:w-auto"
+              >
+                Se preferir, chame no Whatsapp
               </a>
 
             </div>
 
-            <p class="mt-4 text-sm font-medium text-muted">
-              Condição especial para imobiliárias, corretores e construtoras no
-              período de lançamento.
-            </p>
+
           </div>
 
-          <div class="relative mx-auto w-full max-w-xl lg:max-w-none">
+          <div class="relative mx-auto w-full max-w-[620px] lg:mr-0">
             <img
-              src="/hero-family-moving.jpg"
+              src="/hero-captacao-imobiliarias.png"
               alt="Família planejando mudança para um novo imóvel"
-              class="relative aspect-[4/3] w-full rounded-lg object-cover shadow-2xl shadow-slate-900/15"
+              class="relative aspect-[16/10] w-full rounded-lg object-cover lg:aspect-[4/3]"
             />
-            <div
-              class="relative mx-auto -mt-8 max-w-[92%] rounded-lg border border-border bg-white p-5 shadow-xl shadow-slate-900/10"
-            >
-              <p class="text-sm font-bold text-primary">Oferta de lançamento</p>
-              <p class="mt-1 text-2xl font-black text-text">60 dias grátis</p>
-              <p class="mt-2 text-sm leading-6 text-muted">
-                Comece a publicar seus imóveis sem mensalidade durante o período
-                inicial do portal.
-              </p>
-            </div>
+
           </div>
         </div>
       </section>
 
       <section id="beneficios" class="bg-bg px-5 py-16 sm:px-8 lg:px-10">
-        <div class="mx-auto max-w-7xl">
+        <div class="mx-auto w-full max-w-6xl">
           <div class="max-w-3xl">
             <p class="text-sm font-black uppercase tracking-widest text-primary">
               Benefícios
@@ -123,7 +127,7 @@
             </p>
           </div>
 
-          <div class="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+          <div class="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
             <article class="rounded-lg border border-border bg-white p-6 shadow-sm">
               <span class="text-sm font-black text-primary">01</span>
               <h3 class="mt-4 text-lg font-black text-text">
@@ -192,12 +196,12 @@
                 chegada dos primeiros leads.
               </p>
             </div>
-            <a
-              href="/cadastro"
-              class="inline-flex w-full items-center justify-center rounded-md bg-action px-7 py-4 text-base font-black text-onAction transition hover:bg-actionHover sm:w-auto"
-            >
-              Cadastrar agora
-            </a>
+              <a
+                href="/cadastro"
+                class="inline-flex w-auto max-w-full items-center justify-center rounded-md bg-green-600 px-8 py-2 text-base font-black text-white transition hover:bg-green-700"
+              >
+                Teste por 60 dias grátis
+              </a>
           </div>
         </div>
       </section>
