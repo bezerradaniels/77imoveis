@@ -14,6 +14,7 @@ type Company = {
   status: string;
   is_verified: boolean;
   is_featured: boolean;
+  free_forever?: boolean | null;
   legal_name?: string | null;
   email?: string | null;
   phone?: string | null;
@@ -87,7 +88,10 @@ export function CompanyBulkList({ items }: { items: Company[] }) {
             <div className="flex min-w-0 gap-3">
               <input aria-label={`Selecionar ${c.trade_name}`} type="checkbox" checked={selected.includes(c.id)} onChange={() => toggle(c.id)} className="mt-1" />
               <div>
-                <Link href={`/empresa/${c.slug}`} className="text-sm font-medium hover:text-link-hover">{c.trade_name}</Link>
+                <span className="flex flex-wrap items-center gap-2">
+                  <Link href={`/admin/empresas/${c.id}`} className="text-sm font-medium text-link hover:underline">{c.trade_name}</Link>
+                  {c.free_forever && <span className="rounded-full bg-success/15 px-1.5 py-0.5 text-xs font-semibold text-success">Cortesia</span>}
+                </span>
                 <p className="text-xs text-muted">{companyTypeLabel(c.type)} · {c.cities?.name ?? '—'} · {c.email ?? c.phone ?? 'sem contato'}</p>
                 <p className="mt-1 text-xs text-muted">Corretores: {c.brokers?.[0]?.count ?? 0} · Imóveis: {c.properties?.[0]?.count ?? 0}</p>
               </div>

@@ -52,7 +52,10 @@ export function BrokerBulkList({ brokers }: { brokers: any[] }) {
               <div className="flex min-w-0 gap-3">
                 <input aria-label={`Selecionar ${b.name}`} type="checkbox" checked={selected.includes(b.id)} onChange={() => toggle(b.id)} className="mt-1" />
                 <div className="min-w-0">
-                  <p className="text-sm font-medium">{b.name}</p>
+                  <span className="flex flex-wrap items-center gap-2">
+                    <Link href={`/admin/corretores/${b.id}`} className="text-sm font-medium text-link hover:underline">{b.name}</Link>
+                    {b.free_forever && <span className="rounded-full bg-success/15 px-1.5 py-0.5 text-xs font-semibold text-success">Cortesia</span>}
+                  </span>
                   <p className="text-xs text-muted">{b.email ?? b.phone ?? b.whatsapp ?? 'sem contato'} · CRECI {b.creci ?? '—'}</p>
                   <p className="mt-1 text-xs text-muted">
                     Empresa: {company?.slug ? <Link href={`/empresa/${company.slug}`} className="text-link">{company.trade_name}</Link> : company?.trade_name ?? '—'} · Cidade: {company?.cities?.name ?? '—'} · Imóveis: {b.properties?.[0]?.count ?? 0}

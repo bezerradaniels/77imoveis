@@ -290,6 +290,9 @@ export type Database = {
           creci: string | null
           disabled_at: string | null
           email: string | null
+          free_forever: boolean
+          free_forever_by: string | null
+          free_forever_since: string | null
           id: string
           name: string
           phone: string | null
@@ -308,6 +311,9 @@ export type Database = {
           creci?: string | null
           disabled_at?: string | null
           email?: string | null
+          free_forever?: boolean
+          free_forever_by?: string | null
+          free_forever_since?: string | null
           id?: string
           name: string
           phone?: string | null
@@ -326,6 +332,9 @@ export type Database = {
           creci?: string | null
           disabled_at?: string | null
           email?: string | null
+          free_forever?: boolean
+          free_forever_by?: string | null
+          free_forever_since?: string | null
           id?: string
           name?: string
           phone?: string | null
@@ -421,6 +430,9 @@ export type Database = {
           email: string | null
           facebook: string | null
           featured_until: string | null
+          free_forever: boolean
+          free_forever_by: string | null
+          free_forever_since: string | null
           gateway_customer_id: string | null
           id: string
           instagram: string | null
@@ -453,6 +465,9 @@ export type Database = {
           email?: string | null
           facebook?: string | null
           featured_until?: string | null
+          free_forever?: boolean
+          free_forever_by?: string | null
+          free_forever_since?: string | null
           gateway_customer_id?: string | null
           id?: string
           instagram?: string | null
@@ -485,6 +500,9 @@ export type Database = {
           email?: string | null
           facebook?: string | null
           featured_until?: string | null
+          free_forever?: boolean
+          free_forever_by?: string | null
+          free_forever_since?: string | null
           gateway_customer_id?: string | null
           id?: string
           instagram?: string | null
@@ -1213,6 +1231,9 @@ export type Database = {
           city_id: string | null
           created_at: string
           email: string | null
+          free_forever: boolean
+          free_forever_by: string | null
+          free_forever_since: string | null
           full_name: string | null
           id: string
           is_active: boolean
@@ -1229,6 +1250,9 @@ export type Database = {
           city_id?: string | null
           created_at?: string
           email?: string | null
+          free_forever?: boolean
+          free_forever_by?: string | null
+          free_forever_since?: string | null
           full_name?: string | null
           id: string
           is_active?: boolean
@@ -1245,6 +1269,9 @@ export type Database = {
           city_id?: string | null
           created_at?: string
           email?: string | null
+          free_forever?: boolean
+          free_forever_by?: string | null
+          free_forever_since?: string | null
           full_name?: string | null
           id?: string
           is_active?: boolean

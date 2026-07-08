@@ -499,16 +499,17 @@ export async function getListingPublishGate(userId: string, excludePropertyId?: 
   const active = getActiveCompanyId();
   let company: any = null;
   if (active && active !== 'pessoal') {
-    ({ data: company } = await sb.from('companies').select('id,type').eq('owner_id', userId).eq('id', active).maybeSingle());
+    ({ data: company } = await sb.from('companies').select('id,type,free_forever').eq('owner_id', userId).eq('id', active).maybeSingle());
   }
   if (!company && active !== 'pessoal') {
-    ({ data: company } = await sb.from('companies').select('id,type').eq('owner_id', userId)
+    ({ data: company } = await sb.from('companies').select('id,type,free_forever').eq('owner_id', userId)
       .order('created_at', { ascending: true }).limit(1).maybeSingle());
   }
 
   const companyId = (company as any)?.id ?? null;
   const companyType = (company as any)?.type ?? null;
-  if (companyType !== 'corretor_autonomo') {
+  // Cortesia vitalícia ou tipos B2B (imobiliária/construtora): sem limite prático.
+  if ((company as any)?.free_forever || companyType !== 'corretor_autonomo') {
     return { companyId, companyType, allowed: true, activeCount: 0, maxActive: 100000, needsUpgrade: false };
   }
 
@@ -818,7 +819,7 @@ export async function adminListCompanies(filters: { status?: string; cityId?: st
   if (!hasEnv()) return [];
   let q = createServerClient()
     .from('companies')
-    .select('id,trade_name,legal_name,email,phone,whatsapp,slug,type,status,is_verified,is_featured,cities!companies_city_id_fkey(id,name),brokers(count),properties(count)')
+    .select('id,trade_name,legal_name,email,phone,whatsapp,slug,type,status,is_verified,is_featured,free_forever,cities!companies_city_id_fkey(id,name),brokers(count),properties(count)')
     .order('created_at', { ascending: false })
     .limit(200);
   if (filters.status) q = q.eq('status', filters.status);
@@ -834,7 +835,7 @@ export async function adminListUsers(filters: { role?: string; status?: string; 
   if (!hasEnv()) return [];
   let q = createServerClient()
     .from('profiles')
-    .select('id,full_name,email,phone,whatsapp,role,is_active,created_at,companies(count),brokers(count),properties(count)')
+    .select('id,full_name,email,phone,whatsapp,role,is_active,free_forever,created_at,companies(count),brokers(count),properties!properties_owner_id_fkey(count)')
     .order('created_at', { ascending: false })
     .limit(200);
   if (filters.role && ['particular', 'profissional', 'admin', 'moderador'].includes(filters.role)) q = q.eq('role', filters.role as any);
@@ -851,7 +852,7 @@ export async function adminListBrokers(filters: { status?: string; companyId?: s
   if (!hasEnv()) return [];
   let q = createServerClient()
     .from('brokers')
-    .select('id,name,email,creci,phone,whatsapp,photo_url,status,verified_at,approved_at,rejected_at,disabled_at,created_at,companies!brokers_company_id_fkey(id,trade_name,slug,city_id,cities!companies_city_id_fkey(id,name)),profiles(id,full_name,email),properties(count)')
+    .select('id,name,email,creci,phone,whatsapp,photo_url,status,verified_at,approved_at,rejected_at,disabled_at,free_forever,created_at,companies!brokers_company_id_fkey(id,trade_name,slug,city_id,cities!companies_city_id_fkey(id,name)),profiles(id,full_name,email),properties(count)')
     .order('created_at', { ascending: false })
     .limit(200);
   if (filters.status) q = q.eq('status' as any, filters.status);
@@ -862,6 +863,61 @@ export async function adminListBrokers(filters: { status?: string; companyId?: s
   if (text) q = q.or(`name.ilike.%${text}%,email.ilike.%${text}%,creci.ilike.%${text}%`);
   const { data } = await q;
   return data ?? [];
+}
+
+// ---- Detalhes (admin) ----
+// Empresa completa: dados cadastrais + dono + cidade + corretores + vitrine +
+// assinatura + contratos manuais + contagem de imóveis (para /admin/empresas/[id]).
+export async function adminGetCompany(id: string) {
+  if (!hasEnv() || !id) return null;
+  const { data } = await createServerClient()
+    .from('companies')
+    .select(
+      'id,trade_name,legal_name,slug,type,status,cnpj,creci,description,email,phone,whatsapp,website,instagram,facebook,address,logo_url,cover_url,is_verified,is_featured,free_forever,free_forever_since,created_at,' +
+        'cities!companies_city_id_fkey(id,name),' +
+        'owner:profiles!companies_owner_id_fkey(id,full_name,email,phone,role),' +
+        'brokers(id,name,email,creci,status,verified_at,free_forever),' +
+        'storefronts(id,slug,status,expires_at,views_count),' +
+        'subscriptions(id,status,gateway,current_period_end,custom_plan_name,max_listings_override,plans(name)),' +
+        'manual_contracts(id,plan_name,status,payment_status,starts_at,ends_at),' +
+        'properties!properties_company_id_fkey(count)',
+    )
+    .eq('id', id)
+    .maybeSingle();
+  return data;
+}
+
+// Corretor completo: dados + empresa + perfil vinculado + contagem de imóveis.
+export async function adminGetBroker(id: string) {
+  if (!hasEnv() || !id) return null;
+  const { data } = await createServerClient()
+    .from('brokers')
+    .select(
+      'id,name,email,creci,phone,whatsapp,photo_url,status,verified_at,approved_at,rejected_at,disabled_at,free_forever,free_forever_since,created_at,' +
+        'companies!brokers_company_id_fkey(id,trade_name,slug,type,status,free_forever,cities!companies_city_id_fkey(id,name)),' +
+        'profiles(id,full_name,email,phone,role),' +
+        'properties!properties_broker_id_fkey(count)',
+    )
+    .eq('id', id)
+    .maybeSingle();
+  return data;
+}
+
+// Usuário completo: perfil + cidade + empresas (dono) + corretores + imóveis.
+export async function adminGetUser(id: string) {
+  if (!hasEnv() || !id) return null;
+  const { data } = await createServerClient()
+    .from('profiles')
+    .select(
+      'id,full_name,email,phone,whatsapp,role,is_active,free_forever,free_forever_since,created_at,' +
+        'cities(id,name),' +
+        'companies(id,trade_name,slug,type,status,free_forever),' +
+        'brokers(id,name,status,free_forever),' +
+        'properties!properties_owner_id_fkey(id,title,slug,status,created_at)',
+    )
+    .eq('id', id)
+    .maybeSingle();
+  return data;
 }
 
 export async function adminListCities() {

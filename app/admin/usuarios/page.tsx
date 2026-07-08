@@ -1,3 +1,5 @@
+import Link from 'next/link';
+import { Gift } from 'lucide-react';
 import { adminListUsers } from '@/lib/data';
 import { UserRole } from '@/components/admin/UserRole';
 
@@ -32,8 +34,9 @@ export default async function AdminUsuarios({ searchParams }: { searchParams: { 
           <li key={u.id} className={`flex flex-col gap-3 rounded-xl border border-border bg-surface p-3 lg:flex-row lg:items-center lg:justify-between ${!u.is_active ? 'opacity-70' : ''}`}>
             <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-2">
-                <p className="text-sm font-medium">{u.full_name ?? '(sem nome)'}</p>
+                <Link href={`/admin/usuarios/${u.id}`} className="text-sm font-medium text-link hover:underline">{u.full_name ?? '(sem nome)'}</Link>
                 <span className="rounded bg-bg px-1.5 py-0.5 text-xs">{u.role}</span>
+                {u.free_forever && <span className="inline-flex items-center gap-1 rounded-full bg-success/15 px-1.5 py-0.5 text-xs font-semibold text-success"><Gift size={11} /> Cortesia</span>}
                 {!u.is_active && <span className="rounded bg-danger/15 px-1.5 py-0.5 text-xs text-danger">Desativado</span>}
               </div>
               <p className="text-xs text-muted">{u.email ?? 'sem e-mail'} · {u.phone ?? 'sem telefone'}</p>

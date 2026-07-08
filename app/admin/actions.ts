@@ -360,6 +360,99 @@ export async function adminRemoveBroker(id: string): Promise<R> {
   return adminBulkSetBrokerStatus([id], 'removido');
 }
 
+// ---- Gratuidade vitalícia (cortesia permanente) ----
+// Flag lida diretamente pelo gating do app (lib/subscription + getListingPublishGate
+// + trigger enforce_particular_limit). Concede acesso profissional grátis e sem
+// expiração; o efeito varia por entidade (ver CLAUDE/plano).
+
+// Empresa (inclui corretor autônomo): imóveis ilimitados + assinatura ativa
+// (cortesia) + vitrine incluída + selo verificado.
+export async function adminSetCompanyFreeForever(id: string, on: boolean): Promise<R> {
+  const admin = await ensureAdmin();
+  if (!admin) return { error: 'Sem permissão.' };
+  const now = new Date().toISOString();
+
+  const patch: Partial<Database['public']['Tables']['companies']['Update']> = {
+    free_forever: on,
+    free_forever_since: on ? now : null,
+    free_forever_by: on ? admin.adminId : null,
+    ...(on ? { is_verified: true } : {}),
+  };
+  const { data, error } = await admin.sb.from('companies').update(patch).eq('id', id).select('id,slug').maybeSingle();
+  if (error) return { error: `Falha ao atualizar: ${error.message}` };
+  if (!data) return { error: 'Nenhuma empresa foi atualizada.' };
+
+  // Vitrine incluída: ativa uma vitrine de cortesia (sem validade). Ao revogar,
+  // encerra apenas a vitrine de cortesia (expires_at nulo); vitrines pagas
+  // (com validade definida) permanecem intactas.
+  const slug = (data as any).slug as string;
+  const { data: sf } = await admin.sb.from('storefronts').select('id,status,expires_at').eq('company_id', id).maybeSingle();
+  if (on) {
+    if (sf) {
+      await admin.sb.from('storefronts').update({ status: 'ativo', activated_at: now, expires_at: null }).eq('id', (sf as any).id);
+    } else if (slug) {
+      await admin.sb.from('storefronts').insert({ company_id: id, slug, status: 'ativo', activated_at: now, expires_at: null });
+    }
+  } else if (sf && (sf as any).status === 'ativo' && (sf as any).expires_at == null) {
+    await admin.sb.from('storefronts').update({ status: 'expirado' }).eq('id', (sf as any).id);
+  }
+
+  revalidatePath('/admin/empresas');
+  revalidatePath('/admin/corretores');
+  revalidatePath('/painel');
+  revalidatePath('/painel/planos');
+  revalidatePath('/vitrine');
+  if (slug) revalidatePath(`/empresa/${slug}`);
+  await logAdminAction(admin.sb, admin.adminId, on ? 'company.free_forever.grant' : 'company.free_forever.revoke', 'company', id, { on });
+  return { ok: true };
+}
+
+// Corretor (equipe): selo verificado + cortesia permanente registrada.
+export async function adminSetBrokerFreeForever(id: string, on: boolean): Promise<R> {
+  const admin = await ensureAdmin();
+  if (!admin) return { error: 'Sem permissão.' };
+  const now = new Date().toISOString();
+
+  const { data: current } = await admin.sb.from('brokers').select('verified_at,approved_at,status').eq('id', id).maybeSingle();
+  const patch: Partial<Database['public']['Tables']['brokers']['Update']> = {
+    free_forever: on,
+    free_forever_since: on ? now : null,
+    free_forever_by: on ? admin.adminId : null,
+  };
+  if (on) {
+    if (!(current as any)?.verified_at) patch.verified_at = now;
+    if (!(current as any)?.approved_at) patch.approved_at = now;
+    if ((current as any)?.status && !['ativo', 'aprovado'].includes((current as any).status)) patch.status = 'aprovado';
+  }
+  const { data, error } = await admin.sb.from('brokers').update(patch as any).eq('id', id).select('id').maybeSingle();
+  if (error) return { error: `Falha ao atualizar: ${error.message}` };
+  if (!data) return { error: 'Nenhum corretor foi atualizado.' };
+
+  revalidatePath('/admin/corretores');
+  revalidatePath('/corretores');
+  await logAdminAction(admin.sb, admin.adminId, on ? 'broker.free_forever.grant' : 'broker.free_forever.revoke', 'broker', id, { on });
+  return { ok: true };
+}
+
+// Usuário particular: remove o limite de 1 imóvel ativo (via trigger).
+export async function adminSetProfileFreeForever(id: string, on: boolean): Promise<R> {
+  const admin = await ensureAdmin();
+  if (!admin) return { error: 'Sem permissão.' };
+  const now = new Date().toISOString();
+  const { data, error } = await admin.sb
+    .from('profiles')
+    .update({ free_forever: on, free_forever_since: on ? now : null, free_forever_by: on ? admin.adminId : null })
+    .eq('id', id)
+    .select('id')
+    .maybeSingle();
+  if (error) return { error: `Falha ao atualizar: ${error.message}` };
+  if (!data) return { error: 'Nenhum usuário foi atualizado.' };
+  revalidatePath('/admin/usuarios');
+  revalidatePath('/painel');
+  await logAdminAction(admin.sb, admin.adminId, on ? 'user.free_forever.grant' : 'user.free_forever.revoke', 'profile', id, { on });
+  return { ok: true };
+}
+
 // ---- Banners ----
 export async function adminToggleBanner(id: string, active: boolean): Promise<R> {
   const admin = await ensureAdmin();

@@ -52,7 +52,7 @@ export function trialDaysRemaining(end?: string | null): number | null {
   return Math.max(0, Math.ceil(ms / 86_400_000));
 }
 
-type CompanyLike = { type?: string | null } | null | undefined;
+type CompanyLike = { type?: string | null; free_forever?: boolean | null } | null | undefined;
 type SubscriptionLike =
   | {
       status?: string | null;
@@ -103,6 +103,24 @@ export function subscriptionSummary(
   }
 
   const isBroker = company?.type === 'corretor_autonomo';
+
+  // --- Gratuidade vitalícia (cortesia permanente concedida pelo admin) tem
+  // prioridade máxima: acesso profissional ativo, sem cobrança e sem expiração.
+  if (company?.free_forever) {
+    return {
+      hasCompany: true,
+      accountLabel,
+      planName: 'Cortesia vitalícia',
+      kind: 'ativa',
+      statusLabel: 'Cortesia vitalícia',
+      tone: 'success',
+      message: 'Você tem acesso profissional gratuito e vitalício, concedido pela administração — imóveis ilimitados, vitrine e selo verificado, sem cobrança.',
+      trialDaysRemaining: null,
+      trialEndsAt: null,
+      isManual: true,
+      cta: null,
+    };
+  }
 
   // --- Contrato manual (criado pelo admin) tem prioridade sobre o estado
   // bruto da subscription sincronizada (que, quando pausada, aparece como
