@@ -21,6 +21,21 @@ test('busca sem filtros leva para /imoveis', async ({ page }) => {
   await expect(page).toHaveURL(/\/imoveis/);
 });
 
+test('landing de captação usa URL canônica e leva ao cadastro', async ({ page, request }) => {
+  const legacy = await request.get('/captacao-profissionais.html?origem=e2e', { maxRedirects: 0 });
+  expect(legacy.status()).toBe(301);
+  expect(legacy.headers().location).toBe('/captacao-profissionais?origem=e2e');
+
+  const response = await page.goto('/captacao-profissionais');
+  expect(response?.status()).toBe(200);
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', /\/captacao-profissionais$/);
+  expect(await page.locator('link[href*="fonts.googleapis"], link[href*="fonts.gstatic"]').count()).toBe(0);
+
+  await page.locator('a[href*="utm_content=hero"]').click();
+  await expect(page).toHaveURL(/\/cadastro\?.*utm_content=hero/);
+  await expect(page.getByRole('heading', { name: 'Crie sua conta' })).toBeVisible();
+});
+
 test('/painel sem sessão redireciona para o login', async ({ page }) => {
   await page.goto('/painel');
   await expect(page).toHaveURL(/\/entrar\?next=%2Fpainel/);

@@ -35,6 +35,11 @@ export function SignupForm() {
     const phone = String(fd.get('phone')).trim();
     const email = String(fd.get('email')).trim();
     const password = String(fd.get('password'));
+    if (![10, 11].includes(phone.replace(/\D/g, '').length)) {
+      setError('Informe um WhatsApp ou telefone com DDD.');
+      setLoading(false);
+      return;
+    }
     if (password.length < 6) {
       setError('A senha precisa ter ao menos 6 caracteres.');
       setLoading(false);
@@ -69,7 +74,7 @@ export function SignupForm() {
 
   if (sent)
     return (
-      <div className="space-y-3 py-3 text-center">
+      <div className="space-y-3 py-3 text-center" role="status" aria-live="polite">
         <MailCheck size={32} className="mx-auto text-success" />
         <h2 className="font-bold">Confirme seu e-mail</h2>
         <p className="text-sm text-muted">
@@ -82,7 +87,7 @@ export function SignupForm() {
     );
 
   return (
-    <form onSubmit={onSubmit} className="space-y-4">
+    <form onSubmit={onSubmit} className="space-y-4" aria-busy={loading}>
       <Field label="Nome completo">
         <Input name="full_name" autoComplete="name" required placeholder="Seu nome" />
       </Field>
@@ -119,6 +124,7 @@ export function SignupForm() {
             autoComplete="new-password"
             required
             minLength={6}
+            aria-describedby="signup-password-hint"
             className="pr-10"
           />
           <button
@@ -130,8 +136,9 @@ export function SignupForm() {
             {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
           </button>
         </div>
+        <p id="signup-password-hint" className="text-xs font-medium text-muted">Use pelo menos 6 caracteres.</p>
       </Field>
-      {error && <p className="text-sm font-medium text-danger">{error}</p>}
+      {error && <p role="alert" className="text-sm font-medium text-danger">{error}</p>}
       <Button type="submit" disabled={loading} rounded="lg" className="h-11 w-full font-bold">
         {loading ? 'Criando conta…' : 'Criar conta grátis'}
       </Button>

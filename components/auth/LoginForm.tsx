@@ -71,8 +71,8 @@ export function LoginForm() {
           Esqueci a senha
         </Link>
       </p>
-      {blocked && <p className="text-sm font-medium text-danger">Sua conta está desativada. Fale com a administração para recuperar o acesso.</p>}
-      {error && <p className="text-sm font-medium text-danger">{error}</p>}
+      {blocked && <p role="alert" className="text-sm font-medium text-danger">Sua conta está desativada. Fale com a administração para recuperar o acesso.</p>}
+      {error && <p role="alert" className="text-sm font-medium text-danger">{error}</p>}
       <Button type="submit" disabled={loading} rounded="lg" className="h-11 w-full font-bold">
         {loading ? 'Entrando…' : 'Entrar'}
       </Button>

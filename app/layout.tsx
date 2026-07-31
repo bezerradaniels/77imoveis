@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import localFont from 'next/font/local';
 import { Suspense } from 'react';
 import './globals.css';
 import { Header } from '@/components/layout/Header';
@@ -10,17 +9,6 @@ import { AnalyticsProvider } from '@/components/analytics/AnalyticsProvider';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { websiteLd, organizationLd } from '@/lib/seo/jsonld';
 import { SITE_URL, SITE_NAME, REGION, DEFAULT_OG_IMAGE } from '@/lib/seo/meta';
-
-const googleSans = localFont({
-  variable: '--font-google-sans',
-  display: 'swap',
-  src: [
-    { path: '../public/fonts/google-sans-flex-400.ttf', weight: '400', style: 'normal' },
-    { path: '../public/fonts/google-sans-flex-500.ttf', weight: '500', style: 'normal' },
-    { path: '../public/fonts/google-sans-flex-600.ttf', weight: '600', style: 'normal' },
-    { path: '../public/fonts/google-sans-flex-700.ttf', weight: '700', style: 'normal' },
-  ],
-});
 
 const HOME_TITLE = `Imóveis no ${REGION} | ${SITE_NAME}`;
 const HOME_DESC =
@@ -78,9 +66,7 @@ const themeInit = `(function(){try{var t=localStorage.getItem('theme');if(t==='d
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="pt-BR" suppressHydrationWarning>
-      <head>
-      </head>
-      <body className={`${googleSans.variable} flex min-h-screen flex-col font-sans antialiased pb-16 pt-[77px] md:pb-0`}>
+      <body className="flex min-h-screen flex-col font-sans antialiased pb-16 pt-[77px] md:pb-0">
         <script dangerouslySetInnerHTML={{ __html: themeInit }} />
         <JsonLd data={websiteLd()} />
         <JsonLd data={organizationLd()} />

@@ -24,9 +24,13 @@ const nextConfig = {
     },
   },
   eslint: { ignoreDuringBuilds: false },
-  async rewrites() {
+  async redirects() {
     return [
-      { source: '/captacao-profissionais', destination: '/captacao-profissionais.html' },
+      {
+        source: '/captacao-profissionais.html',
+        destination: '/captacao-profissionais',
+        statusCode: 301,
+      },
     ];
   },
   async headers() {
@@ -35,8 +39,8 @@ const nextConfig = {
     const csp = [
       "default-src 'self'",
       "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://challenges.cloudflare.com",
-      "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-      "font-src 'self' https://fonts.gstatic.com",
+      "style-src 'self' 'unsafe-inline'",
+      "font-src 'self' data:",
       "img-src 'self' data: blob: https://*.supabase.co https://www.googletagmanager.com https://www.google-analytics.com",
       "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://www.google-analytics.com https://www.googletagmanager.com https://challenges.cloudflare.com",
       "frame-src https://challenges.cloudflare.com https://www.googletagmanager.com",

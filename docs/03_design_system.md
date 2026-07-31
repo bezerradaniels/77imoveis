@@ -50,8 +50,9 @@ Seleção de texto: `::selection { background:#ffd6de }`.
 
 ## 2. Tipografia
 
-- Fonte: **DM Sans**, `font-display: swap`, via `next/font`. (O mock usa Plus Jakarta
-  Sans, mas optou-se por manter a DM Sans já em uso.)
+- Fonte: pilha nativa do sistema (`-apple-system`, BlinkMacSystemFont, Segoe UI,
+  Roboto, Helvetica, Arial, sans-serif), sem carregamento externo. O mock usa Plus Jakarta
+  Sans, mas a pilha nativa evita dependências e requisições adicionais de fonte.
 - Ícones: **lucide-react** no código (o mock usa Phosphor — equivalência visual).
 - Escala: 12 / 14 / 16 (base) / 18 / 20 / 24 / 30 / 36 / 48; títulos com `tracking` negativo.
 - Peso: 400 corpo, 500 rótulos, 700/800 títulos.

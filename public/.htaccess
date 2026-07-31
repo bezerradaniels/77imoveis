@@ -1,26 +1,31 @@
-# 77Imóveis — configuração da Hostinger (Apache)
-# Este arquivo vai junto com o site (pasta public/ -> out/ -> public_html/)
+# 77Imóveis — fallback Apache da Hostinger para arquivos públicos.
+# O redirect principal da aplicação Node também está em next.config.js.
 
-# 1) Forçar HTTPS
 RewriteEngine On
+
+# 1) URL canônica da landing de captação (preserva a query string existente)
+RewriteCond %{THE_REQUEST} \s/+captacao-profissionais\.html(?:[?\s]) [NC]
+RewriteRule ^captacao-profissionais\.html$ https://77imoveis.com.br/captacao-profissionais [R=301,L,NE]
+
+# 2) Forçar HTTPS nas demais URLs
 RewriteCond %{HTTPS} off
 RewriteRule ^(.*)$ https://%{HTTP_HOST}/$1 [R=301,L]
 
-# 2) URLs amigáveis do export do Next (serve a pasta /rota/index.html)
+# 3) URLs amigáveis do export do Next (serve a pasta /rota/index.html)
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_FILENAME}/index.html -f
 RewriteRule ^(.*)$ $1/index.html [L]
 
-# 3) Página 404 personalizada
+# 4) Página 404 personalizada
 ErrorDocument 404 /404.html
 
-# 4) Compressão (deixa o site mais rápido)
+# 5) Compressão (deixa o site mais rápido)
 <IfModule mod_deflate.c>
   AddOutputFilterByType DEFLATE text/html text/css text/javascript application/javascript application/json image/svg+xml
 </IfModule>
 
-# 5) Cache dos arquivos estáticos
+# 6) Cache dos arquivos estáticos
 <IfModule mod_expires.c>
   ExpiresActive On
   ExpiresByType text/css "access plus 1 year"
@@ -32,7 +37,7 @@ ErrorDocument 404 /404.html
   ExpiresByType text/html "access plus 0 seconds"
 </IfModule>
 
-# 6) Cabeçalhos de segurança
+# 7) Cabeçalhos de segurança
 <IfModule mod_headers.c>
   Header set X-Content-Type-Options "nosniff"
   Header set X-Frame-Options "SAMEORIGIN"
