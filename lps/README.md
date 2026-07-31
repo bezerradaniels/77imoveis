@@ -25,6 +25,20 @@ O CSS-fonte fica em `lps/src/input.css`. A saída gerada em
 `lps/assets/styles.css` deve permanecer versionada porque é o arquivo servido
 pela Hostinger.
 
+## Mensuração
+
+Todas as landing pages carregam o contêiner `GTM-T72Z5ZBB` e publicam no
+`dataLayer`:
+
+- `page_type: landing_page` e `landing_page` antes do carregamento do GTM;
+- o evento `lp_cta_click` nos botões de cadastro;
+- `cta_name`, `cta_location`, `landing_page` e `destination_url` junto ao evento.
+
+No Google Tag Manager, configure e publique a Google tag nas páginas, valide o
+Conversion Linker e crie um acionador de evento personalizado para
+`lp_cta_click`. Os links internos não devem receber parâmetros `utm_*`, pois
+eles podem substituir a atribuição original da campanha.
+
 ## Publicação
 
 Depois do build, envie `.htaccess`, `assets/` e as pastas das campanhas para

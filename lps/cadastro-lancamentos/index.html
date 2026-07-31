@@ -1,6 +1,23 @@
 <!doctype html>
 <html lang="pt-BR">
   <head>
+    <!-- Google Tag Manager -->
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({ page_type: "landing_page", landing_page: "cadastro-lancamentos" });
+      (function (w, d, s, l, i) {
+        w[l] = w[l] || [];
+        w[l].push({ "gtm.start": new Date().getTime(), event: "gtm.js" });
+        var firstScript = d.getElementsByTagName(s)[0];
+        var tag = d.createElement(s);
+        var dataLayerParam = l !== "dataLayer" ? "&l=" + l : "";
+        tag.async = true;
+        tag.src = "https://www.googletagmanager.com/gtm.js?id=" + i + dataLayerParam;
+        firstScript.parentNode.insertBefore(tag, firstScript);
+      })(window, document, "script", "dataLayer", "GTM-T72Z5ZBB");
+    </script>
+    <!-- End Google Tag Manager -->
+
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#ffffff" />
@@ -43,7 +60,11 @@
     </script>
   </head>
 
-  <body class="font-sans selection:bg-cyan-100 selection:text-slate-900">
+  <body data-landing-page="cadastro-lancamentos" class="font-sans selection:bg-cyan-100 selection:text-slate-900">
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-T72Z5ZBB" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
+
     <a class="skip-link" href="#conteudo">Ir para o conteúdo</a>
 
     <main id="conteudo">
@@ -59,7 +80,9 @@
             <div class="actions">
               <a
                 class="button button-primary"
-                href="https://77imoveis.com.br/cadastro?utm_source=landing_page&amp;utm_medium=site&amp;utm_campaign=cadastro_lancamentos&amp;utm_content=hero"
+                data-gtm-cta="cadastro"
+                data-gtm-location="hero"
+                href="https://77imoveis.com.br/cadastro"
               >
                 Cadastrar lançamento
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -266,7 +289,9 @@
               <div class="offer-action">
                 <a
                   class="button button-primary"
-                  href="https://77imoveis.com.br/cadastro?utm_source=landing_page&amp;utm_medium=site&amp;utm_campaign=cadastro_lancamentos&amp;utm_content=oferta"
+                  data-gtm-cta="cadastro"
+                  data-gtm-location="oferta"
+                  href="https://77imoveis.com.br/cadastro"
                 >Começar teste grátis</a>
                 <small>Cadastro rápido e sem burocracia</small>
               </div>
@@ -320,5 +345,19 @@
       </div>
     </footer>
 
+    <script>
+      document.addEventListener("click", function (clickEvent) {
+        var clickedElement = clickEvent.target instanceof Element ? clickEvent.target.closest("[data-gtm-cta]") : null;
+        if (!clickedElement) return;
+        window.dataLayer = window.dataLayer || [];
+        window.dataLayer.push({
+          event: "lp_cta_click",
+          cta_name: clickedElement.dataset.gtmCta,
+          cta_location: clickedElement.dataset.gtmLocation,
+          landing_page: document.body.dataset.landingPage,
+          destination_url: clickedElement.href
+        });
+      });
+    </script>
   </body>
 </html>
