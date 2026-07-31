@@ -138,8 +138,8 @@
         font-weight: 700;
       }
 
-      .nav-links a:hover,
-      .nav-links a:focus-visible {
+      .nav-links a:not(.button):hover,
+      .nav-links a:not(.button):focus-visible {
         color: var(--blue-dark);
       }
 
@@ -194,7 +194,7 @@
       h1 {
         max-width: 700px;
         margin: 22px 0 20px;
-        font-size: clamp(38px, 5.4vw, 66px);
+        font-size: clamp(30px, 4.2vw, 46px);
         line-height: 1.02;
         letter-spacing: -0.052em;
       }
@@ -253,16 +253,6 @@
       .button-primary:hover {
         background: var(--green-dark);
         color: var(--white);
-      }
-
-      .button-secondary {
-        border-color: var(--line);
-        background: rgba(255, 255, 255, 0.8);
-      }
-
-      .button-secondary:hover {
-        border-color: #b9c8d2;
-        background: var(--white);
       }
 
       .microcopy {
@@ -829,7 +819,7 @@
       }
 
       footer {
-        padding: 28px 0 92px;
+        padding: 28px 0;
         border-top: 1px solid var(--line);
         color: var(--muted);
         background: var(--white);
@@ -848,10 +838,6 @@
         flex-wrap: wrap;
         gap: 20px;
         font-weight: 700;
-      }
-
-      .mobile-cta {
-        display: none;
       }
 
       @media (max-width: 900px) {
@@ -929,7 +915,7 @@
         }
 
         h1 {
-          font-size: clamp(36px, 12vw, 52px);
+          font-size: clamp(28px, 8vw, 32px);
         }
 
         .hero-copy {
@@ -1007,23 +993,6 @@
           flex-direction: column;
         }
 
-        .mobile-cta {
-          position: fixed;
-          z-index: 30;
-          right: 0;
-          bottom: 0;
-          left: 0;
-          display: block;
-          padding: 10px 14px max(10px, env(safe-area-inset-bottom));
-          border-top: 1px solid var(--line);
-          background: rgba(255, 255, 255, 0.96);
-          box-shadow: 0 -8px 30px rgba(15, 23, 42, 0.1);
-        }
-
-        .mobile-cta .button {
-          width: 100%;
-          min-height: 48px;
-        }
       }
 
       @media (prefers-reduced-motion: reduce) {
@@ -1101,14 +1070,6 @@
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                   <path d="m9 18 6-6-6-6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
                 </svg>
-              </a>
-              <a
-                class="button button-secondary"
-                href="https://wa.me/5577992116008?text=Ol%C3%A1%21%20Quero%20anunciar%20meus%20im%C3%B3veis%20no%2077Im%C3%B3veis."
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Falar no WhatsApp
               </a>
             </div>
 
@@ -1364,11 +1325,5 @@
       </div>
     </footer>
 
-    <div class="mobile-cta">
-      <a
-        class="button button-primary"
-        href="/cadastro?utm_source=landing_page&amp;utm_medium=site&amp;utm_campaign=captacao_profissionais&amp;utm_content=sticky_mobile"
-      >Começar agora — 60 dias grátis</a>
-    </div>
   </body>
 </html>
