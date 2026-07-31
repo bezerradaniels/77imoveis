@@ -1,5 +1,6 @@
 @import "tailwindcss" source(none);
-@source "../captacao-profissionais";
+/* Todas as pastas irmãs com landing pages entram no mesmo build. */
+@source "../";
 
 @theme {
   --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;

@@ -35,7 +35,19 @@ Depois do build, envie `.htaccess`, `assets/` e as pastas das campanhas para
   .htaccess
   assets/
     styles.css
+  aluguel-imoveis/
+    index.html
+  cadastro-lancamentos/
+    index.html
+  cadastro-particular/
+    index.html
   captacao-profissionais/
+    index.html
+  nossas-vantagens/
+    index.html
+  parcerias/
+    index.html
+  venda-imoveis/
     index.html
 ```
 
@@ -44,3 +56,4 @@ A landing de captação fica em:
 `https://lps.77imoveis.com.br/captacao-profissionais/`
 
 Cada nova campanha deve ocupar uma pasta irmã com seu próprio `index.html`.
+O build do Tailwind examina automaticamente todas as páginas dentro de `lps/`.
