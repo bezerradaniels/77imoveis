@@ -1,0 +1,13 @@
+{
+  "name": "77imoveis-lps",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "tailwindcss -i ./src/input.css -o ./assets/styles.css --watch",
+    "build": "tailwindcss -i ./src/input.css -o ./assets/styles.css --minify"
+  },
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.1.0",
+    "tailwindcss": "^4.1.0"
+  }
+}

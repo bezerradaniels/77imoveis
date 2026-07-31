@@ -21,19 +21,14 @@ test('busca sem filtros leva para /imoveis', async ({ page }) => {
   await expect(page).toHaveURL(/\/imoveis/);
 });
 
-test('landing de captação usa URL canônica e leva ao cadastro', async ({ page, request }) => {
-  const legacy = await request.get('/captacao-profissionais.html?origem=e2e', { maxRedirects: 0 });
-  expect(legacy.status()).toBe(301);
-  expect(legacy.headers().location).toBe('/captacao-profissionais?origem=e2e');
-
-  const response = await page.goto('/captacao-profissionais');
-  expect(response?.status()).toBe(200);
-  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', /\/captacao-profissionais$/);
-  expect(await page.locator('link[href*="fonts.googleapis"], link[href*="fonts.gstatic"]').count()).toBe(0);
-
-  await page.locator('a[href*="utm_content=hero"]').click();
-  await expect(page).toHaveURL(/\/cadastro\?.*utm_content=hero/);
-  await expect(page.getByRole('heading', { name: 'Crie sua conta' })).toBeVisible();
+test('URLs antigas da landing redirecionam direto para o subdomínio', async ({ request }) => {
+  for (const path of ['/captacao-profissionais', '/captacao-profissionais.html']) {
+    const response = await request.get(`${path}?origem=e2e`, { maxRedirects: 0 });
+    expect(response.status()).toBe(301);
+    expect(response.headers().location).toBe(
+      'https://lps.77imoveis.com.br/captacao-profissionais/?origem=e2e',
+    );
+  }
 });
 
 test('/painel sem sessão redireciona para o login', async ({ page }) => {

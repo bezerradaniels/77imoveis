@@ -1,5 +1,6 @@
 # Dependências
 /node_modules
+/lps/node_modules
 
 # Build do Next
 /.next

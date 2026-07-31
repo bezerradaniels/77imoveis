@@ -3,9 +3,9 @@
 
 RewriteEngine On
 
-# 1) URL canônica da landing de captação (preserva a query string existente)
-RewriteCond %{THE_REQUEST} \s/+captacao-profissionais\.html(?:[?\s]) [NC]
-RewriteRule ^captacao-profissionais\.html$ https://77imoveis.com.br/captacao-profissionais [R=301,L,NE]
+# 1) Landing isolada no subdomínio (preserva a query string existente)
+RewriteCond %{THE_REQUEST} \s/+captacao-profissionais(?:\.html)?(?:[?\s]) [NC]
+RewriteRule ^captacao-profissionais(?:\.html)?/?$ https://lps.77imoveis.com.br/captacao-profissionais/ [R=301,L,NE]
 
 # 2) Forçar HTTPS nas demais URLs
 RewriteCond %{HTTPS} off

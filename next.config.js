@@ -28,7 +28,12 @@ const nextConfig = {
     return [
       {
         source: '/captacao-profissionais.html',
-        destination: '/captacao-profissionais',
+        destination: 'https://lps.77imoveis.com.br/captacao-profissionais/',
+        statusCode: 301,
+      },
+      {
+        source: '/captacao-profissionais',
+        destination: 'https://lps.77imoveis.com.br/captacao-profissionais/',
         statusCode: 301,
       },
     ];
