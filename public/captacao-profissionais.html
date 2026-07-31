@@ -3,208 +3,1372 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>77Imóveis | 60 dias grátis para imobiliárias e corretores</title>
+    <meta name="theme-color" content="#ffffff" />
+    <title>Anuncie seus imóveis no DDD 77 | 77Imóveis</title>
     <meta
       name="description"
-      content="Imobiliárias e corretores do DDD 77 podem entrar no lançamento do 77Imóveis com 60 dias grátis."
+      content="Mais presença regional para imobiliárias, corretores e anunciantes. Publique seus imóveis no 77Imóveis e receba contatos direto pelo WhatsApp."
     />
-    <style>
-      @import url('https://fonts.googleapis.com/css2?family=Figtree:ital,wght@0,300..900;1,300..900&display=swap');
+    <link rel="canonical" href="https://77imoveis.com.br/captacao-profissionais.html" />
+    <meta property="og:locale" content="pt_BR" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Seus imóveis em destaque no DDD 77" />
+    <meta
+      property="og:description"
+      content="Uma vitrine regional para imobiliárias, corretores e anunciantes alcançarem quem procura imóveis no oeste e sudoeste da Bahia."
+    />
+    <meta property="og:url" content="https://77imoveis.com.br/captacao-profissionais.html" />
+    <meta property="og:image" content="https://77imoveis.com.br/hero-captacao-imobiliarias.png" />
 
-      html,
-      body,
-      body * {
-        font-family: "Figtree", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    <style>
+      :root {
+        --ink: #0f172a;
+        --muted: #526071;
+        --line: #dce5eb;
+        --soft: #f5f9fb;
+        --white: #fff;
+        --blue: #0891b2;
+        --blue-dark: #0e7490;
+        --blue-soft: #e6f7fb;
+        --green: #22c55e;
+        --green-dark: #16a34a;
+        --green-ink: #052e16;
+        --shadow: 0 24px 70px rgba(15, 23, 42, 0.12);
+        --radius: 22px;
+      }
+
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
       }
 
       body {
+        margin: 0;
+        color: var(--ink);
+        background: var(--white);
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      button,
+      a {
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      svg {
+        display: block;
+      }
+
+      .container {
+        width: min(1120px, calc(100% - 40px));
+        margin-inline: auto;
+      }
+
+      .skip-link {
+        position: fixed;
+        z-index: 100;
+        top: 8px;
+        left: 8px;
+        padding: 10px 14px;
+        border-radius: 10px;
+        color: var(--white);
+        background: var(--ink);
+        transform: translateY(-150%);
+      }
+
+      .skip-link:focus {
+        transform: translateY(0);
+      }
+
+      .topbar {
+        position: relative;
+        z-index: 10;
+        border-bottom: 1px solid rgba(220, 229, 235, 0.8);
+        background: rgba(255, 255, 255, 0.96);
+      }
+
+      .nav {
+        display: flex;
+        min-height: 72px;
+        align-items: center;
+        justify-content: space-between;
+        gap: 24px;
+      }
+
+      .brand {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 22px;
+        font-weight: 850;
+        letter-spacing: -0.04em;
+      }
+
+      .brand-mark {
+        display: grid;
+        width: 42px;
+        height: 42px;
+        place-items: center;
+        border-radius: 12px;
+        color: var(--white);
+        background: linear-gradient(145deg, #0ea5e9, var(--blue));
+        box-shadow: 0 8px 20px rgba(8, 145, 178, 0.22);
+      }
+
+      .brand-name span {
+        color: var(--blue);
+      }
+
+      .nav-links {
+        display: flex;
+        align-items: center;
+        gap: 24px;
+        color: var(--muted);
+        font-size: 14px;
+        font-weight: 700;
+      }
+
+      .nav-links a:hover,
+      .nav-links a:focus-visible {
+        color: var(--blue-dark);
+      }
+
+      .hero {
+        position: relative;
+        isolation: isolate;
+        overflow: hidden;
+        padding: 76px 0 72px;
         background:
-          radial-gradient(circle at 18% 12%, rgba(14, 165, 233, 0.14), transparent 34rem),
-          radial-gradient(circle at 82% 8%, rgba(74, 222, 128, 0.13), transparent 32rem),
-          radial-gradient(circle at 52% 86%, rgba(14, 165, 233, 0.08), transparent 38rem),
-          #fafafa;
-        background-attachment: fixed;
+          radial-gradient(circle at 12% 12%, rgba(14, 165, 233, 0.11), transparent 25rem),
+          radial-gradient(circle at 90% 4%, rgba(34, 197, 94, 0.1), transparent 22rem),
+          linear-gradient(180deg, #fff, #f8fbfc);
+      }
+
+      .hero-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1.02fr) minmax(390px, 0.98fr);
+        align-items: center;
+        gap: clamp(48px, 7vw, 88px);
+      }
+
+      .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 7px 12px;
+        border: 1px solid #b9e6ef;
+        border-radius: 999px;
+        color: var(--blue-dark);
+        background: var(--blue-soft);
+        font-size: 12px;
+        font-weight: 850;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .eyebrow::before {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: var(--green-dark);
+        content: "";
+      }
+
+      h1,
+      h2,
+      h3,
+      p {
+        margin-top: 0;
+      }
+
+      h1 {
+        max-width: 700px;
+        margin: 22px 0 20px;
+        font-size: clamp(38px, 5.4vw, 66px);
+        line-height: 1.02;
+        letter-spacing: -0.052em;
+      }
+
+      h1 span {
+        color: var(--blue);
+      }
+
+      .hero-copy {
+        max-width: 640px;
+        margin-bottom: 0;
+        color: var(--muted);
+        font-size: clamp(17px, 2vw, 20px);
+        line-height: 1.65;
+      }
+
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 12px;
+        margin-top: 30px;
+      }
+
+      .button {
+        display: inline-flex;
+        min-height: 50px;
+        align-items: center;
+        justify-content: center;
+        gap: 9px;
+        padding: 13px 20px;
+        border: 1px solid transparent;
+        border-radius: 13px;
+        font-size: 15px;
+        font-weight: 850;
+        transition: background-color 160ms ease, border-color 160ms ease, transform 160ms ease;
+      }
+
+      .button:hover {
+        transform: translateY(-1px);
+      }
+
+      .button:focus-visible,
+      summary:focus-visible,
+      a:focus-visible {
+        outline: 3px solid rgba(14, 165, 233, 0.35);
+        outline-offset: 3px;
+      }
+
+      .button-primary {
+        color: var(--green-ink);
+        background: var(--green);
+        box-shadow: 0 12px 26px rgba(34, 197, 94, 0.24);
+      }
+
+      .button-primary:hover {
+        background: var(--green-dark);
+        color: var(--white);
+      }
+
+      .button-secondary {
+        border-color: var(--line);
+        background: rgba(255, 255, 255, 0.8);
+      }
+
+      .button-secondary:hover {
+        border-color: #b9c8d2;
+        background: var(--white);
+      }
+
+      .microcopy {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px 22px;
+        margin: 20px 0 0;
+        padding: 0;
+        color: var(--muted);
+        font-size: 13px;
+        font-weight: 650;
+        list-style: none;
+      }
+
+      .microcopy li {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+      }
+
+      .check {
+        display: grid;
+        width: 18px;
+        height: 18px;
+        flex: 0 0 18px;
+        place-items: center;
+        border-radius: 50%;
+        color: var(--green-ink);
+        background: #dcfce7;
+      }
+
+      .product-card {
+        position: relative;
+        padding: 14px;
+        border: 1px solid var(--line);
+        border-radius: 26px;
+        background: rgba(255, 255, 255, 0.86);
+        box-shadow: var(--shadow);
+      }
+
+      .product-card::before {
+        position: absolute;
+        z-index: -1;
+        inset: -24px;
+        border-radius: 40px;
+        background: linear-gradient(145deg, rgba(14, 165, 233, 0.12), rgba(34, 197, 94, 0.08));
+        content: "";
+        transform: rotate(-2deg);
+      }
+
+      .browser-bar {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 7px 7px 14px;
+      }
+
+      .browser-bar i {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: #cbd5e1;
+      }
+
+      .browser-bar span {
+        overflow: hidden;
+        margin-left: 8px;
+        color: #718096;
+        font-size: 10px;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .dashboard {
+        overflow: hidden;
+        border: 1px solid #e5edf2;
+        border-radius: 17px;
+        background: var(--soft);
+      }
+
+      .dash-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 18px;
+        border-bottom: 1px solid var(--line);
+        background: var(--white);
+      }
+
+      .dash-head strong {
+        font-size: 14px;
+      }
+
+      .mini-button {
+        padding: 8px 10px;
+        border-radius: 9px;
+        color: var(--green-ink);
+        background: var(--green);
+        font-size: 10px;
+        font-weight: 850;
+      }
+
+      .dash-body {
+        display: grid;
+        gap: 12px;
+        padding: 16px;
+      }
+
+      .dash-stats {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 9px;
+      }
+
+      .dash-stat {
+        padding: 13px;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        background: var(--white);
+      }
+
+      .dash-stat small {
+        display: block;
+        margin-bottom: 7px;
+        color: var(--muted);
+        font-size: 9px;
+      }
+
+      .dash-stat strong {
+        font-size: 18px;
+      }
+
+      .listing {
+        display: grid;
+        grid-template-columns: 82px 1fr auto;
+        align-items: center;
+        gap: 12px;
+        padding: 11px;
+        border: 1px solid var(--line);
+        border-radius: 13px;
+        background: var(--white);
+      }
+
+      .listing-photo {
+        height: 55px;
+        border-radius: 9px;
+        background:
+          linear-gradient(146deg, transparent 43%, rgba(255, 255, 255, 0.8) 44% 48%, transparent 49%),
+          linear-gradient(25deg, #bce7d4, #dff4fb 60%);
+      }
+
+      .listing-copy strong,
+      .listing-copy span {
+        display: block;
+      }
+
+      .listing-copy strong {
+        margin-bottom: 5px;
+        font-size: 11px;
+      }
+
+      .listing-copy span {
+        color: var(--muted);
+        font-size: 9px;
+      }
+
+      .status {
+        padding: 5px 7px;
+        border-radius: 999px;
+        color: #166534;
+        background: #dcfce7;
+        font-size: 8px;
+        font-weight: 800;
+      }
+
+      .lead-alert {
+        position: absolute;
+        right: -24px;
+        bottom: 42px;
+        display: flex;
+        width: 230px;
+        align-items: center;
+        gap: 11px;
+        padding: 13px;
+        border: 1px solid #bbf7d0;
+        border-radius: 14px;
+        background: var(--white);
+        box-shadow: 0 18px 40px rgba(15, 23, 42, 0.16);
+      }
+
+      .lead-icon {
+        display: grid;
+        width: 35px;
+        height: 35px;
+        flex: 0 0 35px;
+        place-items: center;
+        border-radius: 10px;
+        color: var(--green-ink);
+        background: #dcfce7;
+      }
+
+      .lead-alert strong,
+      .lead-alert small {
+        display: block;
+      }
+
+      .lead-alert strong {
+        margin-bottom: 3px;
+        font-size: 11px;
+      }
+
+      .lead-alert small {
+        color: var(--muted);
+        font-size: 9px;
+      }
+
+      .proof-strip {
+        border-block: 1px solid var(--line);
+        background: var(--white);
+      }
+
+      .proof-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+      }
+
+      .proof-item {
+        display: flex;
+        min-height: 112px;
+        align-items: center;
+        gap: 14px;
+        padding: 22px clamp(16px, 3vw, 34px);
+        border-right: 1px solid var(--line);
+      }
+
+      .proof-item:first-child {
+        padding-left: 0;
+      }
+
+      .proof-item:last-child {
+        padding-right: 0;
+        border-right: 0;
+      }
+
+      .proof-icon,
+      .feature-icon {
+        display: grid;
+        width: 44px;
+        height: 44px;
+        flex: 0 0 44px;
+        place-items: center;
+        border-radius: 13px;
+        color: var(--blue-dark);
+        background: var(--blue-soft);
+      }
+
+      .proof-item > span:last-child,
+      .proof-item strong,
+      .proof-item > span:last-child span {
+        display: block;
+      }
+
+      .proof-item strong {
+        margin-bottom: 4px;
+        font-size: 14px;
+      }
+
+      .proof-item span {
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.45;
+      }
+
+      .section {
+        padding: 88px 0;
+      }
+
+      .section-soft {
+        background: var(--soft);
+      }
+
+      .section-label {
+        margin-bottom: 10px;
+        color: var(--blue-dark);
+        font-size: 12px;
+        font-weight: 850;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+      }
+
+      .section-title {
+        max-width: 730px;
+        margin-bottom: 14px;
+        font-size: clamp(30px, 4vw, 45px);
+        line-height: 1.08;
+        letter-spacing: -0.04em;
+      }
+
+      .section-copy {
+        max-width: 680px;
+        margin-bottom: 0;
+        color: var(--muted);
+        font-size: 17px;
+        line-height: 1.65;
+      }
+
+      .feature-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+        margin-top: 42px;
+      }
+
+      .feature {
+        padding: 26px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        background: var(--white);
+      }
+
+      .feature h3 {
+        margin: 20px 0 9px;
+        font-size: 17px;
+        letter-spacing: -0.02em;
+      }
+
+      .feature p {
+        margin-bottom: 0;
+        color: var(--muted);
+        font-size: 14px;
+        line-height: 1.65;
+      }
+
+      .audience-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+        margin-top: 42px;
+      }
+
+      .audience-card {
+        position: relative;
+        overflow: hidden;
+        min-height: 260px;
+        padding: 28px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        background: linear-gradient(145deg, #fff, #f6fbfc);
+      }
+
+      .audience-card::after {
+        position: absolute;
+        right: -50px;
+        bottom: -65px;
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        background: var(--blue-soft);
+        content: "";
+      }
+
+      .audience-card:nth-child(2)::after {
+        background: #dcfce7;
+      }
+
+      .audience-card strong {
+        color: var(--blue-dark);
+        font-size: 13px;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+      }
+
+      .audience-card h3 {
+        margin: 18px 0 12px;
+        font-size: 24px;
+        letter-spacing: -0.035em;
+      }
+
+      .audience-card p {
+        max-width: 290px;
+        margin-bottom: 0;
+        color: var(--muted);
+        font-size: 14px;
+        line-height: 1.65;
+      }
+
+      .steps {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 34px;
+        margin-top: 46px;
+        counter-reset: step;
+      }
+
+      .step {
+        position: relative;
+        padding-top: 58px;
+        counter-increment: step;
+      }
+
+      .step::before {
+        position: absolute;
+        top: 0;
+        left: 0;
+        display: grid;
+        width: 42px;
+        height: 42px;
+        place-items: center;
+        border-radius: 12px;
+        color: var(--white);
+        background: var(--blue);
+        content: counter(step);
+        font-weight: 850;
+      }
+
+      .step:not(:last-child)::after {
+        position: absolute;
+        top: 20px;
+        left: 58px;
+        width: calc(100% - 42px);
+        border-top: 1px dashed #b8c9d3;
+        content: "";
+      }
+
+      .step h3 {
+        margin-bottom: 9px;
+        font-size: 18px;
+      }
+
+      .step p {
+        margin-bottom: 0;
+        color: var(--muted);
+        font-size: 14px;
+        line-height: 1.65;
+      }
+
+      .offer {
+        position: relative;
+        overflow: hidden;
+        padding: clamp(32px, 6vw, 64px);
+        border-radius: 30px;
+        color: var(--white);
+        background: #0b2733;
+      }
+
+      .offer::before,
+      .offer::after {
+        position: absolute;
+        border-radius: 50%;
+        content: "";
+      }
+
+      .offer::before {
+        top: -120px;
+        right: -80px;
+        width: 330px;
+        height: 330px;
+        background: rgba(14, 165, 233, 0.15);
+      }
+
+      .offer::after {
+        right: 190px;
+        bottom: -150px;
+        width: 280px;
+        height: 280px;
+        background: rgba(34, 197, 94, 0.1);
+      }
+
+      .offer-content {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 44px;
+      }
+
+      .offer h2 {
+        max-width: 670px;
+        margin: 14px 0;
+        font-size: clamp(31px, 4.5vw, 48px);
+        line-height: 1.08;
+        letter-spacing: -0.045em;
+      }
+
+      .offer p {
+        max-width: 650px;
+        margin-bottom: 0;
+        color: #c4d3da;
+        line-height: 1.65;
+      }
+
+      .offer .section-label {
+        color: #75def3;
+      }
+
+      .offer-action {
+        min-width: 220px;
+        text-align: center;
+      }
+
+      .offer-action .button {
+        width: 100%;
+      }
+
+      .offer-action small {
+        display: block;
+        margin-top: 11px;
+        color: #9fb3bd;
+        font-size: 11px;
+      }
+
+      .faq {
+        display: grid;
+        grid-template-columns: minmax(260px, 0.72fr) minmax(0, 1.28fr);
+        gap: 70px;
+      }
+
+      .faq-list {
+        border-top: 1px solid var(--line);
+      }
+
+      details {
+        border-bottom: 1px solid var(--line);
+      }
+
+      summary {
+        position: relative;
+        padding: 20px 42px 20px 0;
+        cursor: pointer;
+        font-size: 15px;
+        font-weight: 800;
+        list-style: none;
+      }
+
+      summary::-webkit-details-marker {
+        display: none;
+      }
+
+      summary::after {
+        position: absolute;
+        top: 18px;
+        right: 4px;
+        display: grid;
+        width: 26px;
+        height: 26px;
+        place-items: center;
+        border-radius: 8px;
+        color: var(--blue-dark);
+        background: var(--blue-soft);
+        content: "+";
+        font-size: 18px;
+      }
+
+      details[open] summary::after {
+        content: "−";
+      }
+
+      details p {
+        margin: -6px 42px 20px 0;
+        color: var(--muted);
+        font-size: 14px;
+        line-height: 1.65;
+      }
+
+      footer {
+        padding: 28px 0 92px;
+        border-top: 1px solid var(--line);
+        color: var(--muted);
+        background: var(--white);
+        font-size: 13px;
+      }
+
+      .footer-content {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 24px;
+      }
+
+      .footer-links {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        font-weight: 700;
+      }
+
+      .mobile-cta {
+        display: none;
+      }
+
+      @media (max-width: 900px) {
+        .hero {
+          padding-top: 58px;
+        }
+
+        .hero-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .product-card {
+          width: min(100%, 580px);
+          margin-inline: auto;
+        }
+
+        .feature-grid,
+        .audience-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+
+        .steps {
+          gap: 20px;
+        }
+
+        .offer-content {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+
+        .offer-action {
+          min-width: min(100%, 300px);
+        }
+
+        .faq {
+          grid-template-columns: 1fr;
+          gap: 34px;
+        }
+      }
+
+      @media (max-width: 680px) {
+        .container {
+          width: min(100% - 28px, 1120px);
+        }
+
+        .nav {
+          min-height: 64px;
+        }
+
+        .nav-links a:first-child {
+          display: none;
+        }
+
+        .nav-links {
+          gap: 12px;
+        }
+
+        .nav-links .button {
+          min-height: 40px;
+          padding: 9px 12px;
+          font-size: 12px;
+        }
+
+        .brand {
+          font-size: 19px;
+        }
+
+        .brand-mark {
+          width: 38px;
+          height: 38px;
+        }
+
+        .hero {
+          padding: 45px 0 54px;
+        }
+
+        h1 {
+          font-size: clamp(36px, 12vw, 52px);
+        }
+
+        .hero-copy {
+          font-size: 16px;
+        }
+
+        .actions {
+          align-items: stretch;
+          flex-direction: column;
+        }
+
+        .actions .button {
+          width: 100%;
+        }
+
+        .lead-alert {
+          right: -6px;
+          bottom: 28px;
+          width: 205px;
+        }
+
+        .proof-grid,
+        .feature-grid,
+        .audience-grid,
+        .steps {
+          grid-template-columns: 1fr;
+        }
+
+        .proof-item {
+          min-height: auto;
+          padding: 20px 0;
+          border-right: 0;
+          border-bottom: 1px solid var(--line);
+        }
+
+        .proof-item:last-child {
+          border-bottom: 0;
+        }
+
+        .section {
+          padding: 68px 0;
+        }
+
+        .feature-grid,
+        .audience-grid {
+          margin-top: 30px;
+        }
+
+        .audience-card {
+          min-height: 230px;
+        }
+
+        .step {
+          padding: 0 0 0 58px;
+        }
+
+        .step::after {
+          display: none;
+        }
+
+        .step h3 {
+          padding-top: 9px;
+        }
+
+        .offer {
+          border-radius: 22px;
+        }
+
+        .offer-action {
+          width: 100%;
+        }
+
+        .footer-content {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+
+        .mobile-cta {
+          position: fixed;
+          z-index: 30;
+          right: 0;
+          bottom: 0;
+          left: 0;
+          display: block;
+          padding: 10px 14px max(10px, env(safe-area-inset-bottom));
+          border-top: 1px solid var(--line);
+          background: rgba(255, 255, 255, 0.96);
+          box-shadow: 0 -8px 30px rgba(15, 23, 42, 0.1);
+        }
+
+        .mobile-cta .button {
+          width: 100%;
+          min-height: 48px;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        html {
+          scroll-behavior: auto;
+        }
+
+        *,
+        *::before,
+        *::after {
+          scroll-behavior: auto !important;
+          transition: none !important;
+        }
       }
     </style>
 
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-      tailwind.config = {
-        theme: {
-          extend: {
-            colors: {
-              bg: "#fafafa",
-              surface: "#ffffff",
-              border: "#e5e7eb",
-              text: "#111827",
-              muted: "#6b7280",
-              primary: "#0ea5e9",
-              primaryHover: "#0284c7",
-              action: "#4ade80",
-              actionHover: "#22c55e",
-              onAction: "#052e16",
-            },
-            fontFamily: {
-              sans: ["Figtree", "system-ui", "Segoe UI", "sans-serif"],
-            },
-          },
-        },
-      };
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        "name": "Anuncie seus imóveis no DDD 77",
+        "description": "Landing page para imobiliárias, corretores e anunciantes divulgarem imóveis no oeste e sudoeste da Bahia.",
+        "url": "https://77imoveis.com.br/captacao-profissionais.html",
+        "isPartOf": {
+          "@type": "WebSite",
+          "name": "77Imóveis",
+          "url": "https://77imoveis.com.br"
+        }
+      }
     </script>
   </head>
-  <body class="overflow-x-hidden font-sans text-text antialiased">
-    <main class="w-full overflow-x-hidden">
-      <section class="overflow-hidden px-5 sm:px-8 lg:px-10">
-        <div
-          class="mx-auto grid min-h-[50vh] w-full max-w-6xl items-center gap-y-10 py-6 lg:grid-cols-[minmax(0,0.92fr)_minmax(0,1fr)] lg:gap-x-20"
-        >
-          <div class="mx-auto w-full max-w-xl text-center lg:mx-0 lg:text-left">
-            <p
-              class="inline-flex rounded-full border border-sky-200 bg-sky-50 px-4 py-2 text-sm font-bold text-primary"
-            >
-              Oferta especial de lançamento
+
+  <body>
+    <a class="skip-link" href="#conteudo">Ir para o conteúdo</a>
+
+    <header class="topbar">
+      <nav class="container nav" aria-label="Navegação principal">
+        <a class="brand" href="/" aria-label="77Imóveis — página inicial">
+          <span class="brand-mark" aria-hidden="true">
+            <svg width="27" height="27" viewBox="0 0 27 27" fill="none">
+              <path d="M4.5 11.5 13.5 4l9 7.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+              <path d="M7.3 12.5v9h12.4v-9" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+              <path d="M10 17h7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" />
+            </svg>
+          </span>
+          <span class="brand-name">77<span>Imóveis</span></span>
+        </a>
+
+        <div class="nav-links">
+          <a href="/entrar">Já tenho conta</a>
+          <a
+            class="button button-primary"
+            href="/cadastro?utm_source=landing_page&amp;utm_medium=site&amp;utm_campaign=captacao_profissionais&amp;utm_content=header"
+          >Criar conta</a>
+        </div>
+      </nav>
+    </header>
+
+    <main id="conteudo">
+      <section class="hero">
+        <div class="container hero-grid">
+          <div>
+            <p class="eyebrow">O portal imobiliário do DDD 77</p>
+            <h1>Seus imóveis na frente de quem busca <span>na nossa região.</span></h1>
+            <p class="hero-copy">
+              Ganhe presença digital, organize seus anúncios e receba contatos pelo WhatsApp. Uma vitrine feita para imobiliárias, corretores e anunciantes do oeste e sudoeste da Bahia.
             </p>
 
-            <h1
-              class="mt-6 text-3xl font-bold tracking-normal text-text sm:text-4xl lg:text-4xl"
-            >
-              Aumente a visibilidade dos seus imóveis com o <br>
-              <span class="text-primary font-black">Portal 77 Imóveis</span>
-            </h1>
-
-            <p class="mt-5 text-lg leading-[1.55]  sm:text-lg">
-              Ganhe presença regional desde o lançamento do portal e coloque sua
-              carteira de imóveis na frente de quem procura comprar, alugar ou
-              negociar no oeste da Bahia.
-            </p>
-
-            <div
-              class="mt-8 flex flex-col items-stretch gap-1 sm:items-center lg:items-start"
-            >
+            <div class="actions">
               <a
-                href="/cadastro"
-                class="inline-flex items-center justify-center rounded-md bg-green-600 px-4 py-2 text-lg font-black text-white transition hover:bg-green-700 sm:w-auto"
+                class="button button-primary"
+                href="/cadastro?utm_source=landing_page&amp;utm_medium=site&amp;utm_campaign=captacao_profissionais&amp;utm_content=hero"
               >
-                Teste por 60 dias grátis
+                Começar agora
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="m9 18 6-6-6-6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
               </a>
               <a
-                href="https://wa.me/5577992116008"
+                class="button button-secondary"
+                href="https://wa.me/5577992116008?text=Ol%C3%A1%21%20Quero%20anunciar%20meus%20im%C3%B3veis%20no%2077Im%C3%B3veis."
                 target="_blank"
-                class="inline-flex items-center justify-center rounded-md px-4 py-1 text-lg font-semibold text-slate-600 transition hover:text-green-700 sm:w-auto"
+                rel="noopener noreferrer"
               >
-                Se preferir, chame no Whatsapp
+                Falar no WhatsApp
               </a>
-
             </div>
 
-
+            <ul class="microcopy" aria-label="Condições da oferta">
+              <li><span class="check">✓</span> 60 dias grátis nos planos profissionais</li>
+              <li><span class="check">✓</span> Cadastro rápido</li>
+            </ul>
           </div>
 
-          <div class="relative mx-auto w-full max-w-[620px] lg:mr-0">
-            <img
-              src="/hero-captacao-imobiliarias.png"
-              alt="Família planejando mudança para um novo imóvel"
-              class="relative aspect-[16/10] w-full rounded-lg object-cover lg:aspect-[4/3]"
-            />
+          <div class="product-card" aria-label="Prévia ilustrativa do painel de anúncios">
+            <div class="browser-bar" aria-hidden="true">
+              <i></i><i></i><i></i><span>77imoveis.com.br/painel</span>
+            </div>
+            <div class="dashboard">
+              <div class="dash-head">
+                <strong>Meus imóveis</strong>
+                <span class="mini-button">+ Novo anúncio</span>
+              </div>
+              <div class="dash-body">
+                <div class="dash-stats">
+                  <div class="dash-stat"><small>Anúncios ativos</small><strong>24</strong></div>
+                  <div class="dash-stat"><small>Novos contatos</small><strong>8</strong></div>
+                  <div class="dash-stat"><small>Em destaque</small><strong>3</strong></div>
+                </div>
+                <div class="listing">
+                  <div class="listing-photo"></div>
+                  <div class="listing-copy">
+                    <strong>Casa com 3 quartos</strong>
+                    <span>Vitória da Conquista · Venda</span>
+                  </div>
+                  <span class="status">Ativo</span>
+                </div>
+                <div class="listing">
+                  <div class="listing-photo"></div>
+                  <div class="listing-copy">
+                    <strong>Apartamento no centro</strong>
+                    <span>Barreiras · Aluguel</span>
+                  </div>
+                  <span class="status">Ativo</span>
+                </div>
+              </div>
+            </div>
 
+            <div class="lead-alert">
+              <span class="lead-icon" aria-hidden="true">
+                <svg width="19" height="19" viewBox="0 0 24 24" fill="none">
+                  <path d="M20 11.5a8 8 0 0 1-11.8 7L4 20l1.5-4.1A8 8 0 1 1 20 11.5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                  <path d="M8.5 10.5c1 2.2 2.8 3.6 5 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                </svg>
+              </span>
+              <span><strong>Novo contato recebido</strong><small>Direto no seu WhatsApp</small></span>
+            </div>
           </div>
         </div>
       </section>
 
-      <section id="beneficios" class="bg-bg px-5 py-16 sm:px-8 lg:px-10">
-        <div class="mx-auto w-full max-w-6xl">
-          <div class="max-w-3xl">
-            <p class="text-sm font-black uppercase tracking-widest text-primary">
-              Benefícios
-            </p>
-            <h2 class="mt-3 text-3xl font-black text-text sm:text-4xl">
-              Uma vitrine regional com ferramentas para o dia a dia comercial
-            </h2>
-            <p class="mt-4 text-lg leading-8 text-muted">
-              O 77Imóveis nasce focado no mercado imobiliário do oeste e
-              sudoeste da Bahia, combinando visibilidade local com organização
-              para sua equipe vender melhor.
-            </p>
+      <section class="proof-strip" aria-label="Diferenciais principais">
+        <div class="container proof-grid">
+          <div class="proof-item">
+            <span class="proof-icon" aria-hidden="true">
+              <svg width="21" height="21" viewBox="0 0 24 24" fill="none">
+                <path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Z" stroke="currentColor" stroke-width="2" />
+                <path d="M3 12h18M12 3c2.2 2.5 3.3 5.5 3.3 9S14.2 18.5 12 21M12 3C9.8 5.5 8.7 8.5 8.7 12s1.1 6.5 3.3 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+              </svg>
+            </span>
+            <span><strong>Alcance regional</strong><span>Foco no oeste e sudoeste da Bahia</span></span>
           </div>
+          <div class="proof-item">
+            <span class="proof-icon" aria-hidden="true">
+              <svg width="21" height="21" viewBox="0 0 24 24" fill="none">
+                <path d="M21 11.5a8.5 8.5 0 0 1-12.4 7.6L4 21l1.8-4.5A8.5 8.5 0 1 1 21 11.5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            </span>
+            <span><strong>Contato sem desvio</strong><span>O interessado fala com você</span></span>
+          </div>
+          <div class="proof-item">
+            <span class="proof-icon" aria-hidden="true">
+              <svg width="21" height="21" viewBox="0 0 24 24" fill="none">
+                <path d="M4 20V9l8-6 8 6v11H4Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round" />
+                <path d="M9 20v-6h6v6" stroke="currentColor" stroke-width="2" stroke-linejoin="round" />
+              </svg>
+            </span>
+            <span><strong>Vitrine profissional</strong><span>Sua marca e sua carteira em um só link</span></span>
+          </div>
+        </div>
+      </section>
 
-          <div class="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-            <article class="rounded-lg border border-border bg-white p-6 shadow-sm">
-              <span class="text-sm font-black text-primary">01</span>
-              <h3 class="mt-4 text-lg font-black text-text">
-                Mais visibilidade
-              </h3>
-              <p class="mt-3 text-sm leading-6 text-muted">
-                Seus anúncios aparecem para quem procura imóveis na região oeste
-                da Bahia.
-              </p>
+      <section class="section section-soft" id="beneficios">
+        <div class="container">
+          <p class="section-label">Mais oportunidade, menos complicação</p>
+          <h2 class="section-title">Tudo para transformar sua carteira em uma vitrine que trabalha por você.</h2>
+          <p class="section-copy">
+            Publique, organize e divulgue seus imóveis em um portal que entende a dinâmica das cidades do DDD 77.
+          </p>
+
+          <div class="feature-grid">
+            <article class="feature">
+              <span class="feature-icon" aria-hidden="true">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="m3 11 9-8 9 8M5 10v11h14V10M9 21v-6h6v6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
+              </span>
+              <h3>Anúncios completos</h3>
+              <p>Fotos, características, preços e múltiplas modalidades para apresentar cada imóvel com clareza.</p>
             </article>
-
-            <article class="rounded-lg border border-border bg-white p-6 shadow-sm">
-              <span class="text-sm font-black text-primary">02</span>
-              <h3 class="mt-4 text-lg font-black text-text">
-                Gestão de imóveis
-              </h3>
-              <p class="mt-3 text-sm leading-6 text-muted">
-                Organize sua carteira, mantenha anúncios atualizados e destaque
-                boas oportunidades.
-              </p>
+            <article class="feature">
+              <span class="feature-icon" aria-hidden="true">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M21 11.5a8.5 8.5 0 0 1-12.4 7.6L4 21l1.8-4.5A8.5 8.5 0 1 1 21 11.5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
+              </span>
+              <h3>Leads no WhatsApp</h3>
+              <p>O interessado encontra seu contato no anúncio e inicia a conversa pelo canal que você já usa.</p>
             </article>
-
-            <article class="rounded-lg border border-border bg-white p-6 shadow-sm">
-              <span class="text-sm font-black text-primary">03</span>
-              <h3 class="mt-4 text-lg font-black text-text">
-                Controle de clientes
-              </h3>
-              <p class="mt-3 text-sm leading-6 text-muted">
-                Centralize contatos interessados e acompanhe o histórico de
-                atendimento.
-              </p>
+            <article class="feature">
+              <span class="feature-icon" aria-hidden="true">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M4 19V9M10 19V5M16 19v-7M22 19V3" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>
+              </span>
+              <h3>Destaque quando precisar</h3>
+              <p>Dê mais visibilidade aos imóveis estratégicos e às oportunidades que precisam ganhar alcance.</p>
             </article>
-
-            <article class="rounded-lg border border-border bg-white p-6 shadow-sm">
-              <span class="text-sm font-black text-primary">04</span>
-              <h3 class="mt-4 text-lg font-black text-text">
-                Fluxo de negociações
-              </h3>
-              <p class="mt-3 text-sm leading-6 text-muted">
-                Visualize oportunidades em andamento e priorize os leads com
-                mais potencial.
-              </p>
+            <article class="feature">
+              <span class="feature-icon" aria-hidden="true">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M4 5h16v14H4V5Z" stroke="currentColor" stroke-width="2" /><path d="M8 9h8M8 13h5" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>
+              </span>
+              <h3>Vitrine da empresa</h3>
+              <p>Reúna marca, informações e imóveis ativos em uma página pronta para compartilhar nas redes sociais.</p>
             </article>
-
-            <article class="rounded-lg border border-border bg-white p-6 shadow-sm">
-              <span class="text-sm font-black text-primary">05</span>
-              <h3 class="mt-4 text-lg font-black text-text">
-                Relatórios completos
-              </h3>
-              <p class="mt-3 text-sm leading-6 text-muted">
-                Acompanhe desempenho, contatos recebidos e evolução dos seus
-                anúncios.
-              </p>
+            <article class="feature">
+              <span class="feature-icon" aria-hidden="true">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M8 7a4 4 0 1 0 8 0 4 4 0 0 0-8 0ZM4 21c.5-4.2 3.2-6.3 8-6.3s7.5 2.1 8 6.3" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>
+              </span>
+              <h3>Equipe organizada</h3>
+              <p>Associe corretores à imobiliária e mantenha os contatos e anúncios da operação em um único painel.</p>
+            </article>
+            <article class="feature">
+              <span class="feature-icon" aria-hidden="true">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Z" stroke="currentColor" stroke-width="2" /><path d="m8.5 12 2.2 2.2 4.8-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
+              </span>
+              <h3>Busca regional</h3>
+              <p>Páginas organizadas por cidade, tipo e negociação ajudam seu imóvel a ser encontrado pelo público certo.</p>
             </article>
           </div>
+        </div>
+      </section>
 
-          <div
-            class="mt-10 flex flex-col items-center justify-between gap-5 rounded-lg border border-sky-200 bg-sky-50 p-6 text-center sm:flex-row sm:text-left"
-          >
-            <div>
-              <h2 class="text-2xl font-black text-text">
-                Comece com 60 dias grátis no lançamento
-              </h2>
-              <p class="mt-2 text-muted">
-                Cadastre seu perfil profissional e prepare seus anúncios para a
-                chegada dos primeiros leads.
-              </p>
+      <section class="section" id="para-quem">
+        <div class="container">
+          <p class="section-label">Feito para quem anuncia</p>
+          <h2 class="section-title">Uma solução para cada tamanho de operação.</h2>
+
+          <div class="audience-grid">
+            <article class="audience-card">
+              <strong>Empresas</strong>
+              <h3>Imobiliárias e construtoras</h3>
+              <p>Divulgue uma carteira maior, organize sua equipe e fortaleça a presença regional da sua marca.</p>
+            </article>
+            <article class="audience-card">
+              <strong>Profissionais</strong>
+              <h3>Corretores autônomos</h3>
+              <p>Tenha um perfil profissional, uma vitrine própria e mais canais para gerar conversas com interessados.</p>
+            </article>
+            <article class="audience-card">
+              <strong>Particulares</strong>
+              <h3>Proprietários</h3>
+              <p>Publique 1 imóvel ativo gratuitamente e receba o contato de quem tem interesse direto no anúncio.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section section-soft" id="como-funciona">
+        <div class="container">
+          <p class="section-label">Simples para começar</p>
+          <h2 class="section-title">Sua vitrine no ar em três etapas.</h2>
+
+          <div class="steps">
+            <article class="step">
+              <h3>Crie sua conta</h3>
+              <p>Cadastre seus dados e escolha o perfil que representa sua atuação no mercado imobiliário.</p>
+            </article>
+            <article class="step">
+              <h3>Monte seu anúncio</h3>
+              <p>Adicione fotos, localização, características, preço e as formas de negociação do imóvel.</p>
+            </article>
+            <article class="step">
+              <h3>Receba interessados</h3>
+              <p>Após a publicação, seu imóvel entra na busca regional e pode gerar contatos pelo WhatsApp e formulário.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="container">
+          <div class="offer">
+            <div class="offer-content">
+              <div>
+                <p class="section-label">Oferta de lançamento</p>
+                <h2>Experimente um plano profissional por 60 dias grátis.</h2>
+                <p>Cadastre sua empresa ou perfil profissional, escolha o plano ideal e comece a publicar. Você só paga depois do período de teste se decidir continuar.</p>
+              </div>
+              <div class="offer-action">
+                <a
+                  class="button button-primary"
+                  href="/cadastro?utm_source=landing_page&amp;utm_medium=site&amp;utm_campaign=captacao_profissionais&amp;utm_content=oferta"
+                >Começar teste grátis</a>
+                <small>Cadastro rápido e sem burocracia</small>
+              </div>
             </div>
-              <a
-                href="/cadastro"
-                class="inline-flex w-auto max-w-full items-center justify-center rounded-md bg-green-600 px-8 py-2 text-base font-black text-white transition hover:bg-green-700"
-              >
-                Teste por 60 dias grátis
-              </a>
+          </div>
+        </div>
+      </section>
+
+      <section class="section section-soft" id="duvidas">
+        <div class="container faq">
+          <div>
+            <p class="section-label">Dúvidas frequentes</p>
+            <h2 class="section-title">Antes de começar.</h2>
+            <p class="section-copy">Se preferir, nossa equipe também pode orientar você pelo WhatsApp.</p>
+          </div>
+
+          <div class="faq-list">
+            <details>
+              <summary>Quem pode anunciar no 77Imóveis?</summary>
+              <p>Imobiliárias, construtoras, incorporadoras, corretores autônomos e proprietários de imóveis podem criar uma conta e anunciar.</p>
+            </details>
+            <details>
+              <summary>Como funciona o período grátis?</summary>
+              <p>Os planos profissionais têm 60 dias de teste grátis. Depois desse período, você conclui o pagamento para manter os limites e recursos do plano escolhido.</p>
+            </details>
+            <details>
+              <summary>O interessado fala direto comigo?</summary>
+              <p>Sim. O anúncio pode exibir seu WhatsApp, telefone e formulário de contato, conforme as opções definidas durante o cadastro do imóvel.</p>
+            </details>
+            <details>
+              <summary>Posso anunciar mais de uma modalidade?</summary>
+              <p>Sim. Um mesmo imóvel pode ser anunciado para venda, aluguel, temporada, romaria ou lançamento, com preço específico para cada modalidade.</p>
+            </details>
+            <details>
+              <summary>Proprietário particular paga para anunciar?</summary>
+              <p>Não para o primeiro anúncio ativo. O perfil particular pode manter 1 imóvel ativo gratuitamente, com opção de migrar para um plano profissional se precisar publicar mais.</p>
+            </details>
           </div>
         </div>
       </section>
     </main>
+
+    <footer>
+      <div class="container footer-content">
+        <span>© 2026 77Imóveis · O portal imobiliário do DDD 77.</span>
+        <nav class="footer-links" aria-label="Links do rodapé">
+          <a href="/planos-e-precos">Planos e preços</a>
+          <a href="/entrar">Entrar</a>
+          <a href="/">Ver imóveis</a>
+        </nav>
+      </div>
+    </footer>
+
+    <div class="mobile-cta">
+      <a
+        class="button button-primary"
+        href="/cadastro?utm_source=landing_page&amp;utm_medium=site&amp;utm_campaign=captacao_profissionais&amp;utm_content=sticky_mobile"
+      >Começar agora — 60 dias grátis</a>
+    </div>
   </body>
 </html>
