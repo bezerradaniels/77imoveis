@@ -1,5 +1,7 @@
 # GA4 Analytics Implementation Report
 
+Mapa operacional, nomes amigaveis e receita de importacao do GTM: [`MAPEAMENTO_EVENTOS_GTM_GA4.md`](./MAPEAMENTO_EVENTOS_GTM_GA4.md).
+
 ## Current Analytics Status
 
 - GA4/GTM nao existiam no projeto antes desta implementacao.
@@ -24,7 +26,7 @@
 | `login` | Login concluido sem erro | Secundaria/opcional | `method`, `form_name`, `page_path` | Implementado |
 | `property_create_complete` | Primeiro save/publicacao do anuncio no banco | Primaria | `user_role`, `property_type`, `city`, `state`, `negotiation`, `property_status`, `photo_count` | Implementado |
 | `property_publish_complete` | Publicacao/ativacao concluida | Secundaria | `property_status`, `source_component` | Implementado |
-| `lead_generate` | Formulario de lead enviado com sucesso | Primaria | `form_name`, `property_slug`, `success` | Implementado |
+| `lead_generate` (`generate_lead` no GA4 via GTM) | Formulario de lead enviado com sucesso | Primaria | `form_name`, `property_slug`, `success` | Implementado |
 | `contact_whatsapp_click` | Clique em WhatsApp de imovel/empresa | Primaria | `channel`, `property_slug` ou `company_slug`, `source_component` | Implementado |
 | `phone_click` | Clique em telefone do imovel | Secundaria | `channel`, `property_slug` | Implementado |
 
@@ -97,7 +99,7 @@ Marcar como conversoes primarias no GA4:
 
 - `sign_up`
 - `property_create_complete`
-- `lead_generate`
+- `generate_lead` (origem `lead_generate` no `dataLayer`)
 - `contact_whatsapp_click`
 
 Conversoes secundarias/opcionais:
@@ -130,6 +132,6 @@ Conversoes secundarias/opcionais:
 ## Remaining Recommendations
 
 - Criar eventos customizados/conversoes no GA4 depois do deploy.
-- Se usar GTM, configurar tags GA4 Event lendo os eventos de `dataLayer`.
+- Importar e validar a receita [`gtm/77imoveis-eventos-gtm.json`](./gtm/77imoveis-eventos-gtm.json) no GTM em modo **Mesclar**.
 - Definir naming de audiencias/funis: busca -> imovel -> contato, cadastro -> anuncio -> publicacao, admin/moderacao.
 - Adicionar `email_click` quando houver CTAs `mailto:` publicos.
